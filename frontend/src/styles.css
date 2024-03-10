@@ -1,0 +1,39 @@
+body {
+    background: #292830;
+    color: #ffebbc;
+}
+
+h1 {
+    font-size: 42px;
+}
+
+h3 {
+    font-size: 28;
+}
+
+.header {
+    background: #478388;
+    padding: 2%;
+    margin: -1%;
+}
+
+.crossroad {
+    background: #393742;
+    padding: 5%;
+    margin-top: 10%;
+    margin-left: 25%;
+    margin-right: 25%;
+    align-items: center;
+}
+
+.homepage-button {
+    background-color: #478388;
+    border: none;
+    padding: 30px 50px;
+    margin-left: 25px;
+    margin-right: 25px;
+    display: inline-block;
+    color: #ffebbc;
+    text-decoration: none;
+    font-size: 28px;
+}
