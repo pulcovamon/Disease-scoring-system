@@ -9,31 +9,111 @@ h1 {
 
 h3 {
     font-size: 28;
+    text-align: left;
+}
+
+h4 {
+    font-size: 20px;
+}
+
+p {
+    font-size: 20px;
+    text-align: center;
+}
+
+button {
+    background-color: #478388;
+    border: none;
+    color: #ffebbc;
+}
+
+label {
+    font-size: 20px;
+    padding: 5px;
+}
+
+input {
+    border: none;
+    background-color: #292830;
+    font-size: 20px;
+    color: #ffebbc;
 }
 
 .header {
     background: #478388;
-    padding: 2%;
     margin: -1%;
+    padding: 5px;
 }
 
-.crossroad {
-    background: #393742;
-    padding: 5%;
-    margin-top: 10%;
+.title {
+    margin-left: 2%;
+}
+
+.pagebody {
+    padding: 2%;
     margin-left: 25%;
     margin-right: 25%;
     align-items: center;
 }
 
+.intro {
+    padding: 2%;
+    align-items: center;
+}
+
+.crossroad {
+    background: #393742;
+    padding: 5%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+
+}
+
 .homepage-button {
-    background-color: #478388;
-    border: none;
     padding: 30px 50px;
-    margin-left: 25px;
-    margin-right: 25px;
-    display: inline-block;
-    color: #ffebbc;
     text-decoration: none;
-    font-size: 28px;
+    font-size: 24px;
+}
+
+.classify {
+    background: #393742;
+    padding: 2%;
+}
+
+.classify-button {
+    padding: 10px;
+    margin: 10px;
+    font-size: 20px;
+}
+
+.input-field {
+    display: flex;
+    justify-content: left;
+    gap: 15px;
+}
+
+.input-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.codes-button {
+    font-size: 16px;
+    padding: 5px;
+}
+
+.table-row {
+    font-size: 16px;
+    text-align: center;
+}
+
+.table-input {
+    background-color: #393742;
+    font-size: 16px;
+    margin-left: 15px;
+    margin-right: 15px;
+    width: 85px;
 }
