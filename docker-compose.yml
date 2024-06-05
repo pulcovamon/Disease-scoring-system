@@ -1,0 +1,48 @@
+version: "3"
+
+services:
+  db:
+    image: mysql:8.0.33
+    container_name: db
+    environment:
+      MYSQL_ROOT_PASSWORD: root 
+      MYSQL_DATABASE: AirQuality
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - "db_data:/var/lib/mysql"
+    networks:
+      - data-visualization
+
+  backend:
+    build: ./backend
+    container_name: backend
+    depends_on:
+      - db
+    ports:
+      - "5050:5050"
+    networks:
+      - data-visualization
+    expose:
+      - 5050
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    depends_on:
+      - backend
+    ports:
+      - "127.0.0.1:3000:3000"
+    restart: always
+    networks:
+      - data-visualization
+    expose:
+      - 3000
+
+volumes:
+  db_data:
+
+networks:
+  data-visualization:
