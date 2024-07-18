@@ -5,28 +5,93 @@ services:
     image: mysql:8.0.33
     container_name: db
     environment:
-      MYSQL_ROOT_PASSWORD: root 
-      MYSQL_DATABASE: AirQuality
-      MYSQL_USER: user
-      MYSQL_PASSWORD: pass
+        - MYSQL_ROOT_PASSWORD: root 
+        - MYSQL_DATABASE: ScoringSystem
+        - MYSQL_USER: user
+        - MYSQL_PASSWORD: pass
     ports:
-      - "3306:3306"
+      - "9783:9783"
+    expose:
+      - 9783
     volumes:
       - "db_data:/var/lib/mysql"
     networks:
-      - data-visualization
+      - scoring-system
+    healthcheck:
+      - test: ["CMD", "mysqladmi", "ping", "-h", "localhost"]
+      - timeout: 5s
+      - retiries: 3
 
-  backend:
-    build: ./backend
-    container_name: backend
+  redis:
+    image: redis:alpine
+    container_name: redis
+    environment:
+      - REDIS_PASSWORD: pass
+    ports:
+      - "9147:9147"
+    expose:
+      - 9147
+    volumes:
+      - "redis_data:/var/lib/redis"
+    networks:
+      - scoring-system
+
+  api:
+    build: ./api
+    container_name: api
+    environment:
+      - DB_URL: "mysql+mysqlconnector://root:root@db:9783/ScoringSystem"
+      - REDIS_URL: "redis://root:root@redis:9147"
+    ports:
+      - "9684:9684"
+    expose:
+      - 9684
+    networks:
+      - scoring-system
+    depends_on:
+      - db:
+        condition: service_healthy
+
+  # celery worker
+  worker:
+    build: ./worker
+    container_name: worker
+    environment:
+      - REDIS_URL: "redis://root:root@redis:9147"
+    ports:
+      - "9865:9865"
+    expose:
+      - 9865
+    networks:
+      - scoring-system
+
+  # celery beat - scheduled tasks
+  celerybeat:
+    build: ./celerybeat
+    container_name: celerybeat
+    environment:
+      - REDIS_URL: "redis://root:root@redis:9147"
+    command: /start-celerybeat
     depends_on:
       - db
+      - redis
     ports:
-      - "5050:5050"
-    networks:
-      - data-visualization
+      - "9327:9327"
     expose:
-      - 5050
+      - 9327
+    networks:
+      - scoring-system
+
+  # machine learning models
+  mlmodels:
+    build: ./mlmodels
+    container_name: mlmodels
+    ports:
+      - "9519:9519"
+    expose:
+      - 9519
+    networks:
+      - scoring-system
 
   frontend:
     build: ./frontend
@@ -34,15 +99,54 @@ services:
     depends_on:
       - backend
     ports:
-      - "127.0.0.1:3000:3000"
-    restart: always
+      - "9257:9257"
     networks:
-      - data-visualization
+      - scoring-system
     expose:
-      - 3000
+      - 9257
+
+  flower:
+    build: ./flower
+    container_name: flower
+    environment:
+      - REDIS_URL: "redis://root:root@redis:9147"
+    ports:
+      - "9944:9944"
+    networks:
+      - scoring-system
+    expose:
+      - 9944
+
+  docs:
+    build: ./docs
+    container_name: docs
+    ports:
+      - "9556:99955644"
+    networks:
+      - scoring-system
+    expose:
+      - 9556
+
+
+  proxy:
+    image: nginx:alpine
+    container_name: proxy
+    ports:
+      - "80:80"
+    expose:
+      - 80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - scoring-system
+    depends_on:
+      - api
+      - frontend
 
 volumes:
   db_data:
+  nginx.conf:
+  redis_data:
 
 networks:
-  data-visualization:
+  scoring-system:
