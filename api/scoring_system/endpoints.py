@@ -1,17 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel
-from enum import Enum, auto
+from fastapi.responses import JSONRespons
 
-
-class ModelType(Enum):
-    ordered = auto()
-    unordered = auto()
-
-
-class Data(BaseModel):
-    codes: list[int]
-    model_type: ModelType
+from .import models
 
 
 router = APIRouter()
@@ -37,7 +27,7 @@ def get_result(disease: str, id: int):
 
 @router.post("/{disease}/")
 def predict(
-    disease: str, data: Data):
+    disease: str, data: models.Data):
     match disease:
         case "lung-cancer":
             task_id = 3
@@ -52,3 +42,5 @@ def predict(
         "id": task_id
     }
     return JSONResponse(status_code=202, content=response)
+
+
