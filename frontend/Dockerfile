@@ -1,15 +1,10 @@
-FROM node:18-alpine
-
+FROM node:alpine as builder
 WORKDIR /app
-
-COPY air-pollution /app
-
+COPY . /app
 RUN npm install
-
-EXPOSE 3000
-
 RUN npm run build
 
-RUN npm install -g serve
 
-CMD serve -s build -l 3000
+FROM nginx:alpine
+COPY nginx.conf /etx/nginx/conf.d/defaul.conf
+COPY --from=builder /app/build /usr/share/nginx/html
