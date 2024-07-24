@@ -8,7 +8,7 @@ RUN pip install --upgrade pip
 
 RUN pip install -r requirements.txt
 
-RUN python create_db.py
+#RUN python create_db.py
 
 EXPOSE 9684
 

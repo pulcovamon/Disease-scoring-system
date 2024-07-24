@@ -10,7 +10,7 @@ class Data(SQLModel):
     codes: list[int]
     model_type: ModelType
 
-class DiseaseProcedureCode(SQLModel, table=True):
+'''class DiseaseProcedureCode(SQLModel, table=True):
     __tablename__ = "disease_procedure_codes"
     id: int | None = Field(default=None, primary_key=True)
     disease_id = Field(foreign_key="diseases.id")
@@ -43,4 +43,4 @@ class Disease(SQLModel, table=True):
     __tablename__ = "diseases"
     id: int | None = Field(default=None, primary_key=True)
     name: str = Field()
-    code: str = Field()
+    code: str = Field()'''
