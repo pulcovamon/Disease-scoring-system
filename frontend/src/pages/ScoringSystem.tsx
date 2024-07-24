@@ -1,9 +1,9 @@
 
 import { Form, useNavigate } from "react-router-dom";
-import { useState } from 'react';
-import { Title } from './Components';
+import React, { useState } from 'react';
+import { Title } from '../components/Components';
 
-export default function MainWindow() {
+export default function ScoringSystem() {
     return (<section className="homepage">
         <Title/>
         <PageBody />

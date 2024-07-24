@@ -1,4 +1,6 @@
-export function Header( {text} ) {
+import React from "react";
+
+export function Header({text}: {text: string}) {
     return (
         <div className="header" >
             <h3>{text}</h3>
