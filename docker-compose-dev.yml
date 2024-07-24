@@ -1,0 +1,48 @@
+version: "3"
+
+services:
+  redis_server:
+    image: redis:alpine
+    container_name: redis_server
+    ports:
+      - "6379:6379"
+    expose:
+      - 6379
+    volumes:
+      - "redis_data:/var/lib/redis"
+    networks:
+      - scoring-system
+
+  api:
+    build: ./api
+    container_name: api
+    environment:
+      DB_URL: "mysql+mysqlconnector://root:root@db:9783/ScoringSystem"
+      REDIS_URL: redis://redis_server:6379
+      C_FORCE_ROOT: "true"
+    ports:
+      - "9684:9684"
+    expose:
+      - 9684
+    networks:
+      - scoring-system
+    depends_on:
+      - redis_server
+
+  # celery worker
+  worker:
+    build: ./worker
+    environment:
+      REDIS_URL: redis://redis_server:6379
+      C_FORCE_ROOT: "true"
+    networks:
+      - scoring-system
+    depends_on:
+      - api
+      - redis_server
+
+volumes:
+  redis_data:
+
+networks:
+  scoring-system:
