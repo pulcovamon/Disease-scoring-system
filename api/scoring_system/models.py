@@ -26,19 +26,6 @@ class Data(SQLModel):
     model_type: ModelType
 
 
-class Result(SQLModel, table=True):
-    """
-    Model for '/{id}' GET method (response body).
-    """
-
-    __tablename__ = "results"
-    id: int | None = Field(default=None, primary_key=True)
-    task_id: str
-    disease: str = Field(foreign_key="diseases.id")
-    result: float = Field()
-    time: datetime = Field()
-
-
 """class DiseaseProcedureCode(SQLModel, table=True):
     __tablename__ = "disease_procedure_codes"
     id: int | None = Field(default=None, primary_key=True)

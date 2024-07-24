@@ -52,7 +52,7 @@ services:
       - db:
         condition: service_healthy
 
-  # celery worker
+  # celery worker with ml models simulation
   worker:
     build: ./worker
     container_name: worker
@@ -62,34 +62,6 @@ services:
       - "9865:9865"
     expose:
       - 9865
-    networks:
-      - scoring-system
-
-  # celery beat - scheduled tasks
-  celerybeat:
-    build: ./celerybeat
-    container_name: celerybeat
-    environment:
-      - REDIS_URL: "redis://root:root@redis:9147"
-    command: /start-celerybeat
-    depends_on:
-      - db
-      - redis
-    ports:
-      - "9327:9327"
-    expose:
-      - 9327
-    networks:
-      - scoring-system
-
-  # machine learning models
-  mlmodels:
-    build: ./mlmodels
-    container_name: mlmodels
-    ports:
-      - "9519:9519"
-    expose:
-      - 9519
     networks:
       - scoring-system
 
