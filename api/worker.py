@@ -1,6 +1,6 @@
 import os
-from celery import Celery
 
+from celery import Celery
 
 # celery broker and backend urls
 CELERY_BROKER_URL = os.getenv("REDIS_URL", "redis://redis_server:6379")

@@ -1,7 +1,6 @@
-from fastapi import FastAPI
 import uvicorn
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from scoring_system import endpoints
 
 app = FastAPI(name="scoring-system")

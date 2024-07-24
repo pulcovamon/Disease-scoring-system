@@ -1,16 +1,45 @@
-from sqlmodel import Field, SQLModel
-from typing import Optional
+"""
+Models for ORM and definition of request/response body
+"""
+
 from enum import Enum, auto
+from typing import Optional
+
+from sqlmodel import Field, SQLModel
+
 
 class ModelType(Enum):
+    """
+    ML model can use ordered or unordered data.
+    """
+
     ordered = auto()
     unordered = auto()
 
+
 class Data(SQLModel):
+    """
+    Model for '/{disease}' POST method (request body).
+    """
+
     codes: list[int]
     model_type: ModelType
 
-'''class DiseaseProcedureCode(SQLModel, table=True):
+
+class Result(SQLModel, table=True):
+    """
+    Model for '/{id}' GET method (response body).
+    """
+
+    __tablename__ = "results"
+    id: int | None = Field(default=None, primary_key=True)
+    task_id: str
+    disease: str = Field(foreign_key="diseases.id")
+    result: float = Field()
+    time: datetime = Field()
+
+
+"""class DiseaseProcedureCode(SQLModel, table=True):
     __tablename__ = "disease_procedure_codes"
     id: int | None = Field(default=None, primary_key=True)
     disease_id = Field(foreign_key="diseases.id")
@@ -43,4 +72,4 @@ class Disease(SQLModel, table=True):
     __tablename__ = "diseases"
     id: int | None = Field(default=None, primary_key=True)
     name: str = Field()
-    code: str = Field()'''
+    code: str = Field()"""

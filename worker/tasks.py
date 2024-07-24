@@ -1,16 +1,23 @@
-from typing import List
+"""
+
+"""
+
 import traceback
+from typing import List
+
+import models
 from celery import states
 
 from worker import celery_app
-import models
 
 lung_cancer = models.LungCancer()
 multiple_sclerosis = models.MultipleSclerosis()
 hidradentis_supporativa = models.HidradentisSupporativa()
 
+
 @celery_app.task(name="lung_cancer", bind=True)
 def score_lung_cancer(self, data: List[int]):
+    """ """
     try:
         result = lung_cancer(data)
     except Exception as e:
