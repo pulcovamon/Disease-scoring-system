@@ -4,12 +4,6 @@ import React, { ChangeEvent, useState } from 'react';
 import { Code } from "../interfaces";
 
 export default function ScoringSystem() {
-    return (<section className="homepage">
-        <PageBody />
-    </section>)
-}
-
-function PageBody() {
     const disease = "Lung Cancer"
     const codes = [
         {name: "X-ray", value: "0000"},
@@ -27,6 +21,9 @@ function PageBody() {
     function handleAddCode(code: string) {
         setOrderedCodes(`${orderedCodes} ${code}`);
         setUnorderedCodes(`${unorderedCodes} ${code}`);
+    }
+    function handleClassifyButton(codes: string) {
+        
     }
     return (
         <div className="pagebody">
