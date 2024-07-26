@@ -1,12 +1,10 @@
 
 import { Form, useNavigate } from "react-router-dom";
 import React, { useState } from 'react';
-import { Title } from '../components/Components';
 import { Code } from "../interfaces";
 
 export default function ScoringSystem() {
     return (<section className="homepage">
-        <Title/>
         <PageBody />
     </section>)
 }
