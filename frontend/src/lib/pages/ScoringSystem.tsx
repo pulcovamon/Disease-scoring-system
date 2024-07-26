@@ -1,6 +1,6 @@
 
 import { Form, useNavigate } from "react-router-dom";
-import React, { useState } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { Code } from "../interfaces";
 
 export default function ScoringSystem() {
@@ -16,16 +16,28 @@ function PageBody() {
         {name: "ECG", value: "1111"},
         {name: "Spirometry", value: "2222"}
     ]
+    const [unorderedCodes, setUnorderedCodes]: [string, Function] = useState("")
+    const [orderedCodes, setOrderedCodes]: [string, Function] = useState("")
+    function handleUnorderedChange(value: string) {
+        setUnorderedCodes(value);
+    }
+    function handleOrderedChange(value: string) {
+        setOrderedCodes(value);
+    }
+    function handleAddCode(code: string) {
+        setOrderedCodes(`${orderedCodes} ${code}`);
+        setUnorderedCodes(`${unorderedCodes} ${code}`);
+    }
     return (
         <div className="pagebody">
-            <ClasifyForm disease={disease} modelType="Unordered Inputs Model" />
-            <ClasifyForm disease={disease} modelType="Ordered Inputs Model" />
-            <Codes disease={disease} codes={codes} />
+            <ClasifyForm disease={disease} modelType="Unordered Inputs Model" codes={unorderedCodes} handleChange={handleUnorderedChange} />
+            <ClasifyForm disease={disease} modelType="Ordered Inputs Model" codes={orderedCodes} handleChange={handleOrderedChange} />
+            <Codes disease={disease} codes={codes} handleClick={handleAddCode} />
         </div>
     )
 }
 
-function ClasifyForm({ disease, modelType }: {disease: string, modelType: string}) {
+function ClasifyForm({ disease, modelType, codes, handleChange }: {disease: string, modelType: string, codes: string, handleChange: Function}) {
     function handleClick() {
 
     }
@@ -36,7 +48,7 @@ function ClasifyForm({ disease, modelType }: {disease: string, modelType: string
             </h4>
             <ClasifyButton text="Example Sequence" handleClick={handleClick} />
             <div className="input-field">
-                <ClassifyTextField />
+                <ClassifyTextField text={codes} handleChange={handleChange} />
                 <ClasifyButton text="Classify" handleClick={handleClick} />
             </div>            
         </div>
@@ -51,23 +63,28 @@ function ClasifyButton({ text, handleClick }: {text: string, handleClick: Functi
     )
 }
 
-function ClassifyTextField() {
+function ClassifyTextField({ text, handleChange }: { text: string, handleChange: Function }) {
+    function onChange(event: ChangeEvent<HTMLInputElement>) {
+        if (event.target !== null) {
+            handleChange(event.target.value);
+        }
+    }
     return (
         <div className="input-text">
             <form >
                 <label>Codes</label>
-                <input type="text" />
+                <input type="text" value={text} onChange={onChange} />
             </form>
         </div>
     )
 }
 
-function Codes({ disease, codes }: {disease: string, codes: Code[]}) {
+function Codes({ disease, codes, handleClick }: {disease: string, codes: Code[], handleClick: Function}) {
     const rows = codes.map(code =>
         <tr className="table-row">
             <th>{code.name}</th>
             <th>{code.value}</th>
-            <th><button className="codes-button">Add Code</button></th>
+            <th><button className="codes-button" onClick={() => {handleClick(code.value)}}>Add Code</button></th>
         </tr>
         )
     return (
