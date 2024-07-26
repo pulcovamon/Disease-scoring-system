@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Layout from "./pages/Layout";
-import Home from "./pages/Home";
-import ScoringSystem from "./pages/ScoringSystem";
-import Catalog from "./pages/Catalog";
+import Layout from "./lib/pages/Layout";
+import Home from "./lib/pages/Home";
+import ScoringSystem from "./lib/pages/ScoringSystem";
+import Catalog from "./lib/pages/Catalog";
 import React from "react";
 
 export default function App() {
