@@ -39,8 +39,8 @@ export class Result {
             })
             .catch (error => {
                 if (error instanceof HTTPError) {
-                    this.message = error.message;
-                    console.error(error.message);
+                    this.message = error.getMessage();
+                    console.error(error.getMessage());
                 } else {
                     this.message = "An error occured.";
                     console.error(error);

@@ -67,7 +67,7 @@ export default class HTTPError<
             this.code = code;
         }
 
-        public getmessage() {
+        public getMessage() {
             return this._customMessage ?? this._message;
         }
     }

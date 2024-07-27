@@ -27,10 +27,11 @@ export async function postMethod<Type>(path: string, data: {[key: string]: any})
         headers: {
             accept: "application/json",
             'Content-Type': 'application/json',
-            body: JSON.stringify(data),
-        }
+        },
+        body: JSON.stringify(data),
     }
     const response = await fetch(new URL(path, baseURL), options);
+    console.log(response);
     if (!response.ok) {
         throw new HTTPError({ code: response.status as HttpErrorCode });
     }
