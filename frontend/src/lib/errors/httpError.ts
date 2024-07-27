@@ -1,6 +1,6 @@
 import { CustomError } from 'ts-custom-error';
 
-const httpErrorMessages = {
+export const httpErrorMessages = {
   // 4×× Client Error
   400: 'Bad Request',
   401: 'Unauthorized',

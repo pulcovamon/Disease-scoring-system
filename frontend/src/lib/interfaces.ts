@@ -1,9 +1,11 @@
 import { getMethod, postMethod } from "./api";
 import HTTPError from "./errors/httpError";
 
-export interface ResultData {
-    diseaseName: string
-    value: number
+export interface Task {
+    "status": string;
+    "result": number|null;
+    "task_id": string;
+    "disease": string|null;
 }
 
 export class Result {
@@ -19,9 +21,9 @@ export class Result {
 
     public async getResult() {
         try {
-            return getMethod<ResultData>(this.id)
+            return getMethod<Task>(this.id)
                 .then(response => {
-                    return response as ResultData;
+                    return response as Task;
                 })
         }
         catch (error) {
