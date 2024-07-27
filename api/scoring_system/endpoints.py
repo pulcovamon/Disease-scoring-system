@@ -1,6 +1,7 @@
 """
 API endpoints
 """
+
 import json
 import os
 
@@ -33,30 +34,31 @@ def get_result(id: str):
                 if task with given id does not exist
     """
     task = AsyncResult(id, app=celery_app)
-    if not task:
-        raise HTTPException(
-            status_code=404, detail=f"Task with id {id} does not exist!"
-        )
-    if task.state == "SUCCESS":
-        response = {
-            "status": task.status,
-            "result": task.result[0],
-            "task_id": id,
-            "disease": task.result[1],
-        }
-    elif task.state == "FAILURE":
-        response = json.loads(
-            task.backend.get(
-                task.backend.get_key_for_task(task.id),
-            ).decode("utf-8")
-        )
-    else:
-        response = {
-            "status": task.status,
-            "result": task.info,
-            "task_id": id,
-            "disease": None,
-        }
+    match task.state:
+        case "PENDING":
+            raise HTTPException(
+                status_code=404, detail=f"Task with id {id} does not exist!"
+            )
+        case "SUCCESS":
+            response = {
+                "status": task.status,
+                "result": task.result[0],
+                "task_id": id,
+                "disease": task.result[1],
+            }
+        case "FAILURE":
+            response = json.loads(
+                task.backend.get(
+                    task.backend.get_key_for_task(task.id),
+                ).decode("utf-8")
+            )
+        case _:
+            response = {
+                "status": task.status,
+                "result": task.info,
+                "task_id": id,
+                "disease": None,
+            }
     return JSONResponse(status_code=200, content=response)
 
 

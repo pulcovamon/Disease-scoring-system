@@ -1,11 +1,13 @@
 """
 Celery tasks definition.
 """
+
 import traceback
 from typing import List, Tuple
 
 import models
 from celery import states
+from celery.signals import after_task_publish
 
 from worker import celery_app
 
@@ -14,6 +16,17 @@ from worker import celery_app
 lung_cancer = models.LungCancer()
 multiple_sclerosis = models.MultipleSclerosis()
 hidradentis_supporativa = models.HidradentisSupporativa()
+
+
+@after_task_publish.connect
+def update_sent_state(sender=None, headers=None, **kwargs):
+    """
+    Set celery task state to 'SENT' if in process.
+    """
+    backend = (
+        task.backend if celery_app.tasks.get(sender) else celery_app.backend
+    )
+    backend.store_result(headers["id"], None, "SENT")
 
 
 @celery_app.task(name="lung_cancer", bind=True)
