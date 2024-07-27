@@ -18,7 +18,7 @@ hidradentis_supporativa = models.HidradentisSupporativa()
 
 
 @celery_app.task(name="lung_cancer", bind=True)
-def score_lung_cancer(self, data: List[int]) -> Tuple[str, float]:
+def score_lung_cancer(self, data: List[str]) -> Tuple[str, float]:
     """
     Predict probability of lung cancer.
 
@@ -43,7 +43,7 @@ def score_lung_cancer(self, data: List[int]) -> Tuple[str, float]:
 
 
 @celery_app.task(name="multiple_sclerosis", bind=True)
-def score_multiple_sclerosis(self, data: List[int]):
+def score_multiple_sclerosis(self, data: List[str]):
     """
     Predict probability of multiple sclerosis.
 
@@ -69,7 +69,7 @@ def score_multiple_sclerosis(self, data: List[int]):
 
 
 @celery_app.task(name="hidradentis_supporativa", bind=True)
-def score_hidradentis_supporativa(self, data: List[int]):
+def score_hidradentis_supporativa(self, data: List[str]):
     """
     Predict probability of hidradentis supporativa.
 

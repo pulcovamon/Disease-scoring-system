@@ -12,7 +12,7 @@ class MLModel:
     Base model for all ML models.
     """
     def __init__(self): ...
-    def __call__(self, data: List[int]) -> float:
+    def __call__(self, data: List[str]) -> float:
         """
         Simulate computing time and potential failure.
         Generate random result.
