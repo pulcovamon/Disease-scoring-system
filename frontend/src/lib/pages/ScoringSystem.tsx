@@ -1,7 +1,7 @@
 
 import { Form, useNavigate } from "react-router-dom";
 import React, { ChangeEvent, useState } from 'react';
-import { Code } from "../interfaces";
+import { Code } from "../classes/codes";
 
 export default function ScoringSystem() {
     const disease = "Lung Cancer"

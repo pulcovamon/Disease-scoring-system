@@ -1,8 +1,8 @@
 /**
  * 
  */
-import HTTPError from "./errors/httpError";
-import type { HttpErrorCode } from "./errors/httpError";
+import HTTPError from "./httpError";
+import type { HttpErrorCode } from "./httpError";
 
 const baseURL = "/";
 
