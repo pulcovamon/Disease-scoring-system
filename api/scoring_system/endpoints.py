@@ -16,7 +16,7 @@ from . import models
 router = APIRouter()
 
 
-@router.get("/{id}")
+@router.get("/result/{id}")
 def get_result(id: str):
     """
     Get result from machine learning models.
