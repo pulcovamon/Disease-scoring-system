@@ -1,4 +1,4 @@
-import { getMethod, postMethod } from "./api";
+import { getMethod } from "./api";
 import HTTPError from "./httpError";
 
 interface Task {

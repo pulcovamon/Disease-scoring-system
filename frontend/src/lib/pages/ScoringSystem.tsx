@@ -1,7 +1,8 @@
 
 import { Form, useNavigate } from "react-router-dom";
-import React, { ChangeEvent, useState } from 'react';
-import { Code } from "../classes/codes";
+import React, { ChangeEvent, useState, useEffect } from 'react';
+import { Code, DataSender } from "../classes/data";
+import { baseURL } from "../classes/api";
 
 export default function ScoringSystem() {
     const disease = "Lung Cancer"
@@ -10,8 +11,9 @@ export default function ScoringSystem() {
         {name: "ECG", value: "1111"},
         {name: "Spirometry", value: "2222"}
     ]
-    const [unorderedCodes, setUnorderedCodes]: [string, Function] = useState("")
-    const [orderedCodes, setOrderedCodes]: [string, Function] = useState("")
+    const [unorderedCodes, setUnorderedCodes]: [string, Function] = useState<string>("")
+    const [orderedCodes, setOrderedCodes]: [string, Function] = useState<string>("")
+    const [message, setMessage]: [JSX.Element, Function] = useState<JSX.Element>(<p></p>);
     function handleUnorderedChange(value: string) {
         setUnorderedCodes(value);
     }
@@ -22,40 +24,50 @@ export default function ScoringSystem() {
         setOrderedCodes(`${orderedCodes} ${code}`);
         setUnorderedCodes(`${unorderedCodes} ${code}`);
     }
-    function handleClassifyButton(codes: string) {
-        
+    function handleClassifyButton(codesToSend: string) {
+        const dataSender = new DataSender(codesToSend.split(" "));
+        dataSender.postData()
+            .then(() => {
+                if (dataSender.message != null) {
+                    setMessage(<p>{dataSender.message}</p>);
+                } else if (dataSender.id != null) {
+                    setMessage(<a href={`${baseURL}/${dataSender.id}`}>See your result</a>)
+                } else {
+                    setMessage(<p>An error occured.</p>)
+                }
+            })
     }
     return (
         <div className="pagebody">
-            <ClasifyForm disease={disease} modelType="Unordered Inputs Model" codes={unorderedCodes} handleChange={handleUnorderedChange} />
-            <ClasifyForm disease={disease} modelType="Ordered Inputs Model" codes={orderedCodes} handleChange={handleOrderedChange} />
+            <ClasifyForm disease={disease} modelType="Unordered Inputs Model" codes={unorderedCodes} handleChange={handleUnorderedChange} handleClick={handleClassifyButton} />
+            <ClasifyForm disease={disease} modelType="Ordered Inputs Model" codes={orderedCodes} handleChange={handleOrderedChange} handleClick={handleClassifyButton} />
+            {message}
             <Codes disease={disease} codes={codes} handleClick={handleAddCode} />
         </div>
     )
 }
 
-function ClasifyForm({ disease, modelType, codes, handleChange }: {disease: string, modelType: string, codes: string, handleChange: Function}) {
-    function handleClick() {
-
+function ClasifyForm({ disease, modelType, codes, handleChange, handleClick }: {disease: string, modelType: string, codes: string, handleChange: Function, handleClick: Function}) {
+    function onClick() {
+        handleClick(codes);
     }
     return (
         <div className="classify">
             <h4>
                 {modelType} for prediction of {disease}
             </h4>
-            <ClasifyButton text="Example Sequence" handleClick={handleClick} />
             <div className="input-field">
                 <ClassifyTextField text={codes} handleChange={handleChange} />
-                <ClasifyButton text="Classify" handleClick={handleClick} />
+                <ClasifyButton text="Classify" onClick={onClick} />
             </div>            
         </div>
     )
 }
 
-function ClasifyButton({ text, handleClick }: {text: string, handleClick: Function}) {
+function ClasifyButton({ text, onClick }: {text: string, onClick: Function}) {
     return (
         <div>
-        <button className="classify-button" >{text}</button>
+        <button className="classify-button" onClick={() => onClick()} >{text}</button>
         </div>
     )
 }

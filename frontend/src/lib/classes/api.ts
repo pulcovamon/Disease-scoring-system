@@ -4,7 +4,7 @@
 import HTTPError from "./httpError";
 import type { HttpErrorCode } from "./httpError";
 
-const baseURL = "http://0.0.0.0:9684/";
+export const baseURL = "http://0.0.0.0:9684/";
 
 export async function getMethod<Type>(path: string): Promise<Type> {
     const options = {
@@ -17,7 +17,7 @@ export async function getMethod<Type>(path: string): Promise<Type> {
     if (!response.ok) {
         throw new HTTPError({ code: response.status as HttpErrorCode });
     }
-    return response.json();
+    return response.json() as Type;
 }
 
 
@@ -31,9 +31,8 @@ export async function postMethod<Type>(path: string, data: {[key: string]: any})
         body: JSON.stringify(data),
     }
     const response = await fetch(new URL(path, baseURL), options);
-    console.log(response);
     if (!response.ok) {
         throw new HTTPError({ code: response.status as HttpErrorCode });
     }
-    return response.json();
+    return response.json() as Type;
 }
