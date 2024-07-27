@@ -19,7 +19,7 @@ interface Data {
 }
 
 interface Identificator {
-    detail: string;
+    id: string;
 }
 
 export class DataSender {
@@ -40,7 +40,7 @@ export class DataSender {
         return postMethod<Identificator>(this.disease, this.data)
             .then((response) => {
                 const indentificator = response as Identificator;
-                this.id = indentificator.detail;
+                this.id = indentificator.id;
             })
             .catch (error => {
                 if (error instanceof HTTPError) {

@@ -19,7 +19,7 @@ export class Result {
     }
 
     public async getResult() {
-        return getMethod<Task>(this.id)
+        return getMethod<Task>(`result/${this.id}`)
             .then(response => {
                 const task = response as Task;
                 switch (task.status) {

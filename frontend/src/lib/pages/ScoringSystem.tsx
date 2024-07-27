@@ -1,8 +1,6 @@
 
-import { Form, useNavigate } from "react-router-dom";
-import React, { ChangeEvent, useState, useEffect } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { Code, DataSender } from "../classes/data";
-import { baseURL } from "../classes/api";
 
 export default function ScoringSystem() {
     const disease = "Lung Cancer"
@@ -31,7 +29,7 @@ export default function ScoringSystem() {
                 if (dataSender.message != null) {
                     setMessage(<p>{dataSender.message}</p>);
                 } else if (dataSender.id != null) {
-                    setMessage(<a href={`${baseURL}/${dataSender.id}`}>See your result</a>)
+                    setMessage(<a href={`http://localhost:3000/result/${dataSender.id}`}>See your result</a>)
                 } else {
                     setMessage(<p>An error occured.</p>)
                 }

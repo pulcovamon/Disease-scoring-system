@@ -13,7 +13,7 @@ export default function ResultPage() {
                 if (result.message != null) {
                     setMessage(result.message);
                 } else if (result.value != null) {
-                    setMessage(`Probability of ${result.diseaseName} presence is ${result.value * 100} %.`);
+                    setMessage(`Probability of ${result.diseaseName} presence is ${result.value * 100} %. Your result will be available for 24 hours.`);
                 } else {
                     setMessage("An error occurred.");
                 }
@@ -22,9 +22,9 @@ export default function ResultPage() {
                 setMessage("An error occurred.");
                 console.error(error);
             });
-    }, []);
+    }, [id]);
 
     return (
-        <h1>{message}</h1>
+        <h4>{message}</h4>
     );
 }
