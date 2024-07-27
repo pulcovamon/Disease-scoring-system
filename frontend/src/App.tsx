@@ -4,6 +4,7 @@ import Home from "./lib/pages/Home";
 import ScoringSystem from "./lib/pages/ScoringSystem";
 import Catalog from "./lib/pages/Catalog";
 import React from "react";
+import ResultPage from "./lib/pages/ResultPage";
 
 export default function App() {
   return (
@@ -12,7 +13,8 @@ export default function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="scoring-system" element={<ScoringSystem />} />
-          <Route path="catalog" element={<Catalog />} /> 
+          <Route path="catalog" element={<Catalog />} />
+          <Route path="result/:id" element={<ResultPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

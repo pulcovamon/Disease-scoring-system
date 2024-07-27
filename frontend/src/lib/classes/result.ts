@@ -19,7 +19,7 @@ export class Result {
     }
 
     public async getResult() {
-        getMethod<Task>(this.id)
+        return getMethod<Task>(this.id)
             .then(response => {
                 const task = response as Task;
                 switch (task.status) {
@@ -27,11 +27,11 @@ export class Result {
                         this.value = task.result;
                         this.diseaseName = task.disease;
                         break;
-                    case "PENDING":
-                        this.message = "Your request is pending, please try it later."
+                    case "SENT":
+                        this.message = "Your request is pending, please try it later.";
                         break;
                     case "FAILURE":
-                        this.message = "An error occured during computation."
+                        this.message = "An error occured during computation.";
                         break;
                     default:
                         this.message = `Your request is in ${task.status} state.`;
