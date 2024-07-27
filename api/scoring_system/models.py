@@ -22,8 +22,8 @@ class Data(SQLModel):
     Model for '/{disease}' POST method (request body).
     """
 
-    codes: list[int]
-    model_type: ModelType
+    codes: list[str]
+    model_type: str
 
 
 """class DiseaseProcedureCode(SQLModel, table=True):
