@@ -32,7 +32,7 @@ def get_result(id: str):
         HTTP exeption with status code 404:
                 if task with given id does not exist
     """
-    task, disease_name = AsyncResult(id, app=celery_app)
+    task = AsyncResult(id, app=celery_app)
     if not task:
         raise HTTPException(
             status_code=404, detail=f"Task with id {id} does not exist!"
@@ -40,9 +40,9 @@ def get_result(id: str):
     if task.state == "SUCCESS":
         response = {
             "status": task.status,
-            "result": task.result,
+            "result": task.result[0],
             "task_id": id,
-            "disease": disease_name,
+            "disease": task.result[1],
         }
     elif task.state == "FAILURE":
         response = json.loads(
@@ -55,7 +55,7 @@ def get_result(id: str):
             "status": task.status,
             "result": task.info,
             "task_id": id,
-            "disease": disease_name,
+            "disease": None,
         }
     return JSONResponse(status_code=200, content=response)
 
