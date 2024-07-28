@@ -4,18 +4,21 @@ import { Result } from "../classes/result";
 
 export default function ResultPage() {
     const { id } = useParams<{ id: string}>();
-    const [message, setMessage] = useState<string>("");
+    const [message, setMessage]: [JSX.Element, Function] = useState<JSX.Element>(<p></p>);
 
     useEffect(() => {
         const result = new Result(id || "");
         result.getResult()
             .then(() => {
                 if (result.message != null) {
-                    setMessage(result.message);
+                    setMessage(<p className="error">{result.message}</p>);
                 } else if (result.value != null) {
-                    setMessage(`Probability of ${result.diseaseName} presence is ${result.value * 100} %. Your result will be available for 24 hours.`);
+                    setMessage(<>
+                        <p className="result-value">{`Probability of ${result.diseaseName} presence is ${result.value * 100} %.`}</p>
+                        <p className="note"> Your result will be available for 24 hours.</p>
+                    </>);
                 } else {
-                    setMessage("An error occurred.");
+                    setMessage(<p className="error">"An error occurred."</p>);
                 }
             })
             .catch(error => {
@@ -25,6 +28,10 @@ export default function ResultPage() {
     }, [id]);
 
     return (
-        <h4>{message}</h4>
+        <div className="pagebody">
+            <div className="page-content">
+                {message}
+            </div>
+        </div>
     );
 }
