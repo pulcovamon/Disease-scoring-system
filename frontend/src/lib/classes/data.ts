@@ -2,49 +2,49 @@ import { postMethod } from "./api";
 import HTTPError from "./httpError";
 
 const modelType = {
-    unordered: "unordered",
-    ordered: "ordered"
+  unordered: "unordered",
+  ordered: "ordered",
 } as const;
 
 type ModelType = keyof typeof modelType;
 
 interface Data {
-    codes: string[];
-    model_type: ModelType;
+  codes: string[];
+  model_type: ModelType;
 }
 
 interface Identificator {
-    id: string;
+  id: string;
 }
 
 export class DataSender {
-    private data: Data;
-    private disease: string;
-    public id: string|null = null;
-    public message: string|null = null;
+  private data: Data;
+  private disease: string;
+  public id: string | null = null;
+  public message: string | null = null;
 
-    constructor(codes: string[]) {
-        this.data = {
-            codes: codes,
-            model_type: "unordered",
+  constructor(codes: string[]) {
+    this.data = {
+      codes: codes,
+      model_type: "unordered",
+    };
+    this.disease = "lung_cancer";
+  }
+
+  public async postData() {
+    return postMethod<Identificator>(this.disease, this.data)
+      .then((response) => {
+        const indentificator = response as Identificator;
+        this.id = indentificator.id;
+      })
+      .catch((error) => {
+        if (error instanceof HTTPError) {
+          this.message = error.getMessage();
+          console.error(error.getMessage());
+        } else {
+          this.message = "An error occured.";
+          console.error(error);
         }
-        this.disease = "lung_cancer";
-    }
-    
-    public async postData() {
-        return postMethod<Identificator>(this.disease, this.data)
-            .then((response) => {
-                const indentificator = response as Identificator;
-                this.id = indentificator.id;
-            })
-            .catch (error => {
-                if (error instanceof HTTPError) {
-                    this.message = error.getMessage();
-                    console.error(error.getMessage());
-                } else {
-                    this.message = "An error occured.";
-                    console.error(error);
-                }
-            })
-    }
+      });
+  }
 }
