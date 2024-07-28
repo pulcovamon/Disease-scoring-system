@@ -52,18 +52,10 @@ a {
     color: #ffebbc;
 }
 
-a:hover {
-    color: aqua;
-}
-
 .header {
     background: #478388;
     margin: -1%;
     padding: 5px;
-}
-
-.title {
-    margin-left: 2%;
 }
 
 .pagebody {
@@ -72,17 +64,6 @@ a:hover {
     margin-right: 25%;
     margin-top: 1%;
     align-items: center;
-}
-
-.intro {
-    padding: 2%;
-    align-items: center;
-}
-
-.homepage-button {
-    padding: 30px 50px;
-    text-decoration: none;
-    font-size: 24px;
 }
 
 .page-content {
@@ -138,6 +119,10 @@ a:hover {
     font-size: 24px;
 }
 
+.navbar-item:hover {
+    color: #294d50;
+}
+
 .result {
     font-size: 24px;
 }
@@ -164,5 +149,15 @@ a:hover {
 }
 
 .diseases:hover {
+    background-color: #294d50;
+}
+
+.link-button {
+    border: none;
+    background-color: #478388;
+    padding: 1%;
+}
+
+.link-button:hover {
     background-color: #294d50;
 }

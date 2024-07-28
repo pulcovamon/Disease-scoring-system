@@ -12,7 +12,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path="scoring-system" element={<ScoringSystem />} />
+          <Route path="score" element={<ScoringSystem />} />
           <Route path="catalog" element={<Catalog />} />
           <Route path="result/:id" element={<ResultPage />} />
         </Route>
