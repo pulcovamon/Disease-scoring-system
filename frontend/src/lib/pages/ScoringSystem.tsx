@@ -3,17 +3,19 @@ import React, { useState } from 'react';
 import { DataSender } from "../classes/data";
 import ClasifyForm from '../components/ClassifyForm';
 import Codes from '../components/Codes';
+import DiseaseDropdown from '../components/DiseaseDropdown';
+import { DiseaseType, diseases } from '../classes/disease';
 
 export default function ScoringSystem() {
-    const disease = "Lung Cancer"
-    const codes = [
-        {name: "X-ray", value: "0000"},
-        {name: "ECG", value: "1111"},
-        {name: "Spirometry", value: "2222"}
-    ]
+    const [disease, setDisease]: [DiseaseType, Function] = useState<DiseaseType>(DiseaseType.LungCancer);
     const [unorderedCodes, setUnorderedCodes]: [string, Function] = useState<string>("")
     const [orderedCodes, setOrderedCodes]: [string, Function] = useState<string>("")
     const [message, setMessage]: [JSX.Element, Function] = useState<JSX.Element>(<p></p>);
+    function handleDiseaseChange(diseaseType: DiseaseType) {
+        setDisease(diseaseType);
+        setUnorderedCodes("");
+        setOrderedCodes("");
+    }
     function handleUnorderedChange(value: string) {
         setUnorderedCodes(value);
     }
@@ -39,10 +41,11 @@ export default function ScoringSystem() {
     }
     return (
         <div className="pagebody">
+            <DiseaseDropdown currentDisease={disease} handleChange={handleDiseaseChange} />
             <ClasifyForm disease={disease} modelType="Unordered Inputs Model" codes={unorderedCodes} handleChange={handleUnorderedChange} handleClick={handleClassifyButton} />
             <ClasifyForm disease={disease} modelType="Ordered Inputs Model" codes={orderedCodes} handleChange={handleOrderedChange} handleClick={handleClassifyButton} />
             {message}
-            <Codes disease={disease} codes={codes} handleClick={handleAddCode} />
+            <Codes codes={diseases[disease].codes} handleClick={handleAddCode} />
         </div>
     )
 }

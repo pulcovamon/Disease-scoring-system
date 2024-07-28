@@ -70,6 +70,7 @@ a:hover {
     padding: 2%;
     margin-left: 25%;
     margin-right: 25%;
+    margin-top: 1%;
     align-items: center;
 }
 
@@ -151,4 +152,17 @@ a:hover {
 
 .note {
     font-size: 18px;
+}
+
+.diseases {
+    border: none;
+    background-color: #478388;
+    font-size: 20px;
+    color: #ffebbc;
+    padding: 10px;
+    margin: 10px;
+}
+
+.diseases:hover {
+    background-color: #294d50;
 }

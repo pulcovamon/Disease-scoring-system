@@ -1,7 +1,7 @@
 import React, { useState, ChangeEvent } from 'react';
-import { Code } from "../classes/data";
+import { Code } from "../classes/disease";
 
-export default function Codes({ disease, codes, handleClick }: {disease: string, codes: Code[], handleClick: Function}) {
+export default function Codes({ codes, handleClick }: {codes: Code[], handleClick: Function}) {
     const [customValue, setCustomValue]: [string, Function] = useState("");
     function handleChange(event: ChangeEvent<HTMLInputElement>) {
         if (event.target !== null) {
@@ -18,7 +18,7 @@ export default function Codes({ disease, codes, handleClick }: {disease: string,
     return (
         <div className="codes">
             <h4>
-                Codes for {disease}
+                Codes
             </h4>
             <table>
                 {rows}

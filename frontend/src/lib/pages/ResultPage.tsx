@@ -14,7 +14,7 @@ export default function ResultPage() {
                     setMessage(<p className="error">{result.message}</p>);
                 } else if (result.value != null) {
                     setMessage(<>
-                        <p className="result-value">{`Probability of ${result.diseaseName} presence is ${result.value * 100} %.`}</p>
+                        <p className="result-value">{`Probability of ${result.diseaseName} presence is ${(result.value * 100).toFixed(1)} %.`}</p>
                         <p className="note"> Your result will be available for 24 hours.</p>
                     </>);
                 } else {

@@ -1,11 +1,6 @@
 import { postMethod } from "./api";
 import HTTPError from "./httpError";
 
-export interface Code {
-    name: string
-    value: string
-}
-
 const modelType = {
     unordered: "unordered",
     ordered: "ordered"

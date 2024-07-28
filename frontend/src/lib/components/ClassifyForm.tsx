@@ -1,13 +1,14 @@
 import React, { ChangeEvent } from 'react';
+import { DiseaseType } from '../classes/disease';
 
-export default function ClasifyForm({ disease, modelType, codes, handleChange, handleClick }: {disease: string, modelType: string, codes: string, handleChange: Function, handleClick: Function}) {
+export default function ClasifyForm({ disease, modelType, codes, handleChange, handleClick }: {disease: DiseaseType, modelType: string, codes: string, handleChange: Function, handleClick: Function}) {
     function onClick() {
         handleClick(codes);
     }
     return (
         <div className="page-content">
             <h4>
-                {modelType} for prediction of {disease}
+                {modelType}
             </h4>
             <div className="input-field">
                 <ClassifyTextField text={codes} handleChange={handleChange} />
