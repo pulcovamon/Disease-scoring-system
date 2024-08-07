@@ -10,6 +10,6 @@ RUN pip install -r requirements.txt
 
 #RUN python create_db.py
 
-EXPOSE 9684
+EXPOSE 8000
 
 CMD ["python", "main.py"]
