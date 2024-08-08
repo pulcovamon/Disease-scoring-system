@@ -1,9 +1,6 @@
-version: "3"
-
 services:
   catalog_db:
     image: mysql:8.0.33
-    container_name: catalog_db
     environment:
       MYSQL_ROOT_PASSWORD: "pass"
       MYSQL_DATABASE: "ScoringSystem"
@@ -11,8 +8,6 @@ services:
       MYSQL_PASSWORD: "password"
     ports:
       - "3306:3306"
-    expose:
-      - 3306
     volumes:
       - "catalog_data:/var/lib/mysql"
     networks:
@@ -24,7 +19,8 @@ services:
 
   redis_server:
     image: redis:alpine
-    container_name: redis_server
+    environment:
+      REDIS_PASSWORD: pass
     ports:
       - "6379:6379"
     volumes:
@@ -34,7 +30,6 @@ services:
 
   api:
     build: ./api
-    container_name: api
     environment:
       DB_URL: "mysql+mysqlconnector://root:pass@catalog_db:3306/ScoringSystem"
       REDIS_URL: "redis://redis_server:6379"

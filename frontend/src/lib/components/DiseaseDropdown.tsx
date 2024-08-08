@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { ChangeEvent } from "react";
 import { diseases, DiseaseType } from "../classes/disease";
 
 export default function DiseaseDropdown({

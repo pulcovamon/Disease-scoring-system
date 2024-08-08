@@ -3,34 +3,26 @@ version: "3"
 services:
   db:
     image: mysql:8.0.33
-    container_name: db
+    container_name: catalog_db
     environment:
-        - MYSQL_ROOT_PASSWORD: root 
-        - MYSQL_DATABASE: ScoringSystem
-        - MYSQL_USER: user
-        - MYSQL_PASSWORD: pass
+      MYSQL_ROOT_PASSWORD: "pass"
+      MYSQL_DATABASE: "ScoringSystem"
+      MYSQL_USER: "user"
+      MYSQL_PASSWORD: "password"
     ports:
-      - "9783:9783"
-    expose:
-      - 9783
+      - "3305:3305"
     volumes:
       - "db_data:/var/lib/mysql"
     networks:
       - scoring-system
-    healthcheck:
-      - test: ["CMD", "mysqladmi", "ping", "-h", "localhost"]
-      - timeout: 5s
-      - retiries: 3
 
   redis:
     image: redis:alpine
-    container_name: redis
+    container_name: scoring_system_redis
     environment:
-      - REDIS_PASSWORD: pass
+      REDIS_PASSWORD: pass
     ports:
-      - "9147:9147"
-    expose:
-      - 9147
+      - "6379:6379"
     volumes:
       - "redis_data:/var/lib/redis"
     networks:
@@ -38,75 +30,41 @@ services:
 
   api:
     build: ./api
-    container_name: api
+    container_name: scoring_system_api
     environment:
-      - DB_URL: "mysql+mysqlconnector://root:root@db:9783/ScoringSystem"
-      - REDIS_URL: "redis://root:root@redis:9147"
+      DB_URL: "mysql+mysqlconnector://root:pass@catalog_db:3305/ScoringSystem"
+      REDIS_URL: "redis://redis_server:6379"
+      C_FORCE_ROOT: "true"
     ports:
-      - "9684:9684"
-    expose:
-      - 9684
+      - "8080:8080"
     networks:
       - scoring-system
     depends_on:
-      - db:
-        condition: service_healthy
+      - db
 
   # celery worker with ml models simulation
   worker:
     build: ./worker
-    container_name: worker
+    container_name: scoring_system_worker
     environment:
-      - REDIS_URL: "redis://root:root@redis:9147"
-    ports:
-      - "9865:9865"
-    expose:
-      - 9865
+      REDIS_URL: "redis://redis_server:6379"
+      C_FORCE_ROOT: "true"
     networks:
       - scoring-system
 
   frontend:
     build: ./frontend
-    container_name: frontend
-    depends_on:
-      - backend
+    container_name: scoring_system_frontend
     ports:
-      - "9257:9257"
+      - "3000:3000"
     networks:
       - scoring-system
-    expose:
-      - 9257
-
-  flower:
-    build: ./flower
-    container_name: flower
-    environment:
-      - REDIS_URL: "redis://root:root@redis:9147"
-    ports:
-      - "9944:9944"
-    networks:
-      - scoring-system
-    expose:
-      - 9944
-
-  docs:
-    build: ./docs
-    container_name: docs
-    ports:
-      - "9556:99955644"
-    networks:
-      - scoring-system
-    expose:
-      - 9556
-
 
   proxy:
     image: nginx:alpine
-    container_name: proxy
+    container_name: scoring_system_proxy
     ports:
-      - "80:80"
-    expose:
-      - 80
+      - "9123:9123"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
     networks:

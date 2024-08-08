@@ -4,7 +4,7 @@
 import HTTPError from "./httpError";
 import type { HttpErrorCode } from "./httpError";
 
-export const baseURL = "http://0.0.0.0:9684/";
+export const baseURL = "http://0.0.0.0:8000/";
 
 export async function getMethod<Type>(path: string): Promise<Type> {
   const options = {
