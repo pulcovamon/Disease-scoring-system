@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { PatientList } from "../classes/patient";
+import { Patient, PatientList } from "../classes/patient";
 
 export default function Catalog() {
-  const [patients, setPatients] = useState<number[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
   const [message, setMessage]: [JSX.Element, Function] = useState<JSX.Element>(
     <p></p>
   );
@@ -28,16 +28,23 @@ export default function Catalog() {
   const patientTable = patients.map((patient) =>{
     return <tr>
       <td>
-        <a href={`/catalog/${patient}`}>{patient}</a>
+        <a href={`/catalog/${patient.catalog_id}`}>{patient.catalog_id}</a>
+      </td>
+      <td>
+        {patient.codes.slice(0, patient.codes.length < 5 ? patient.codes.length : 5).map((code) => {
+            return <span className="code-table">{code}</span>
+        })}
+        {patient.codes.length < 5 ? "" : "..."}
       </td>
     </tr>
   })
   return (
-    <div className="pagebody">
+    <div className="catalog-pagebody">
       {message}
-    <table>
+    <table className="catalog-table">
       <tr>
         <th>Patient ID</th>
+        <th>Codes</th>
       </tr>
       {patientTable}
     </table>

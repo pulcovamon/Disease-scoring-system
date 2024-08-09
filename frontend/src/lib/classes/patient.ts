@@ -46,11 +46,11 @@ export  class PatientDetail {
 }
 
 export class PatientList {
-    public patients: number[] = [];
+    public patients: Patient[] = [];
     public message: string | null = null;
 
     public async getPatients() {
-        return getMethod<number[]>("/catalog/lung-cancer")
+        return getMethod<Patient[]>("/catalog/lung-cancer")
           .then((response) => {
             this.patients = response;
           })
