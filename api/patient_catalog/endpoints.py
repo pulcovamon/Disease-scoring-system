@@ -21,9 +21,9 @@ def get_lung_cancer_catalog() -> Page[models.Patient]:
 
 @router.get("/catalog/lung-cancer")
 async def get_lung_cancer_catalog():
-    data = database.get_patient_ids()
+    data = database.get_patients()
     if not data:
-        raise HTTPException(status_code=404, detail="IDs not found!",)
+        data = []
     return JSONResponse(content=jsonable_encoder(data), status_code=200)
 
 

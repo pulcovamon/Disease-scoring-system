@@ -34,9 +34,9 @@ class CatalogDatabase:
 
 
     @session_wrapper
-    def get_patient_ids(self, session):
+    def get_patients(self, session):
         statement = select(models.PatientDatabase)
-        return [patient.catalog_id for patient in session.exec(statement)]
+        return [self.get_patient_by_id(patient.catalog_id) for patient in session.exec(statement)]
 
 
     @session_wrapper
