@@ -12,16 +12,37 @@ interface Icd10 {
 }
 
 export interface Patient {
-    id: number;
+    catalog_id: number;
     codes: string[];
-    active_pahse: ActivePhase;
+    active_phase: ActivePhase;
     icd10_multiclass: Icd10;
     icd10_binary: Icd10
 }
 
 export  class PatientDetail {
+    private id: number | null = null;
     public patient: Patient | null = null;
     public message: string | null = null;
+
+    public constructor(id: number) {
+      this.id = id;
+    }
+
+    public async getPatient() {
+      return getMethod<Patient>(`/catalog/lung-cancer/${this.id}`)
+        .then((response) => {
+          this.patient = response;
+        })
+        .catch((error) => {
+          if (error instanceof HTTPError) {
+              this.message = error.getMessage();
+              console.error(error.getMessage());
+            } else {
+              this.message = "An error occured.";
+              console.error(error);
+            }
+        })
+  }
 }
 
 export class PatientList {

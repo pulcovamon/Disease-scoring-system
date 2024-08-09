@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Patient, PatientList } from "../classes/patient";
+import { PatientList } from "../classes/patient";
 
 export default function Catalog() {
   const [patients, setPatients] = useState<number[]>([]);
@@ -28,7 +28,7 @@ export default function Catalog() {
   const patientTable = patients.map((patient) =>{
     return <tr>
       <td>
-        <a href="#">{patient}</a>
+        <a href={`/catalog/${patient}`}>{patient}</a>
       </td>
     </tr>
   })
