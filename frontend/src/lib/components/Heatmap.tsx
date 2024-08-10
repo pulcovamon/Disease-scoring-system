@@ -2,15 +2,16 @@ import React from "react";
 import { Patient } from "../classes/patient";
 import HeatMapRow from "./HeatmapRow";
 
-export default function PatientCodes({ patient }: { patient: Patient }) {
+export default function Heatmap({ patient, titleVisible }: { patient: Patient, titleVisible: boolean }) {
+    const header = [...Array(patient.active_phase.ground_truth.length + 1)]
     return (
         <div className="page-content">
-            <h1>Ground-truth X Prediction</h1>
+            {titleVisible ? <h1>Ground-truth X Prediction</h1> : ""}
             <table className="heatmap">
                 <thead>
                     <tr>
                         <th>Category</th>
-                        {patient.icd10_multiclass.ground_truth.map((_, index) => (
+                        {header.map((_, index) => (
                             <th key={index}>{index === 0 ? "" : index}</th>
                         ))}
                     </tr>

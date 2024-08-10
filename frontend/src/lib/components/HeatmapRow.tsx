@@ -2,7 +2,7 @@ import React from "react";
 
  export default function HeatMapRow({ categoryName, groundTruth, prediction }: { categoryName: string, groundTruth: string[] | boolean[], prediction: string[] | boolean[] } ) {
     return (
-        <tr>
+        <tr className="heatmap-row">
             <th>{categoryName}</th>
             <td>
             <div className="icd10-legend">

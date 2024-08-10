@@ -197,6 +197,11 @@ a {
     flex-direction: column;
     padding: 10px;
     font-size: 12px;
+    background-color: #393742;
+}
+
+.heatmap-row td {
+    background-color: #393742;
 }
 
 .heatmap {
@@ -228,6 +233,11 @@ a {
 .catalog-table th {
     background-color: #393742;
     font-weight: bold;
+    height: 40px;
+}
+
+.catalog-table td {
+    height: 30px;
 }
 
 .catalog-table tr:nth-child(even) {
@@ -240,4 +250,29 @@ a {
 
 .catalog-table tr:hover {
     background-color: #478388;
+}
+
+.catalog-preview {
+    background-color: #393742;
+}
+
+.detail .catalog-preview {
+    visibility: hidden;
+    text-align: center;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+}
+
+.detail:hover .catalog-preview {
+    visibility: visible;
+    background-color: #393742;
+}
+
+.detail-text:hover .catalog-preview {
+    visibility: visible;
+}
+
+.catalog-table .heatmap {
+    font-size: 12px;
 }

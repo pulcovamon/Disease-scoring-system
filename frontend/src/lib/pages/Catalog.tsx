@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Patient, PatientList } from "../classes/patient";
+import Heatmap from "../components/Heatmap";
+import PatientCodes from "../components/PatientCodes";
 
 export default function Catalog() {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -28,13 +30,20 @@ export default function Catalog() {
   const patientTable = patients.map((patient) =>{
     return <tr>
       <td>
-        <a href={`/catalog/${patient.catalog_id}`}>{patient.catalog_id}</a>
+      <div className="detail">
+        <span>
+          <a href={`/catalog/${patient.catalog_id}`}>{patient.catalog_id}</a>
+        </span>
+          <div className="catalog-preview">
+            <Heatmap patient={patient} titleVisible={false} />
+          </div>
+        </div>
       </td>
       <td>
-        {patient.codes.slice(0, patient.codes.length < 5 ? patient.codes.length : 5).map((code) => {
-            return <span className="code-table">{code}</span>
-        })}
-        {patient.codes.length < 5 ? "" : "..."}
+          {patient.codes.slice(0, patient.codes.length < 5 ? patient.codes.length : 5).map((code) => {
+              return <span className="code-table">{code}</span>
+          })}
+          {patient.codes.length < 5 ? "" : "..."}
       </td>
     </tr>
   })

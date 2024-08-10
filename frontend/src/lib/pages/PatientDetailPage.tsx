@@ -38,8 +38,8 @@ export default function PatientDetailPage() {
 
     const content = patient ? (
         <>
-        <PatientCodes patient={patient} />
-        <Heatmap patient={patient} />
+        <PatientCodes patient={patient} titleVisible={true} />
+        <Heatmap patient={patient} titleVisible={true} />
         </>
     ) : (
         message
