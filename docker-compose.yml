@@ -1,51 +1,52 @@
 version: "3"
 
 services:
-  db:
+  catalog_db:
     image: mysql:8.0.33
-    container_name: catalog_db
     environment:
       MYSQL_ROOT_PASSWORD: "pass"
       MYSQL_DATABASE: "ScoringSystem"
       MYSQL_USER: "user"
       MYSQL_PASSWORD: "password"
     ports:
-      - "3305:3305"
+      - "3306:3306"
     volumes:
-      - "db_data:/var/lib/mysql"
+      - "catalog_data:/var/lib/mysql"
     networks:
       - scoring-system
+    healthcheck:
+        test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+        timeout: 10s
+        retries: 10
 
-  redis:
+  redis_server:
     image: redis:alpine
-    container_name: scoring_system_redis
     environment:
       REDIS_PASSWORD: pass
     ports:
       - "6379:6379"
     volumes:
-      - "redis_data:/var/lib/redis"
+      - "redis_data:/data"
     networks:
       - scoring-system
 
   api:
     build: ./api
-    container_name: scoring_system_api
     environment:
-      DB_URL: "mysql+mysqlconnector://root:pass@catalog_db:3305/ScoringSystem"
+      DB_URL: "mysql+mysqlconnector://root:pass@catalog_db:3306/ScoringSystem"
       REDIS_URL: "redis://redis_server:6379"
       C_FORCE_ROOT: "true"
+    depends_on:
+      catalog_db:
+        condition: service_healthy
     ports:
       - "8080:8080"
     networks:
       - scoring-system
-    depends_on:
-      - db
 
   # celery worker with ml models simulation
   worker:
     build: ./worker
-    container_name: scoring_system_worker
     environment:
       REDIS_URL: "redis://redis_server:6379"
       C_FORCE_ROOT: "true"
@@ -54,15 +55,13 @@ services:
 
   frontend:
     build: ./frontend
-    container_name: scoring_system_frontend
     ports:
       - "3000:3000"
     networks:
       - scoring-system
 
   proxy:
-    image: nginx:alpine
-    container_name: scoring_system_proxy
+    image: nginx:alpine 
     ports:
       - "9123:9123"
     volumes:
@@ -74,7 +73,7 @@ services:
       - frontend
 
 volumes:
-  db_data:
+  catalog_data:
   nginx.conf:
   redis_data:
 
