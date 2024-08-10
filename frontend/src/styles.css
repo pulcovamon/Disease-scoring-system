@@ -1,6 +1,8 @@
 body {
     background: #292830;
     color: #ffebbc;
+    margin: 0;
+    padding: 0;
 }
 
 #root {
@@ -253,7 +255,7 @@ a {
 }
 
 .catalog-preview {
-    background-color: #393742;
+    background-color: black;
 }
 
 .detail .catalog-preview {
@@ -261,12 +263,16 @@ a {
     text-align: center;
     padding: 5px 0;
     position: absolute;
-    z-index: 1;
+    z-index: 1; 
+    left: 15%;
+    opacity: 0;
+    transition: opacity 1s;
 }
 
 .detail:hover .catalog-preview {
     visibility: visible;
-    background-color: #393742;
+    background-color: black;
+    opacity: 1;
 }
 
 .detail-text:hover .catalog-preview {
@@ -275,4 +281,21 @@ a {
 
 .catalog-table .heatmap {
     font-size: 12px;
+    background-color: black;
+}
+
+.catalog-table .heatmap th {
+    background-color: black;
+}
+
+.catalog-table .heatmap td {
+    background-color: black;
+}
+
+.catalog-table .page-content {
+    background-color: black;
+}
+
+.catalog-table .icd10-legend {
+    background-color: black;
 }
