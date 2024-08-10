@@ -32,7 +32,7 @@ export class DataSender {
   }
 
   public async postData() {
-    return postMethod<Identificator>(this.disease, this.data)
+    return postMethod<Identificator>(`/${this.disease}`, this.data)
       .then((response) => {
         const indentificator = response as Identificator;
         this.id = indentificator.id;
