@@ -27,7 +27,7 @@ def session_wrapper(function: Callable):
 
 class CatalogDatabase:
     def __init__(self):
-        db_url = os.getenv("DB_URL", "mysql+mysqlconnector://root:pass@catalog_db:3306/ScoringSystem")
+        db_url = os.getenv("DB_URL")
         if not db_url:
             raise ValueError("DB_URL variable not set")
         self.engine = create_engine(db_url)
