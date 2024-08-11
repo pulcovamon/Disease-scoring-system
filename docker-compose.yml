@@ -1,4 +1,4 @@
-version: "3"
+version: "2.1"
 
 services:
   catalog_db:
@@ -13,7 +13,7 @@ services:
     volumes:
       - "catalog_data:/var/lib/mysql"
     networks:
-      - scoring-system
+      - rpiserver
     healthcheck:
         test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
         timeout: 10s
@@ -28,10 +28,10 @@ services:
     volumes:
       - "redis_data:/data"
     networks:
-      - scoring-system
+      - rpiserver
 
   api:
-    build: ./api
+    image: localhost:5000/scoring-system-api:latest
     environment:
       DB_URL: "mysql+mysqlconnector://root:pass@catalog_db:3306/ScoringSystem"
       REDIS_URL: "redis://redis_server:6379"
@@ -42,23 +42,23 @@ services:
     ports:
       - "8080:8080"
     networks:
-      - scoring-system
+      - rpiserver
 
   # celery worker with ml models simulation
   worker:
-    build: ./worker
+    image: localhost:5000/scoring-system-worker:latest
     environment:
       REDIS_URL: "redis://redis_server:6379"
       C_FORCE_ROOT: "true"
     networks:
-      - scoring-system
+      - rpiserver
 
   frontend:
-    build: ./frontend
+    image: localhost:5000/scoring-system-frontend:latest
     ports:
-      - "3000:3000"
+      - "3001:3001"
     networks:
-      - scoring-system
+      - rpiserver
 
   proxy:
     image: nginx:alpine 
@@ -67,7 +67,7 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
     networks:
-      - scoring-system
+      - rpiserver
     depends_on:
       - api
       - frontend
@@ -78,4 +78,6 @@ volumes:
   redis_data:
 
 networks:
-  scoring-system:
+  rpiserver:
+    external: true
+
