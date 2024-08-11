@@ -7,7 +7,7 @@ services:
       MYSQL_USER: "user"
       MYSQL_PASSWORD: "password"
     ports:
-      - "3303:3303"
+      - "3306:3306"
     volumes:
       - "catalog_data:/var/lib/mysql"
     networks:
@@ -31,7 +31,7 @@ services:
   api:
     build: ./api
     environment:
-      DB_URL: "mysql+mysqlconnector://root:pass@catalog_db:3303/ScoringSystem"
+      DB_URL: "mysql+mysqlconnector://root:pass@catalog_db:3306/ScoringSystem"
       REDIS_URL: "redis://redis_server:6379"
       C_FORCE_ROOT: "true"
     depends_on:
