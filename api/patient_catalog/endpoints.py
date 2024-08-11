@@ -5,23 +5,17 @@ API endpoints
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-#from fastapi_pagination import Page, add_pagination, paginate
 
 from . import models
 from .database import CatalogDatabase
 
 router = APIRouter()
-#add_pagination(router)
 database = CatalogDatabase()
 
 
-'''@router.get("/catalog/lung-cancer")
-def get_lung_cancer_catalog() -> Page[models.Patient]:
-    return paginate(models.Patient)'''
-
 @router.get("/catalog/lung-cancer")
-async def get_lung_cancer_catalog():
-    data = database.get_patients()
+async def get_lung_cancer_catalog(skip: int = 0, limit: int = 20):
+    data = database.get_page_of_patients(skip, limit)
     if not data:
         data = []
     return JSONResponse(content=jsonable_encoder(data), status_code=200)

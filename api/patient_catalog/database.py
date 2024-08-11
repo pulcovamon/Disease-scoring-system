@@ -1,5 +1,5 @@
 import os
-import re
+import re   
 from typing import List, Callable
 from functools import wraps
 
@@ -34,19 +34,13 @@ class CatalogDatabase:
 
 
     @session_wrapper
-    def get_patients(self, session):
-        statement = select(models.PatientDatabase)
-        return [self.get_patient_by_id(patient.catalog_id) for patient in session.exec(statement)]
-
-
-    @session_wrapper
     def get_page_of_patients(
-        self, session, page_index: int, limit: int
+        self, session, skip: int, limit: int
     ) -> List[models.PatientDatabase]:
         statement = (
-            select(models.PatientDatabase).offset(page_index * limit).limit(limit)
+            select(models.PatientDatabase).offset(skip).limit(limit)
         )
-        return session.exec(statement).all()
+        return [self.get_patient_by_id(patient.catalog_id) for patient in session.exec(statement)]
 
 
     @session_wrapper
