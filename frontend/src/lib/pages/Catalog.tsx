@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Patient, PatientList } from "../classes/patient";
 import Heatmap from "../components/Heatmap";
 import Filtering from "../components/Filtering";
@@ -10,15 +10,19 @@ export default function Catalog() {
   const [patientId, setPatientId] = useState<number | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(0);
-  const limit = 20;
-  const patientList = new PatientList();
+
+  const limit = useMemo(() => {
+    return 20;
+  }, []);
+  const patientList = useMemo(() => {
+    return new PatientList();
+  }, []);
 
   useEffect(() => {
     const fetchNumberOfPatients = async () => {
       try {
         await patientList.getNumberOfPatients();
         setTotalPages(Math.ceil(patientList.totalPatients / limit));
-        
       } catch (error) {
         setMessage("An error occurred.");
         console.error(error);
@@ -35,7 +39,7 @@ export default function Catalog() {
         } else {
           await patientList.getPatients(currentPage, limit);
         }
-        
+
         if (patientList.message != null) {
           setMessage(<p className="error">{patientList.message}</p>);
         } else if (patientList.patients.length > 0) {
@@ -59,7 +63,7 @@ export default function Catalog() {
 
   const handlePageChange = (pageId: number) => {
     setCurrentPage(pageId);
-  }
+  };
 
   const patientTable = patients.map((patient) => (
     <tr key={patient.catalog_id}>
@@ -74,9 +78,13 @@ export default function Catalog() {
         </div>
       </td>
       <td>
-        {patient.codes.slice(0, Math.min(patient.codes.length, 5)).map((code) => (
-          <span key={code} className="code-table">{code}</span>
-        ))}
+        {patient.codes
+          .slice(0, Math.min(patient.codes.length, 5))
+          .map((code) => (
+            <span key={code} className="code-table">
+              {code}
+            </span>
+          ))}
         {patient.codes.length > 5 ? "..." : ""}
       </td>
     </tr>
@@ -86,8 +94,12 @@ export default function Catalog() {
     <div className="catalog-pagebody">
       {message}
       <div className="filtering">
-      <Filtering handleSubmit={handlePatientId} patiendId={patientId} />
-      <Pagination currentPage={currentPage} handlePageChange={handlePageChange} totalPages={totalPages} />
+        <Filtering handleSubmit={handlePatientId} patiendId={patientId} />
+        <Pagination
+          currentPage={currentPage}
+          handlePageChange={handlePageChange}
+          totalPages={patientId ? 1 : totalPages}
+        />
       </div>
       <table className="catalog-table">
         <thead>
@@ -96,9 +108,7 @@ export default function Catalog() {
             <th>Codes</th>
           </tr>
         </thead>
-        <tbody>
-          {patientTable}
-        </tbody>
+        <tbody>{patientTable}</tbody>
       </table>
     </div>
   );

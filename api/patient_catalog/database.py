@@ -245,7 +245,7 @@ class CatalogDatabase:
                 if not current_id and line.strip() != "":
                     logger.debug(line)
                 index += 1
-                if index > 1000:
+                if index > 10000:
                     break
 
     @session_wrapper

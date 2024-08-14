@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
 export default function Pagination({
   currentPage,
@@ -12,40 +12,42 @@ export default function Pagination({
   const [nextCss, setNextCss] = useState<string>("");
   const [previousCss, setPreviousCss] = useState<string>("");
 
-  const pageNumbers = [...Array(totalPages).keys()].map((number) => {
-    number++;
-    if (number === currentPage) {
-      return <p key={number} className="page-number current-page-number">{number}</p>;
-    } else if (
-      number === 1 || 
-      number === currentPage - 1 || 
-      number === currentPage + 1 || 
-      number === totalPages
-    ) {
-      return <p key={number} className="page-number">{number}</p>;
-    } else if (number === currentPage - 2 || number === currentPage + 2) {
-      return <p key={number} className="page-number">...</p>;
-    }
+  const pageNumbers = useMemo(() => {
+    return [...Array(totalPages).keys()].map((number) => {
+      number++;
+      if (number === currentPage) {
+        return <p key={number} className="page-number current-page-number">{number}</p>;
+      } else if (
+        number === 1 || 
+        number === currentPage - 1 || 
+        number === currentPage + 1 || 
+        number === totalPages
+      ) {
+        return <p key={number} className="page-number">{number}</p>;
+      } else if (number === currentPage - 2 || number === currentPage + 2) {
+        return <p key={number} className="page-number">...</p>;
+      }
+      return null;
+    });
+  }, [totalPages, currentPage]);
 
-  });
   
 
   console.log(pageNumbers);
 
-  const handleColors = () => {
-    if (currentPage >= totalPages) {
-      setNextCss("page-button-disabled");
-    } else {
-      setNextCss("");
-    }
-    if (currentPage <= 1) {
-      setPreviousCss("page-button-disabled");
-    } else {
-      setPreviousCss("");
-    }
-  };
-
   useEffect(() => {
+    const handleColors = () => {
+      if (currentPage >= totalPages) {
+        setNextCss("page-button-disabled");
+      } else {
+        setNextCss("");
+      }
+      if (currentPage <= 1) {
+        setPreviousCss("page-button-disabled");
+      } else {
+        setPreviousCss("");
+      }
+    };
     handleColors();
   }, [currentPage, totalPages]);
 
@@ -68,6 +70,10 @@ export default function Pagination({
   const onLast = () => {
     handlePageChange(totalPages);
   };
+
+  if (totalPages === 1) {
+    return null;
+  }
 
   return (
     <div className="pagination">
