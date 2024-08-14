@@ -4,16 +4,29 @@
 import HTTPError from "./httpError";
 import type { HttpErrorCode } from "./httpError";
 
-export const baseURL = "/api";
+export const baseURL = "http://localhost:8080";
 
-export async function getMethod<Type>(path: string): Promise<Type> {
+function getUrl(path: string, queryParams?: {[key: string]: any}): string {
+  let url = baseURL + path;
+  if (queryParams) {
+    url += "?"
+    Object.keys(queryParams).forEach((key, index) => {
+      url += [key, queryParams[key]].join("=");
+      url += "&";
+    });
+  }
+  return url;
+}
+
+export async function getMethod<Type>(path: string, queryParams?: {[key: string]: string | number}): Promise<Type> {
   const options = {
     method: "GET",
     headers: {
       accept: "application/json",
     },
-  };
-  const response = await fetch(baseURL+path, options);
+  }
+  console.log(getUrl(path, queryParams))
+  const response = await fetch(getUrl(path, queryParams), options);
   if (!response.ok) {
     throw new HTTPError({ code: response.status as HttpErrorCode });
   }
