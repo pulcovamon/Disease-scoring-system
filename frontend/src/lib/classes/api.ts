@@ -4,7 +4,7 @@
 import HTTPError from "./httpError";
 import type { HttpErrorCode } from "./httpError";
 
-export const baseURL = "http://localhost:8080";
+export const baseURL = process.env.REACT_APP_API_URL;
 
 function getUrl(path: string, queryParams?: {[key: string]: any}): string {
   let url = baseURL + path;
