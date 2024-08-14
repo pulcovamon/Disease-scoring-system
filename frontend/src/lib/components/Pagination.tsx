@@ -25,7 +25,7 @@ export default function Pagination({
       ) {
         return <p key={number} className="page-number">{number}</p>;
       } else if (number === currentPage - 2 || number === currentPage + 2) {
-        return <p key={number} className="page-number">...</p>;
+        return <p key={number} className="page-number-dots">...</p>;
       }
       return null;
     });

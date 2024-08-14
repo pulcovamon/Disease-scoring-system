@@ -289,13 +289,8 @@ main {
     background-color: #478388;
 }
 
-.detail {
-    position: relative;
-}
-
 .catalog-preview {
     background-color: black;
-    position: absolute;
 }
 
 .detail .catalog-preview {
@@ -371,36 +366,36 @@ main {
 }
 
 .page-button {
-    font-size: 25px; /* Zmenšil jsem font-size, aby odpovídal textu */
-    background-color: #292830;
-    padding: 10px 20px; /* Přidává padding pro lepší zarovnání */
-    display: flex; /* Použití flexboxu uvnitř tlačítka */
-    justify-content: center; /* Horizontální zarovnání na střed */
-}
-
-.page-button:hover {
-    background-color: #292830;
-    color: #478388;
+    font-size: 18px;
+    background-color: #478388;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    border: solid #292830;
 }
 
 .page-button-disabled {
+    background-color: #393742;
     cursor: not-allowed;
 }
 
 .page-button-disabled:hover {
-    background-color: #292830;
-    color: #ffebbc;
+    background-color: #393742;
 }
 
 .page-number {
-    padding: 10px;
-    margin: 0 5px; /* Přidáno pro horizontální mezeru */
-    font-size: 25px; /* Stejná velikost jako tlačítka */
-    display: flex; /* Použití flexboxu uvnitř čísla */
+    padding: 5px;
+    padding-top: 12px;
+    margin: 0 5px;
+    font-size: 18px;
+    display: flex;
 }
 
 .current-page-number {
-    background-color: #478388;
+    background-color: #393742;
 }
 
+.page-number-dots {
+    padding-top: 5px;
+}
   
