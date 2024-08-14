@@ -1,13 +1,23 @@
-body {
-    background: #292830;
-    color: #ffebbc;
+html, body {
     margin: 0;
     padding: 0;
+    height: 100%;
+    background-color: #292830;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%; 
 }
 
 #root {
+    background-color: #292830;
+    color: #ffebbc;
     height: 100vh;
-  }
+    display: flex;
+    flex-direction: column;
+}
 
 h1 {
     font-size: 42px;
@@ -63,6 +73,22 @@ a {
     background: #478388;
     margin: -1%;
     padding: 5px;
+}
+
+.homepage {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+main {
+    flex: 1;
+}
+
+.footer {
+    background-color: #393742;
+    text-align: center;
+    padding: 10px;
 }
 
 .pagebody {
@@ -340,8 +366,10 @@ a {
 
 .page-button-disabled {
     background-color: #393742;
+    cursor: not-allowed;
 }
 
 .page-button-disabled:hover {
     background-color: #393742;
 }
+  
