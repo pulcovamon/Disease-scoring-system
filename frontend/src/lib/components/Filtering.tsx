@@ -16,9 +16,9 @@ export default function Filtering({ patiendId, handleSubmit }: { handleSubmit: (
     return (
         <div>
             <form onSubmit={onSubmit}>
-                <label>Patient ID</label>
-                <input type="number" min="1" value={id ?? ""} onChange={onChange} />
-                <input type="submit" value="Search" />
+                <label>Patient ID:</label>
+                <input id="patient-id-input" type="number" min="1" value={id ?? ""} onChange={onChange} />
+                <input id="patient-id-submit" type="submit" value="Search" />
             </form>
         </div>
     );

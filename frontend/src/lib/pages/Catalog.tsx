@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Patient, PatientList } from "../classes/patient";
 import Heatmap from "../components/Heatmap";
 import Filtering from "../components/Filtering";
+import Pagination from "../components/Pagination";
 
 export default function Catalog() {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -41,6 +42,10 @@ export default function Catalog() {
     setPatientId(id);
   };
 
+  const handlePageChange = (pageId: number) => {
+    setCurrentPage(pageId);
+  }
+
   const patientTable = patients.map((patient) => (
     <tr key={patient.catalog_id}>
       <td>
@@ -65,7 +70,10 @@ export default function Catalog() {
   return (
     <div className="catalog-pagebody">
       {message}
+      <div className="filtering">
       <Filtering handleSubmit={handlePatientId} patiendId={patientId} />
+      <Pagination currentPage={currentPage} handlePageChange={handlePageChange} />
+      </div>
       <table className="catalog-table">
         <thead>
           <tr>

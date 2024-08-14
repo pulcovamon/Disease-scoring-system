@@ -31,10 +31,15 @@ button {
     background-color: #478388;
     border: none;
     color: #ffebbc;
+    cursor: pointer;
 }
 
 button:hover {
     background-color: #294d50;
+}
+
+select {
+    cursor: pointer;
 }
 
 label {
@@ -298,4 +303,26 @@ a {
 
 .catalog-table .icd10-legend {
     background-color: black;
+}
+
+.filtering {
+    display: flex;
+    flex-direction: row;
+    padding: 20px;
+    justify-content: space-between;
+}
+
+#patient-id-input {
+    background-color: #393742;
+}
+
+#patient-id-submit {
+    background-color: #478388;
+    padding: 10px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+#patient-id-submit:hover {
+    background-color: #294d50;
 }
