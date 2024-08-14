@@ -48,6 +48,24 @@ export class PatientDetail {
 export class PatientList {
   public patients: Patient[] = [];
   public message: string | null = null;
+  public totalPatients: number = 0;
+
+  public async getNumberOfPatients(): Promise<void> {
+    return getMethod<number>("/catalog/size")
+    .then((response) => {
+      console.log(response)
+      this.totalPatients = response;
+    })
+    .catch((error) => {
+      if (error instanceof HTTPError) {
+        this.message = error.getMessage();
+        console.error(error.getMessage());
+      } else {
+        this.message = "An error occured.";
+        console.error(error);
+      }
+    });
+  }
 
   public async getPatients(id: string): Promise<void>;
   public async getPatients(id?: number, limit?: number): Promise<void>;

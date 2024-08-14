@@ -9,15 +9,30 @@ export default function Catalog() {
   const [message, setMessage] = useState<JSX.Element | string>("");
   const [patientId, setPatientId] = useState<number | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const limit = 20;
   const patientList = new PatientList();
-  
+
+  useEffect(() => {
+    const fetchNumberOfPatients = async () => {
+      try {
+        await patientList.getNumberOfPatients();
+        setTotalPages(Math.ceil(patientList.totalPatients / limit));
+        
+      } catch (error) {
+        setMessage("An error occurred.");
+        console.error(error);
+      }
+    };
+    fetchNumberOfPatients();
+  }, []);
+
   useEffect(() => {
     const fetchPatients = async () => {
       try {
         if (patientId !== undefined) {
           await patientList.getPatients(String(patientId));
         } else {
-          const limit = 20;
           await patientList.getPatients(currentPage, limit);
         }
         
@@ -72,7 +87,7 @@ export default function Catalog() {
       {message}
       <div className="filtering">
       <Filtering handleSubmit={handlePatientId} patiendId={patientId} />
-      <Pagination currentPage={currentPage} handlePageChange={handlePageChange} />
+      <Pagination currentPage={currentPage} handlePageChange={handlePageChange} totalPages={totalPages} />
       </div>
       <table className="catalog-table">
         <thead>

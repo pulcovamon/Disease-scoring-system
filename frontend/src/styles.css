@@ -326,3 +326,22 @@ a {
 #patient-id-submit:hover {
     background-color: #294d50;
 }
+
+.pagination {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.page-button {
+    width: 60px;
+    font-size: 20px;
+}
+
+.page-button-disabled {
+    background-color: #393742;
+}
+
+.page-button-disabled:hover {
+    background-color: #393742;
+}
