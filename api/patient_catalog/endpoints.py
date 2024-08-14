@@ -25,5 +25,16 @@ async def get_lung_cancer_catalog(skip: int = 0, limit: int = 20):
 async def get_patiend_by_id(id: int):
     data = database.get_patient_by_id(id)
     if not data:
-        raise HTTPException(status_code=404, detail="Patient with id {id} does not exist!",)
+        raise HTTPException(
+            status_code=404,
+            detail="Patient with id {id} does not exist!",
+        )
     return JSONResponse(content=jsonable_encoder(data), status_code=200)
+
+
+@router.get("/catalog/size")
+async def get_size_of_catalog():
+    return JSONResponse(
+        content=jsonable_encoder(database.get_number_of_patients()),
+        status_code=200,
+    )

@@ -1,9 +1,9 @@
 import os
-import re   
+import re
 from typing import List, Callable
 from functools import wraps
 
-from sqlmodel import Session, create_engine, select, SQLModel
+from sqlmodel import Session, create_engine, select, SQLModel, func
 
 from . import models
 from .logger import Logger
@@ -32,22 +32,29 @@ class CatalogDatabase:
             raise ValueError("DB_URL variable not set")
         self.engine = create_engine(db_url)
 
-
     @session_wrapper
     def get_page_of_patients(
         self, session, skip: int, limit: int
     ) -> List[models.PatientDatabase]:
-        statement = (
-            select(models.PatientDatabase).offset(skip).limit(limit)
-        )
-        return [self.get_patient_by_id(patient.catalog_id) for patient in session.exec(statement)]
+        statement = select(models.PatientDatabase).offset(skip).limit(limit)
+        return [
+            self.get_patient_by_id(patient.catalog_id)
+            for patient in session.exec(statement)
+        ]
 
+    @session_wrapper
+    def get_number_of_patients(self, session):
+        statement = select(func.count(models.PatientDatabase.catalog_id))
+        logger.debug(session.exec(statement).one())
+        return session.exec(statement).one()
 
     @session_wrapper
     def get_patient_by_id(
         self, session, patient_id: int
     ) -> models.PatientPublic | None:
-        statements = select(models.PatientDatabase).where(models.PatientDatabase.catalog_id == patient_id)
+        statements = select(models.PatientDatabase).where(
+            models.PatientDatabase.catalog_id == patient_id
+        )
         if not session.exec(statements).first():
             return None
         logger.debug(patient_id)
@@ -60,9 +67,7 @@ class CatalogDatabase:
         statement = select(models.PatientActivePhase).where(
             models.PatientActivePhase.patient_id == patient_id
         )
-        active_phase = (
-            session.exec(statement).all()
-        )
+        active_phase = session.exec(statement).all()
         active_phase.sort(key=lambda i: i.index)
         active_phase: models.ActivePhasePublic = {
             "ground_truth": [i.value for i in active_phase if not i.prediction],
@@ -72,23 +77,21 @@ class CatalogDatabase:
         statement = select(models.PatientIcd10Multiclass).where(
             models.PatientIcd10Multiclass.patient_id == patient_id
         )
-        icd10_multiclass = (
-            session.exec(statement).all()
-        )
+        icd10_multiclass = session.exec(statement).all()
         icd10_multiclass.sort(key=lambda i: i.index)
         logger.debug(icd10_multiclass)
         logger.debug([i for i in icd10_multiclass if i.prediction])
         icd10_multiclass: models.Icd10MulticlassPublic = {
-            "ground_truth": [i.value for i in icd10_multiclass if not i.prediction],
+            "ground_truth": [
+                i.value for i in icd10_multiclass if not i.prediction
+            ],
             "prediction": [i.value for i in icd10_multiclass if i.prediction],
         }
 
         statement = select(models.PatientIcd10Binary).where(
             models.PatientIcd10Binary.patient_id == patient_id
         )
-        icd10_binary = (
-            session.exec(statement).all()
-        )
+        icd10_binary = session.exec(statement).all()
         icd10_binary.sort(key=lambda i: i.index)
         icd10_binary: models.Icd10BinaryPublic = {
             "ground_truth": [i.value for i in icd10_binary if not i.prediction],
@@ -102,7 +105,6 @@ class CatalogDatabase:
             icd10_multiclass=icd10_multiclass,
             icd10_binary=icd10_binary,
         )
-
 
     @session_wrapper
     def save_into_db(self, session, instance: SQLModel):
@@ -123,7 +125,6 @@ class CatalogDatabase:
             session.rollback()
             raise IOError(f"Database operation failed! {e}")
         session.refresh(instance)
-
 
     @session_wrapper
     def _parse_line(
@@ -152,7 +153,15 @@ class CatalogDatabase:
 
             case _ if "ICD10 MULTICLASS" in line:
                 if current_id:
-                    multiclass_codes = {"0": 'C340', "1": 'C341', "2": 'C342', "3": 'C343', "4": 'C348', "5": 'C349', "6": 'other'}
+                    multiclass_codes = {
+                        "0": "C340",
+                        "1": "C341",
+                        "2": "C342",
+                        "3": "C343",
+                        "4": "C348",
+                        "5": "C349",
+                        "6": "other",
+                    }
                     icd10_values = [
                         re.sub("'|]|\n", "", i)
                         for i in line.split("[")[1].split(" ")
@@ -160,7 +169,9 @@ class CatalogDatabase:
                     patient.append(icd10_values)
                     ground_truth = "Ground truth" in line
                     if not ground_truth:
-                        icd10_values = [multiclass_codes[i] for i in icd10_values]
+                        icd10_values = [
+                            multiclass_codes[i] for i in icd10_values
+                        ]
                     for index, value in enumerate(icd10_values):
                         self.save_into_db(
                             models.PatientIcd10Multiclass(
@@ -173,7 +184,7 @@ class CatalogDatabase:
 
             case _ if "ICD10 BINARY" in line:
                 if current_id:
-                    binary_codes = {"0": 'other', "1": 'C34'}
+                    binary_codes = {"0": "other", "1": "C34"}
                     icd10_values = [
                         re.sub("'|]|\n", "", i)
                         for i in line.split("[")[1].split(" ")
@@ -194,7 +205,11 @@ class CatalogDatabase:
 
             case _ if "Codes" in line:
                 if current_id:
-                    codes = re.sub("]|'", "", line.split("[")[1]).replace("\n", "").split(" ")
+                    codes = (
+                        re.sub("]|'", "", line.split("[")[1])
+                        .replace("\n", "")
+                        .split(" ")
+                    )
                     patient.append(codes)
                     for index, code in enumerate(codes):
                         self.save_into_db(
@@ -207,24 +222,31 @@ class CatalogDatabase:
 
             case _ if line.strip() == "":
                 current_id = None
-                #logger.debug(patient)
+                # logger.debug(patient)
                 patient = []
         return current_id, patient
 
     @session_wrapper
-    def fill_database(self, session, file_path: str = os.path.join(os.getcwd(), "patient_catalog", "catalog.txt")):
+    def fill_database(
+        self,
+        session,
+        file_path: str = os.path.join(
+            os.getcwd(), "patient_catalog", "catalog.txt"
+        ),
+    ):
         current_id = None
         index = 0
         patient = []
         with open(file_path, "r") as catalog:
             for line in catalog:
-                current_id, patient = self._parse_line(line, current_id, patient)
+                current_id, patient = self._parse_line(
+                    line, current_id, patient
+                )
                 if not current_id and line.strip() != "":
                     logger.debug(line)
                 index += 1
                 if index > 1000:
                     break
-
 
     @session_wrapper
     def reinitialize_db(self, session):
