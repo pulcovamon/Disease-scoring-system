@@ -3,6 +3,7 @@ html, body {
     padding: 0;
     height: 100%;
     background-color: #292830;
+    font-family: Avantgarde, "TeX Gyre Adventor", "URW Gothic L", sans-serif;
 }
 
 body {
@@ -17,6 +18,7 @@ body {
     height: 100vh;
     display: flex;
     flex-direction: column;
+    height: 100%;
 }
 
 h1 {
@@ -86,8 +88,9 @@ main {
 }
 
 .footer {
-    background-color: #393742;
+    background: #393742;
     text-align: center;
+    margin-top: 10px;
     padding: 10px;
 }
 
@@ -274,19 +277,24 @@ main {
 }
 
 .catalog-table tr:nth-child(even) {
-    background-color: #292830;
+    background-color: #393742;
 }
 
 .catalog-table tr:nth-child(odd) {
-    background-color: #393742;
+    background-color: #292830;
 }
 
 .catalog-table tr:hover {
     background-color: #478388;
 }
 
+.detail {
+    position: relative;
+}
+
 .catalog-preview {
     background-color: black;
+    position: absolute;
 }
 
 .detail .catalog-preview {
@@ -356,20 +364,42 @@ main {
 .pagination {
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    margin: 0;
+    margin-right: 20px;
+    align-items: center;
 }
 
 .page-button {
-    width: 60px;
-    font-size: 20px;
+    font-size: 25px; /* Zmenšil jsem font-size, aby odpovídal textu */
+    background-color: #292830;
+    padding: 10px 20px; /* Přidává padding pro lepší zarovnání */
+    display: flex; /* Použití flexboxu uvnitř tlačítka */
+    justify-content: center; /* Horizontální zarovnání na střed */
+}
+
+.page-button:hover {
+    background-color: #292830;
+    color: #478388;
 }
 
 .page-button-disabled {
-    background-color: #393742;
     cursor: not-allowed;
 }
 
 .page-button-disabled:hover {
-    background-color: #393742;
+    background-color: #292830;
+    color: #ffebbc;
 }
+
+.page-number {
+    padding: 10px;
+    margin: 0 5px; /* Přidáno pro horizontální mezeru */
+    font-size: 25px; /* Stejná velikost jako tlačítka */
+    display: flex; /* Použití flexboxu uvnitř čísla */
+}
+
+.current-page-number {
+    background-color: #478388;
+}
+
   
