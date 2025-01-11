@@ -30,7 +30,7 @@ export default function Catalog() {
       }
     };
     fetchNumberOfPatients();
-  }, []);
+  }, [patientList, limit]);
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -61,7 +61,7 @@ export default function Catalog() {
     };
 
     fetchPatients();
-  }, [patientId, patientCode, currentPage]);
+  }, [patientId, patientCode, currentPage, limit, patientList]);
 
   const handlePatientId = (value: number | undefined) => {
     setPatientId(value);

@@ -2,8 +2,9 @@ html, body {
     margin: 0;
     padding: 0;
     height: 100%;
-    background-color: #292830;
+    background-color: white;
     font-family: Avantgarde, "TeX Gyre Adventor", "URW Gothic L", sans-serif;
+    color: black;
 }
 
 body {
@@ -13,8 +14,6 @@ body {
 }
 
 #root {
-    background-color: #292830;
-    color: #ffebbc;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -40,14 +39,15 @@ p {
 }
 
 button {
-    background-color: #478388;
+    background-color: #5d44f8;
     border: none;
-    color: #ffebbc;
+    color: white;
     cursor: pointer;
+    border-radius: 30px
 }
 
 button:hover {
-    background-color: #294d50;
+    background-color: #4731d3;
 }
 
 select {
@@ -60,21 +60,13 @@ label {
 }
 
 input {
-    border: none;
-    background-color: #292830;
+    border-color: #5d44f8;
+    border-radius: 20px;
     font-size: 20px;
-    color: #ffebbc;
 }
 
 a {
     text-decoration: none;
-    color: #ffebbc;
-}
-
-.header {
-    background: #478388;
-    margin: -1%;
-    padding: 5px;
 }
 
 .homepage {
@@ -88,7 +80,6 @@ main {
 }
 
 .footer {
-    background: #393742;
     text-align: center;
     margin-top: 10px;
     padding: 10px;
@@ -103,7 +94,6 @@ main {
 }
 
 .page-content {
-    background: #393742;
     padding: 2%;
 }
 
@@ -136,28 +126,10 @@ main {
 }
 
 .table-input {
-    background-color: #393742;
     font-size: 16px;
     margin-left: 15px;
     margin-right: 15px;
     width: 85px;
-}
-
-.navbar {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 2% 10%;
-}
-
-.navbar-item {
-    font-size: 25px;
-    padding-top: 20px;
-}
-
-.navbar-item:hover {
-    color: #294d50;
 }
 
 .result {

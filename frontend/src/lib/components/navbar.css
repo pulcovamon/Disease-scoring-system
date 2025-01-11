@@ -1,0 +1,102 @@
+.navbar {
+    width: 220px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    color: white;
+    font-weight: bold;
+    text-align: left;
+    background: #5d44f8;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  
+  .navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .navbar li {
+    margin-bottom: 10px;
+  }
+  
+  /* Styl pro odkazy */
+  .navbar a,
+  .menu-button {
+    color: white;
+    text-decoration: none;
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    position: relative; /* Důležité pro podtržení */
+    transition: color 0.3s ease-in-out;
+  }
+  
+  .navbar a span,
+  .menu-button span {
+    margin-left: 10px;
+  }
+  
+  /* Podtržení efekt */
+  .navbar a::before,
+  .menu-button::before {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #ffffff; /* Barva podtržení */
+    transition: width 0.3s ease-in-out;
+  }
+  
+  .navbar a:hover::before,
+  .menu-button:hover::before {
+    width: 100%; /* Rozšíření podtržení */
+  }
+  
+  .navbar a:hover,
+  .menu-button:hover {
+    color: #d9d9ff; /* Světlejší barva textu při hoveru */
+  }
+  
+  /* Submenu styly */
+  .submenu {
+    list-style-type: none;
+    padding-left: 20px;
+  }
+  
+  .submenu li {
+    margin: 5px 0;
+  }
+  
+  .submenu a {
+    font-size: 1em;
+    color: white;
+    padding: 5px 0;
+    position: relative; /* Pro podtržení */
+  }
+  
+  .submenu a::before {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #d9d9ff; /* Podtržení submenu odlišné barvy */
+    transition: width 0.3s ease-in-out;
+  }
+  
+  .submenu a:hover::before {
+    width: 100%; /* Rozšíření podtržení */
+  }
+  
+  .submenu a:hover {
+    color: #d9d9ff; /* Světlejší barva textu při hoveru */
+  }
+  
