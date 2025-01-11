@@ -31,10 +31,6 @@ export default function Pagination({
     });
   }, [totalPages, currentPage]);
 
-  
-
-  console.log(pageNumbers);
-
   useEffect(() => {
     const handleColors = () => {
       if (currentPage >= totalPages) {

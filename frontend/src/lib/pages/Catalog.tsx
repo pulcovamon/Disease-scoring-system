@@ -66,11 +66,11 @@ export default function Catalog() {
   };
 
   const patientTable = patients.map((patient) => (
-    <tr key={patient.catalog_id}>
+    <tr key={patient._id}>
       <td>
         <div className="detail">
           <span>
-            <a href={`/catalog/${patient.catalog_id}`}>{patient.catalog_id}</a>
+            <a href={`/catalog/${patient._id}`}>{patient._id}</a>
           </span>
           <div className="catalog-preview">
             <Heatmap patient={patient} titleVisible={false} />

@@ -12,7 +12,7 @@ interface Icd10 {
 }
 
 export interface Patient {
-  catalog_id: number;
+  _id: number;
   codes: string[];
   active_phase: ActivePhase;
   icd10_multiclass: Icd10;
@@ -20,16 +20,16 @@ export interface Patient {
 }
 
 export class PatientDetail {
-  private id: number | null = null;
+  private _id: number | null = null;
   public patient: Patient | null = null;
   public message: string | null = null;
 
   public constructor(id: number) {
-    this.id = id;
+    this._id = id;
   }
 
   public async getPatient(): Promise<void> {
-    return getMethod<Patient>(`/catalog/lung-cancer/${this.id}`)
+    return getMethod<Patient>(`/catalog/lung-cancer/${this._id}`)
       .then((response) => {
         this.patient = response;
       })
@@ -53,7 +53,6 @@ export class PatientList {
   public async getNumberOfPatients(): Promise<void> {
     return getMethod<number>("/catalog/size")
     .then((response) => {
-      console.log(response)
       this.totalPatients = response;
     })
     .catch((error) => {
@@ -87,7 +86,6 @@ export class PatientList {
     }
     return getMethod<Patient[] | Patient>(url, queryParams || {})
       .then((response) => {
-        console.log(response)
         this.patients = Array.isArray(response) ? response : [response];
       })
       .catch((error) => {

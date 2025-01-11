@@ -28,7 +28,7 @@ export class DataSender {
       codes: codes,
       model_type: "unordered",
     };
-    this.disease = "lung_cancer";
+    this.disease = "lung-cancer";
   }
 
   public async postData() {

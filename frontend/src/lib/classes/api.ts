@@ -25,7 +25,6 @@ export async function getMethod<Type>(path: string, queryParams?: {[key: string]
       accept: "application/json",
     },
   }
-  console.log(getUrl(path, queryParams))
   const response = await fetch(getUrl(path, queryParams), options);
   if (!response.ok) {
     throw new HTTPError({ code: response.status as HttpErrorCode });
