@@ -80,10 +80,12 @@ def predict(disease: str, data: models.Data):
                 if given disease does not exist
     """
     if disease in [
-        "lung_cancer",
-        "multiple_sclerosis",
-        "hidradentis_supporativa",
+        "lung-cancer",
+        "multiple-sclerosis",
+        "hidradentis-supporativa",
     ]:
+        disease = disease.split("-")
+        disease = f"{disease[0]}_{disease[1]}"
         task = celery_app.send_task(disease, args=[data.codes])
     else:
         raise HTTPException(
