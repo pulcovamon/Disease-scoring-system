@@ -66,23 +66,11 @@ export class PatientList {
     });
   }
 
-  public async getPatients(id: string): Promise<void>;
-  public async getPatients(id?: number, limit?: number): Promise<void>;
-  public async getPatients(
-    id?: string | number,
-    limit?: number
-  ): Promise<void> {
+  public async getPatients(queryParams?: { limit?: number; skip?: number; code?: string; id?: string | number }): Promise<void> {
     let url = "/catalog/lung-cancer/";
-    let queryParams = {};
-    if (typeof id === "string") {
-      url += id;
-    } else {
-      if (id && limit) {
-        queryParams = {
-          skip: (id as number) * limit - limit,
-          limit: limit,
-        };
-      }
+    if (queryParams && queryParams.id !== undefined) {
+      url += queryParams.id;
+      queryParams.id = undefined;
     }
     return getMethod<Patient[] | Patient>(url, queryParams || {})
       .then((response) => {

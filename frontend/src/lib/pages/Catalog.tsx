@@ -8,6 +8,7 @@ export default function Catalog() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [message, setMessage] = useState<JSX.Element | string>("");
   const [patientId, setPatientId] = useState<number | undefined>(undefined);
+  const [patientCode, setPatientCode] = useState<string | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(0);
 
@@ -35,9 +36,14 @@ export default function Catalog() {
     const fetchPatients = async () => {
       try {
         if (patientId !== undefined) {
-          await patientList.getPatients(String(patientId));
+          await patientList.getPatients({ id: patientId });
+        } else if (patientCode !== undefined) {
+          await patientList.getPatients({ code: patientCode });
         } else {
-          await patientList.getPatients(currentPage, limit);
+          await patientList.getPatients({
+            skip: currentPage * limit - limit,
+            limit: limit,
+          });
         }
 
         if (patientList.message != null) {
@@ -55,10 +61,14 @@ export default function Catalog() {
     };
 
     fetchPatients();
-  }, [patientId, currentPage]);
+  }, [patientId, patientCode, currentPage]);
 
-  const handlePatientId = (id: number | undefined) => {
-    setPatientId(id);
+  const handlePatientId = (value: number | undefined) => {
+    setPatientId(value);
+  };
+
+  const handlePatientCode = (value: string | undefined) => {
+    setPatientCode(value);
   };
 
   const handlePageChange = (pageId: number) => {
@@ -94,7 +104,16 @@ export default function Catalog() {
     <div className="catalog-pagebody">
       {message}
       <div className="filtering">
-        <Filtering handleSubmit={handlePatientId} patiendId={patientId} />
+        <Filtering<number | undefined>
+          label="Patient ID"
+          value={patientId}
+          handleSubmit={handlePatientId}
+        />
+        <Filtering<string | undefined>
+          label="Code"
+          value={patientCode}
+          handleSubmit={handlePatientCode}
+        />
         <Pagination
           currentPage={currentPage}
           handlePageChange={handlePageChange}
