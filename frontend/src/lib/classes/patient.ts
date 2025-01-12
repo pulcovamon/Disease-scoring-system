@@ -50,8 +50,8 @@ export class PatientList {
   public message: string | null = null;
   public totalPatients: number = 0;
 
-  public async getNumberOfPatients(): Promise<void> {
-    return getMethod<number>("/catalog/size")
+  public async getNumberOfPatients(code?: string): Promise<void> {
+    return getMethod<number>("/catalog/size", code ? {"code": code} : {} )
     .then((response) => {
       this.totalPatients = response;
     })

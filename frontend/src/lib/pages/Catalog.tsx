@@ -14,7 +14,7 @@ export default function Catalog() {
   const [totalPages, setTotalPages] = useState<number>(0);
 
   const limit = useMemo(() => {
-    return 20;
+    return 15;
   }, []);
   const patientList = useMemo(() => {
     return new PatientList();
@@ -23,7 +23,7 @@ export default function Catalog() {
   useEffect(() => {
     const fetchNumberOfPatients = async () => {
       try {
-        await patientList.getNumberOfPatients();
+        await patientList.getNumberOfPatients(patientCode);
         setTotalPages(Math.ceil(patientList.totalPatients / limit));
       } catch (error) {
         setMessage("An error occurred.");
@@ -31,20 +31,20 @@ export default function Catalog() {
       }
     };
     fetchNumberOfPatients();
-  }, [patientList, limit]);
+  }, [patientList, limit, patientCode]);
 
   useEffect(() => {
     const fetchPatients = async () => {
       try {
         if (patientId !== undefined) {
           await patientList.getPatients({ id: patientId });
-        } else if (patientCode !== undefined) {
-          await patientList.getPatients({ code: patientCode });
         } else {
-          await patientList.getPatients({
+          const queryParams = {
             skip: currentPage * limit - limit,
             limit: limit,
-          });
+            code: patientCode
+          };
+          await patientList.getPatients(queryParams);
         }
 
         if (patientList.message != null) {
