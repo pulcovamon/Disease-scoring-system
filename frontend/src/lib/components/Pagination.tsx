@@ -83,7 +83,9 @@ export default function Pagination({
       >
         {"<"}
       </button>
+      <div className="numbers">
       {pageNumbers}
+      </div>
       <button
         className={"page-button " + nextCss}
         onClick={onNext}

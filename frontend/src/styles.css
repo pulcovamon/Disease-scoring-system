@@ -43,26 +43,10 @@ button {
     border: none;
     color: white;
     cursor: pointer;
-    border-radius: 30px
-}
-
-button:hover {
-    background-color: #4731d3;
 }
 
 select {
     cursor: pointer;
-}
-
-label {
-    font-size: 20px;
-    padding: 5px;
-}
-
-input {
-    border-color: #5d44f8;
-    border-radius: 20px;
-    font-size: 20px;
 }
 
 a {
@@ -97,41 +81,6 @@ main {
     padding: 2%;
 }
 
-.classify-button {
-    padding: 10px;
-    margin: 10px;
-    font-size: 20px;
-}
-
-.input-field {
-    display: flex;
-    justify-content: left;
-    gap: 15px;
-}
-
-.input-text {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.codes-button {
-    font-size: 16px;
-    padding: 5px;
-}
-
-.table-row {
-    font-size: 16px;
-    text-align: center;
-}
-
-.table-input {
-    font-size: 16px;
-    margin-left: 15px;
-    margin-right: 15px;
-    width: 85px;
-}
-
 .result {
     font-size: 24px;
 }
@@ -158,16 +107,6 @@ main {
 }
 
 .diseases:hover {
-    background-color: #294d50;
-}
-
-.link-button {
-    border: none;
-    background-color: #478388;
-    padding: 1%;
-}
-
-.link-button:hover {
     background-color: #294d50;
 }
 
@@ -206,11 +145,6 @@ main {
     flex-direction: column;
     padding: 10px;
     font-size: 12px;
-    background-color: #393742;
-}
-
-.heatmap-row td {
-    background-color: #393742;
 }
 
 .heatmap {
@@ -226,39 +160,6 @@ main {
     margin: 0;
     margin-top: 1%;
     align-items: center;
-}
-
-.catalog-table {
-    width: 100vw;
-    border-collapse: collapse;
-    box-sizing: border-box;
-}   
-
-.catalog-table th, .catalog-table td {
-    padding: 8px;
-    text-align: center;
-}
-
-.catalog-table th {
-    background-color: #393742;
-    font-weight: bold;
-    height: 40px;
-}
-
-.catalog-table td {
-    height: 30px;
-}
-
-.catalog-table tr:nth-child(even) {
-    background-color: #393742;
-}
-
-.catalog-table tr:nth-child(odd) {
-    background-color: #292830;
-}
-
-.catalog-table tr:hover {
-    background-color: #478388;
 }
 
 .catalog-preview {
@@ -285,89 +186,3 @@ main {
 .detail-text:hover .catalog-preview {
     visibility: visible;
 }
-
-.catalog-table .heatmap {
-    font-size: 12px;
-    background-color: black;
-}
-
-.catalog-table .heatmap th {
-    background-color: black;
-}
-
-.catalog-table .heatmap td {
-    background-color: black;
-}
-
-.catalog-table .page-content {
-    background-color: black;
-}
-
-.catalog-table .icd10-legend {
-    background-color: black;
-}
-
-.filtering {
-    display: flex;
-    flex-direction: row;
-    padding: 20px;
-    justify-content: space-between;
-}
-
-#patient-id-input {
-    background-color: #393742;
-}
-
-#patient-id-submit {
-    background-color: #478388;
-    padding: 10px;
-    margin-left: 10px;
-    cursor: pointer;
-}
-
-#patient-id-submit:hover {
-    background-color: #294d50;
-}
-
-.pagination {
-    display: flex;
-    flex-direction: row;
-    margin: 0;
-    margin-right: 20px;
-    align-items: center;
-}
-
-.page-button {
-    font-size: 18px;
-    background-color: #478388;
-    padding: 10px;
-    display: flex;
-    justify-content: center;
-    border: solid #292830;
-}
-
-.page-button-disabled {
-    background-color: #393742;
-    cursor: not-allowed;
-}
-
-.page-button-disabled:hover {
-    background-color: #393742;
-}
-
-.page-number {
-    padding: 5px;
-    padding-top: 12px;
-    margin: 0 5px;
-    font-size: 18px;
-    display: flex;
-}
-
-.current-page-number {
-    background-color: #393742;
-}
-
-.page-number-dots {
-    padding-top: 5px;
-}
-  

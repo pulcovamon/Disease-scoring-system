@@ -3,6 +3,7 @@ import { Patient, PatientList } from "../classes/patient";
 import Heatmap from "../components/Heatmap";
 import Filtering from "../components/Filtering";
 import Pagination from "../components/Pagination";
+import "./catalog.css";
 
 export default function Catalog() {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -114,12 +115,12 @@ export default function Catalog() {
           value={patientCode}
           handleSubmit={handlePatientCode}
         />
-        <Pagination
+      </div>
+      <Pagination
           currentPage={currentPage}
           handlePageChange={handlePageChange}
           totalPages={patientId ? 1 : totalPages}
         />
-      </div>
       <table className="catalog-table">
         <thead>
           <tr>

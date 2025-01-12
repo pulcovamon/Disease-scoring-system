@@ -10,19 +10,30 @@ export default function ClasifyForm({
 }: {
   disease: DiseaseType;
   modelType: string;
-  codes: string;
+  codes: string[];
   handleChange: Function;
   handleClick: Function;
 }) {
   function onClick() {
     handleClick(codes);
   }
+
+  const codesElements = codes.map((code) => {
+    return <li>
+      <input value={code} />
+    </li>
+  })
+
   return (
     <div className="page-content">
       <h4>{modelType}</h4>
       <div className="input-field">
-        <ClassifyTextField text={codes} handleChange={handleChange} />
-        <ClasifyButton text="Classify" onClick={onClick} />
+        <ul>
+          {codesElements}
+          <li>
+            <input/>
+          </li>
+        </ul>
       </div>
     </div>
   );

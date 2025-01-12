@@ -100,3 +100,8 @@
     color: #d9d9ff; /* Světlejší barva textu při hoveru */
   }
   
+  .footer {
+    position: fixed;
+    bottom: 0;
+    max-width: 220px;
+  }

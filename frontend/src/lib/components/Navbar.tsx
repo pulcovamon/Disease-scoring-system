@@ -2,6 +2,7 @@ import { faAddressBook, faHouse, faRobot } from "@fortawesome/free-solid-svg-ico
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
 import "./navbar.css";
+import Footer from "./Footer";
 
 export default function Navbar() {
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
@@ -40,7 +41,7 @@ export default function Navbar() {
                 <a href="/score">Import data</a>
               </li>
               <li>
-                <a href="/history">History</a>
+                <a href="#">History</a>
               </li>
             </ul>
           )}
@@ -64,6 +65,7 @@ export default function Navbar() {
           )}
         </li>
       </ul>
+      <Footer />
     </div>
   );
 }
