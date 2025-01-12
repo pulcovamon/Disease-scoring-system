@@ -6,19 +6,22 @@
     text-align: left;
     background: #5d44f8;
     padding: 20px;
+    position: relative;
   }
   
   .navbar ul {
     list-style-type: none;
-    margin: 0;
-    padding: 0;
+    padding: 10px;
+  }
+
+  .outer-list {
+    margin-top: 50px;
   }
   
   .navbar li {
     margin-bottom: 10px;
   }
   
-  /* Styl pro odkazy */
   .navbar a,
   .menu-button {
     color: white;
@@ -27,14 +30,15 @@
     display: flex;
     align-items: center;
     padding: 10px 15px;
-    position: relative; /* Důležité pro podtržení */
+    position: relative;
     transition: color 0.3s ease-in-out;
     cursor: pointer;
+    width: 100%;
   }
   
   .navbar a span,
   .menu-button span {
-    margin-left: 10px;
+    margin: 0 10px;
   }
   
   /* Podtržení efekt */
@@ -94,4 +98,10 @@
   
   .submenu a:hover {
     color: #d9d9ff; /* Světlejší barva textu při hoveru */
+  }
+
+  .collapse-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
   }

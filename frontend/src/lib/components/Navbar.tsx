@@ -1,38 +1,52 @@
-import { faAddressBook, faHouse, faRobot } from "@fortawesome/free-solid-svg-icons";
+import {
+  faAddressBook,
+  faAnglesLeft,
+  faAnglesRight,
+  faHouse,
+  faRobot,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./navbar.css";
 
 export default function Navbar() {
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
+  const [collapsed, setCollapsed] = useState<boolean>(false);
 
-  // Toggling jednotlivých menu
+  useEffect(() => {
+    if (collapsed) {
+      setOpenMenus({});
+    }
+  }, [collapsed])
+
   const toggleMenu = (menu: string) => {
+    setCollapsed(false);
     setOpenMenus((prev) => ({
       ...prev,
-      [menu]: !prev[menu], // Přepne stav konkrétního menu
+      [menu]: !prev[menu],
     }));
   };
 
   return (
     <div className="navbar">
-      <ul>
-        {/* Home */}
+      <button className="collapse-button" onClick={() => setCollapsed(!collapsed)}>
+        <FontAwesomeIcon icon={collapsed ? faAnglesRight : faAnglesLeft} />
+      </button>
+      <ul className="outer-list">
         <li>
           <a href="/">
             <FontAwesomeIcon icon={faHouse} />
-            <span>Home</span>
+            {collapsed ? <></> : <span>Home</span>}
           </a>
         </li>
 
-        {/* Scoring system */}
         <li>
           <div
             className="menu-button"
             onClick={() => toggleMenu("scoring-system")}
           >
             <FontAwesomeIcon icon={faRobot} />
-            <span>Scoring system</span>
+            {collapsed ? <></> : <span>Scoring system</span>}
           </div>
           {openMenus["scoring-system"] && (
             <ul className="submenu">
@@ -46,14 +60,10 @@ export default function Navbar() {
           )}
         </li>
 
-        {/* Catalog */}
         <li>
-          <div
-            className="menu-button"
-            onClick={() => toggleMenu("catalog")}
-          >
+          <div className="menu-button" onClick={() => toggleMenu("catalog")}>
             <FontAwesomeIcon icon={faAddressBook} />
-            <span>Training data</span>
+            {collapsed ? <></> : <span>Training data</span>}
           </div>
           {openMenus["catalog"] && (
             <ul className="submenu">
