@@ -3,6 +3,7 @@ import { Patient, PatientDetail } from "../classes/patient";
 import { useParams } from "react-router-dom";
 import Heatmap from "../components/Heatmap";
 import PatientCodes from "../components/PatientCodes";
+import "./patientDetailPage.css"
 
 export default function PatientDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -38,16 +39,19 @@ export default function PatientDetailPage() {
 
     const content = patient ? (
         <>
-        <PatientCodes patient={patient} titleVisible={true} />
         <Heatmap patient={patient} titleVisible={true} />
+        <PatientCodes patient={patient} titleVisible={true} />
         </>
     ) : (
         message
     );
 
     return (
-        <div className="patient-detail-page">
-            {content}
+        <div className="page-content">
+            <h1 className="title">Patient ID {patient?._id}</h1>
+            <div className="patient-detail-page">
+                {content}
+            </div>
         </div>
     );
 }

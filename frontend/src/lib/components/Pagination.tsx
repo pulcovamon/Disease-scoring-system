@@ -1,3 +1,5 @@
+import { faAngleLeft, faAngleRight, faAnglesLeft, faAnglesRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState, useEffect, useMemo } from "react";
 
 export default function Pagination({
@@ -25,7 +27,7 @@ export default function Pagination({
       ) {
         return <p key={number} className="page-number">{number}</p>;
       } else if (number === currentPage - 2 || number === currentPage + 2) {
-        return <p key={number} className="page-number-dots">...</p>;
+        return <p key={number} className="page-number page-number-dots">...</p>;
       }
       return null;
     });
@@ -74,14 +76,14 @@ export default function Pagination({
   return (
     <div className="pagination">
       <button className={"page-button " + previousCss} onClick={onFirst}>
-        {"<<"}
+        <FontAwesomeIcon icon={faAnglesLeft} />
       </button>
       <button
         className={"page-button " + previousCss}
         onClick={onPrevious}
         disabled={currentPage <= 1}
       >
-        {"<"}
+        <FontAwesomeIcon icon={faAngleLeft} />
       </button>
       <div className="numbers">
       {pageNumbers}
@@ -91,10 +93,10 @@ export default function Pagination({
         onClick={onNext}
         disabled={currentPage >= totalPages}
       >
-        {">"}
+        <FontAwesomeIcon icon={faAngleRight} />
       </button>
       <button className={"page-button " + nextCss} onClick={onLast}>
-        {">>"}
+        <FontAwesomeIcon icon={faAnglesRight} />
       </button>
     </div>
   );

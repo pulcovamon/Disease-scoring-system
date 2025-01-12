@@ -5,8 +5,8 @@ export default function PatientCodes({ patient, titleVisible }: { patient: Patie
     const codes = patient.codes.map((code) => {
         return <li className="code">{code}</li>
     })
-    return <div className="page-content">
-        {titleVisible ? <h1>Codes of ID {patient._id}</h1> : ""}
+    return <div className="box page-content">
+        {titleVisible ? <h1 className="title">Codes</h1> : ""}
         <ul className="code-list">
             {codes}
         </ul>

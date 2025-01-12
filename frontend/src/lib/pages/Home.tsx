@@ -1,5 +1,7 @@
 import React from "react";
 
 export default function Home() {
-  return <h1 className="page-content">Welcome to Disease scoring system!</h1>;
+  return <div className="page-content">
+    <h1 className="box">Welcome to Disease scoring system!</h1>
+    </div>;
 }

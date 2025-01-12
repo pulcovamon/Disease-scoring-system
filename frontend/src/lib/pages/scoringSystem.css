@@ -1,7 +1,6 @@
 .page-body {
-    font-family: Arial, sans-serif;
     margin: 20px;
-    padding-left: 220px;
+    padding: 0;
   }
   
   .tabs {
@@ -9,7 +8,6 @@
     gap: 10px;
     margin-bottom: 20px;
     border-bottom: 2px solid #ddd;
-    padding-left: 20px;
   }
   
   .tab {
@@ -17,7 +15,7 @@
     cursor: pointer;
     border: none;
     background: none;
-    font-size: 16px;
+    font-size: 1.2em;
     font-weight: bold;
     color: #5d44f8;
     border-bottom: 2px solid transparent;
@@ -34,19 +32,7 @@
   
   .tab:hover {
     color: #4731d3;
-  }
-  
-  .tab-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    max-width: calc(100vw - 320px);
-    margin: 50px;
-    border-radius: 20px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
-    background-color: white;
-  }
-  
+  }  
   
   .form-container {
     margin: 0 auto;
@@ -86,7 +72,7 @@
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
-    font-size: 14px;
+    font-size: 1em;
     margin: 0;
     width: 200px;
   }
@@ -100,7 +86,7 @@
   .send {
     background-color: #5d44f8;
     color: white;
-    font-size: 16px;
+    font-size: 1em;
     font-weight: bold;
     padding: 10px 20px;
     border: none;

@@ -1,36 +1,9 @@
 html, body {
     margin: 0;
     padding: 0;
-    height: 100%;
     background-color: white;
     font-family: Avantgarde, "TeX Gyre Adventor", "URW Gothic L", sans-serif;
     color: black;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-    height: 100%; 
-}
-
-#root {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-h1 {
-    font-size: 42px;
-}
-
-h3 {
-    font-size: 28;
-    text-align: left;
-}
-
-h4 {
-    font-size: 20px;
 }
 
 p {
@@ -55,12 +28,14 @@ a {
 
 .homepage {
     display: flex;
-    flex-direction: column;
-    flex: 1;
+    flex-direction: row;
+    gap: 0;
 }
 
 main {
-    flex: 1;
+    width: 100%;
+    display: flex;
+    justify-content: center;
 }
 
 .footer {
@@ -81,20 +56,14 @@ main {
     padding: 2%;
 }
 
-.result {
-    font-size: 24px;
-}
-
-.error {
-    color: coral;
-}
-
-.result-value {
-    font-size: 24px;
-}
-
-.note {
-    font-size: 18px;
+.box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 50px;
+    border-radius: 20px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+    padding: 20px;
 }
 
 .diseases {
@@ -108,81 +77,4 @@ main {
 
 .diseases:hover {
     background-color: #294d50;
-}
-
-.code {
-    display: block;
-    text-align: center;
-    padding: 16px;
-    float: left;
-}
-
-.code-list {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-}
-
-.patient-detail-page {
-    padding: 2%;
-    margin-top: 1%;
-    align-items: center;
-    display: flex;
-    flex-direction: row;
-    gap: 5%;
-}
-
-.icd10 {
-    display: flex;
-    flex-direction: column;
-    color: #292830;
-    padding: 20px;
-}
-
-.icd10-legend {
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    font-size: 12px;
-}
-
-.heatmap {
-    font-size: 24px;
-}
-
-.code-table {
-    padding: 5px;
-}
-
-.catalog-pagebody {
-    padding: 0;
-    margin: 0;
-    margin-top: 1%;
-    align-items: center;
-}
-
-.catalog-preview {
-    background-color: black;
-}
-
-.detail .catalog-preview {
-    visibility: hidden;
-    text-align: center;
-    padding: 5px 0;
-    position: absolute;
-    z-index: 1; 
-    left: 15%;
-    opacity: 0;
-    transition: opacity 1s;
-}
-
-.detail:hover .catalog-preview {
-    visibility: visible;
-    background-color: black;
-    opacity: 1;
-}
-
-.detail-text:hover .catalog-preview {
-    visibility: visible;
 }

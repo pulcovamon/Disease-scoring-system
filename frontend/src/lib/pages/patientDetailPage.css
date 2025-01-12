@@ -1,0 +1,36 @@
+ 
+  .title {
+    padding: 10px 20px;
+    border: none;
+    background: none;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #5d44f8;
+    border-bottom: 2px solid transparent;
+    transition: color 0.3s, border-color 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-bottom: 2px solid #ddd;
+  }
+
+.patient-detail-page {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
+.code {
+    display: block;
+    text-align: center;
+    padding: 16px;
+    float: left;
+}
+
+.code-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}

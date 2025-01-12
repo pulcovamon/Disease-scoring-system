@@ -39,7 +39,7 @@ export default function ResultPage() {
 
   return (
     <div className="pagebody">
-      <div className="page-content">{message}</div>
+      <div className="page-content box">{message}</div>
     </div>
   );
 }

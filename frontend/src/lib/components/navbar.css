@@ -1,16 +1,11 @@
 .navbar {
-    width: 220px;
-    height: 100vh;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 2;
+    min-height: 100vh;
+    height: fit-content;
     color: white;
     font-weight: bold;
     text-align: left;
     background: #5d44f8;
     padding: 20px;
-    overflow-y: auto;
   }
   
   .navbar ul {
@@ -34,6 +29,7 @@
     padding: 10px 15px;
     position: relative; /* Důležité pro podtržení */
     transition: color 0.3s ease-in-out;
+    cursor: pointer;
   }
   
   .navbar a span,
@@ -98,10 +94,4 @@
   
   .submenu a:hover {
     color: #d9d9ff; /* Světlejší barva textu při hoveru */
-  }
-  
-  .footer {
-    position: fixed;
-    bottom: 0;
-    max-width: 220px;
   }

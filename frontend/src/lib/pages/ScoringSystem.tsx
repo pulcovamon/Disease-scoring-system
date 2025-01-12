@@ -147,7 +147,7 @@ export default function ScoringSystem() {
           </button>
         ))}
       </div>
-      <div className="tab-content">
+      <div className="box">
         <ClasifyForm
           disease={disease}
           modelType="Medical codes sequence"

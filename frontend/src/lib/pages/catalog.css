@@ -3,25 +3,23 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-left: 220px;
-    width: calc(100% - 220px);
+    margin: 0;
   }
   
   .filtering {
     display: flex;
     justify-content: space-between;
-    width: 100%;
+    align-items: center;
     margin-bottom: 20px;
-    max-width: 900px;
+    gap: 20px;
+    flex-wrap: wrap;
   }
   
   .catalog-table {
     width: 100%;
-    max-width: 900px;
     margin-top: 20px;
     border-collapse: collapse;
     background-color: #fff;
-    border-radius: 25px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 
@@ -34,12 +32,12 @@
   .catalog-table th {
     background-color: #5d44f8;
     color: #fff;
-    font-size: 16px;
+    font-size: 1em;
   }
   
   .catalog-table td {
     background-color: #f9f9f9;
-    font-size: 14px;
+    font-size: 1em;
     color: #333;
     border-bottom: 1px solid #ddd;
   }
@@ -82,23 +80,12 @@
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    width: 200px;
-  }
-
-  .filtering {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    max-width: 900px;
-    width: 100%;
   }
   
   .filtering form {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
     padding: 10px;
     border-radius: 5px;
     background-color: #fff;
@@ -108,7 +95,6 @@
   .filtering label {
     font-size: 16px;
     margin-right: 10px;
-    color: #333;
   }
   
   .filtering input[type="text"],
@@ -138,14 +124,10 @@
     outline: none;
   }
   
-  
   .pagination {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 20px;
-    width: 100%;
-    max-width: 900px;
   }
   
   .pagination button {
@@ -160,11 +142,6 @@
   
   .pagination button:hover {
     background-color: #4130b2;
-  }
-  
-  .pagination button.disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
   }
 
   .page-number {
@@ -190,4 +167,31 @@
   .page-number-dots {
 
   }
+
+  .detail .catalog-preview {
+    visibility: hidden;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    z-index: 1; 
+    left: 15%;
+    opacity: 0;
+    transition: opacity 1s;
+}
+
+.detail:hover .catalog-preview {
+    visibility: visible;
+    opacity: 1;
+}
+
+.detail-text:hover .catalog-preview {
+    visibility: visible;
+}
+
+.current-page-number {
+  background-color: #5d44f8;
+  color: white;
+  border-radius: 20px;
+}
   

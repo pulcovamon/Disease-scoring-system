@@ -1,12 +1,13 @@
 import React from "react";
 import { Patient } from "../classes/patient";
 import HeatMapRow from "./HeatmapRow";
+import "./heatmap.css";
 
 export default function Heatmap({ patient, titleVisible }: { patient: Patient, titleVisible: boolean }) {
     const header = [...Array(patient.active_phase.ground_truth.length + 1)]
     return (
-        <div className="page-content">
-            {titleVisible ? <h1>Ground-truth X Prediction</h1> : ""}
+        <div className="box page-content">
+            {titleVisible ? <h1 className="title">Ground-truth X Prediction</h1> : ""}
             <table className="heatmap">
                 <thead>
                     <tr>
