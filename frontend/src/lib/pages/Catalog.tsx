@@ -4,6 +4,9 @@ import Heatmap from "../components/Heatmap";
 import Filtering from "../components/Filtering";
 import Pagination from "../components/Pagination";
 import "./catalog.css";
+import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faShareFromSquare } from "@fortawesome/free-solid-svg-icons";
 
 export default function Catalog() {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -42,7 +45,7 @@ export default function Catalog() {
           const queryParams = {
             skip: currentPage * limit - limit,
             limit: limit,
-            code: patientCode
+            code: patientCode,
           };
           await patientList.getPatients(queryParams);
         }
@@ -76,30 +79,50 @@ export default function Catalog() {
     setCurrentPage(pageId);
   };
 
-  const patientTable = patients.map((patient) => (
-    <tr key={patient._id}>
-      <td>
-        <div className="detail">
-          <span>
-            <a href={`/catalog/${patient._id}`}>{patient._id}</a>
-          </span>
-          <div className="catalog-preview">
-            <Heatmap patient={patient} titleVisible={false} />
+  const patientTable = patients.map((patient) => {
+    let highlightCode = patientCode !== undefined;
+    return (
+      <tr key={patient._id}>
+        <td>
+          <div className="detail">
+            <span className="patient-id">{patient._id}</span>
+            <div className="catalog-preview">
+              <Heatmap patient={patient} titleVisible={false} />
+            </div>
           </div>
-        </div>
-      </td>
-      <td>
-        {patient.codes
-          .slice(0, Math.min(patient.codes.length, 5))
-          .map((code) => (
-            <span key={code} className="code-table">
-              {code}
-            </span>
-          ))}
-        {patient.codes.length > 5 ? "..." : ""}
-      </td>
-    </tr>
-  ));
+        </td>
+        <td>
+          {patient.codes
+            .slice(0, Math.min(patient.codes.length, 5))
+            .map((code) => {
+              let cssClass = "code-table";
+              if (code === patientCode) {
+                cssClass += " highlight-code";
+                highlightCode = false;
+              }
+              return (
+                <span key={code} className={cssClass}>
+                  {code}
+                </span>
+              );
+            })}
+          <span className={highlightCode ? "highlight-code" : ""}>
+            {patient.codes.length > 5 ? "..." : ""}
+          </span>
+        </td>
+        <td>
+          <Link
+            to={`/catalog/${patient._id}${
+              patientCode ? `?code=${patientCode}` : ""
+            }`}
+            target="_blank"
+          >
+            <FontAwesomeIcon icon={faShareFromSquare} />
+          </Link>
+        </td>
+      </tr>
+    );
+  });
 
   return (
     <div className="catalog-pagebody">
@@ -117,15 +140,16 @@ export default function Catalog() {
         />
       </div>
       <Pagination
-          currentPage={currentPage}
-          handlePageChange={handlePageChange}
-          totalPages={patientId ? 1 : totalPages}
-        />
+        currentPage={currentPage}
+        handlePageChange={handlePageChange}
+        totalPages={patientId ? 1 : totalPages}
+      />
       <table className="catalog-table">
         <thead>
           <tr>
             <th>Patient ID</th>
             <th>Codes</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>{patientTable}</tbody>

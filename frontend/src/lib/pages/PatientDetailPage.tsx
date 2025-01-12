@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Patient, PatientDetail } from "../classes/patient";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import Heatmap from "../components/Heatmap";
 import PatientCodes from "../components/PatientCodes";
 import "./patientDetailPage.css"
 
 export default function PatientDetailPage() {
     const { id } = useParams<{ id: string }>();
+    const [searchParams] = useSearchParams();
+    const code = searchParams.get("code");
     const [patient, setPatient] = useState<Patient | null>(null);
     const [message, setMessage] = useState<JSX.Element | string>("");
 
@@ -40,7 +42,7 @@ export default function PatientDetailPage() {
     const content = patient ? (
         <>
         <Heatmap patient={patient} titleVisible={true} />
-        <PatientCodes patient={patient} titleVisible={true} />
+        <PatientCodes patient={patient} titleVisible={true} currentCode={code} />
         </>
     ) : (
         message

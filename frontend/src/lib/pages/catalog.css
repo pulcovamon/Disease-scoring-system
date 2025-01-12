@@ -19,7 +19,6 @@
     width: 100%;
     margin-top: 20px;
     border-collapse: collapse;
-    background-color: #fff;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 
@@ -31,12 +30,11 @@
   
   .catalog-table th {
     background-color: #5d44f8;
-    color: #fff;
+    color: white;
     font-size: 1em;
   }
   
   .catalog-table td {
-    background-color: #f9f9f9;
     font-size: 1em;
     color: #333;
     border-bottom: 1px solid #ddd;
@@ -56,7 +54,7 @@
     margin-top: 10px;
   }
   
-  .catalog-table .code-table {
+  .code-table {
     display: inline-block;
     margin-right: 10px;
     background-color: #e0f7fa;
@@ -193,5 +191,14 @@
   background-color: #5d44f8;
   color: white;
   border-radius: 20px;
+}
+
+.highlight-code {
+  background-color: yellow;
+}
+
+.patient-id {
+  color: #5d44f8;
+  font-weight: bold;
 }
   
