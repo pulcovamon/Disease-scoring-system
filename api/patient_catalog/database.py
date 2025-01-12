@@ -16,11 +16,13 @@ class CatalogDatabase:
         cursor = self.collection.find({}).skip(skip).limit(limit)
         return list(cursor) 
 
-    def get_number_of_patients(self) -> int:
-        return self.collection.count_documents({})
+    def get_number_of_patients(self, code: str = None) -> int:
+        filtering = {"codes": {"$in": [code]}} if code else {}
+        return self.collection.count_documents(filtering)
 
     def get_patient_by_id(self, patient_id: int) -> dict:
         return self.collection.find_one({"_id": patient_id})
 
-    def get_patients_with_code(self, code: str) -> List[dict]:
-        return list(self.collection.find({"codes": {"$in": [code]}}))
+    def get_patients_with_code(self, code: str, skip: int, limit: int) -> List[dict]:
+        cursor = self.collection.find({"codes": {"$in": [code]}}).skip(skip).limit(limit)
+        return list(cursor)

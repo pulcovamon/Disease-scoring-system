@@ -11,7 +11,7 @@ database = CatalogDatabase()
 @router.get("/catalog/lung-cancer")
 async def get_lung_cancer_catalog(skip: int = 0, limit: int = 20, code: str = None):
     if code:
-        data = database.get_patients_with_code(code)
+        data = database.get_patients_with_code(code, skip, limit)
     else:
         data = database.get_page_of_patients(skip, limit)
 
@@ -31,8 +31,8 @@ async def get_patient_by_id(id: int):
     return JSONResponse(content=jsonable_encoder(data), status_code=200)
 
 @router.get("/catalog/size")
-async def get_size_of_catalog():
-    count = database.get_number_of_patients()
+async def get_size_of_catalog(code: str = None):
+    count = database.get_number_of_patients(code)
     return JSONResponse(
         content=jsonable_encoder(count),
         status_code=200,
