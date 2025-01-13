@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Patient, PatientDetail } from "../classes/patient";
+import { Patient, PatientDetail } from "../classes/catalogData";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import Heatmap from "../components/Heatmap";
 import PatientCodes from "../components/PatientCodes";

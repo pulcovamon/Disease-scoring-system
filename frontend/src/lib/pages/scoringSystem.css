@@ -1,117 +1,222 @@
 .page-body {
-    margin: 20px;
-    padding: 0;
-  }
-  
-  .tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #ddd;
-  }
-  
-  .tab {
-    padding: 10px 20px;
-    cursor: pointer;
-    border: none;
-    background: none;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #5d44f8;
-    border-bottom: 2px solid transparent;
-    transition: color 0.3s, border-color 0.3s;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  
-  .tab.active {
-    color: #4731d3;
-    border-color: #4731d3;
-  }
-  
-  .tab:hover {
-    color: #4731d3;
-  }  
-  
-  .form-container {
-    margin: 0 auto;
-  }
-  
-  .codes-list {
-    list-style-type: none;
-    padding: 0;
-    margin: 10px 0;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  
-  .code-item {
-    padding: 8px 12px;
-  }
+  margin: 20px;
+  padding: 0;
+}
 
-  .code-button {
-    background-color: transparent;
-    color: gray;
-  }
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #ddd;
+}
 
-  .code-button:hover {
-    color: #5d44f8;
-  }
-  
-  .code-item:last-child {
-    border-bottom: none;
-  }
-  
-  .code-input {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1em;
-    margin: 0;
-    width: 200px;
-  }
-  
-  .code-input:focus {
-    outline: none;
-    border-color: #5d44f8;
-    box-shadow: 0 0 5px rgba(93, 68, 248, 0.5);
-  }
+.tab {
+  padding: 10px 20px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #5d44f8;
+  border-bottom: 2px solid transparent;
+  transition: color 0.3s, border-color 0.3s;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 
-  .send {
-    background-color: #5d44f8;
-    color: white;
-    font-size: 1em;
-    font-weight: bold;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-    margin-top: 20px;
-    width: 200px;
-    text-align: center;
-  }
-  
-  .send:hover {
-    background-color: #4731d3;
-  }
-  
-  .send:active {
-    transform: scale(0.98);
-  }
-  
-  .send:focus {
-    outline: none;
-    box-shadow: 0 0 5px rgba(93, 68, 248, 0.5);
-  }
+.tab.active {
+  color: #4731d3;
+  border-color: #4731d3;
+}
 
-  .link-button {
+.tab:hover {
+  color: #4731d3;
+}
 
-  }
-  
+.form-container {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.codes-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.code-item {
+  padding: 8px 12px;
+}
+
+.code-button {
+  background-color: transparent;
+  color: gray;
+  height: 50px;
+}
+
+.code-button:hover {
+  color: #5d44f8;
+}
+
+.code-item:last-child {
+  border-bottom: none;
+}
+
+.code-input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1em;
+  margin: 0;
+  width: 200px;
+}
+
+.code-input:focus {
+  outline: none;
+  border-color: #5d44f8;
+  box-shadow: 0 0 5px rgba(93, 68, 248, 0.5);
+}
+
+.send {
+  background-color: #5d44f8;
+  color: white;
+  font-size: 1em;
+  font-weight: bold;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  margin-top: 20px;
+  width: 200px;
+  text-align: center;
+}
+
+.send:hover {
+  background-color: #4731d3;
+}
+
+.send:active {
+  transform: scale(0.98);
+}
+
+.send:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(93, 68, 248, 0.5);
+}
+
+.link-button {
+}
+
+.tab-content {
+  width: 100%;
+  overflow: auto;
+}
+
+.separet-codes {
+  float: left;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+}
+
+.dataset {
+  float: right;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-body {
+  width: 100%;
+}
+
+.input-title {
+  font-size: 1.3em;
+  border: none;
+  border-bottom: #ddd solid 2px;
+  color: gray;
+}
+
+.dataset-input {
+  text-align: center;
+  padding: 10px;
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.download-box {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.download-button {
+  padding: 5px;
+  border-radius: 25px;
+}
+
+.download-button:hover {
+  background-color: #4731d3;
+}
+
+.patient-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 20px;
+}
+
+.patient-select {
+  background-color: white;
+  border: #ddd solid 2px;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.box {
+  margin: 10px;
+}
+
+.dataset-table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+.dataset-table th,
+.dataset-table td {
+  padding: 12px;
+  text-align: left;
+}
+
+.dataset-table th {
+  background-color: #5d44f8;
+  color: white;
+  font-size: 1em;
+}
+
+.dataset-table td {
+  font-size: 1em;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+}
+
+.dataset-preview-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}

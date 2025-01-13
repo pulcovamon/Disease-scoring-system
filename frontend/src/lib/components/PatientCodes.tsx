@@ -1,5 +1,5 @@
 import React from "react";
-import { Patient } from "../classes/patient";
+import { Patient } from "../classes/catalogData";
 
 export default function PatientCodes({
   patient,
@@ -12,7 +12,7 @@ export default function PatientCodes({
 }) {
   const codes = patient.codes.map((code) => {
     return (
-      <li className={`code ${code == currentCode ? "current-code" : null}`}>
+      <li className={`code ${code === currentCode ? "current-code" : null}`}>
         {code}
       </li>
     );

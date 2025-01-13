@@ -1,5 +1,5 @@
 import React from "react";
-import { Patient } from "../classes/patient";
+import { Patient } from "../classes/catalogData";
 import HeatMapRow from "./HeatmapRow";
 import "./heatmap.css";
 

@@ -11,7 +11,7 @@ import "./navbar.css";
 
 export default function Navbar() {
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
-  const [collapsed, setCollapsed] = useState<boolean>(false);
+  const [collapsed, setCollapsed] = useState<boolean>(true);
 
   useEffect(() => {
     if (collapsed) {

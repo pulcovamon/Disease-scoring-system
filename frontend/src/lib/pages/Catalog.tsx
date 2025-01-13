@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, MouseEvent } from "react";
-import { Patient, PatientList } from "../classes/patient";
+import { Patient, PatientList } from "../classes/catalogData";
 import Heatmap from "../components/Heatmap";
 import Filtering from "../components/Filtering";
 import Pagination from "../components/Pagination";
