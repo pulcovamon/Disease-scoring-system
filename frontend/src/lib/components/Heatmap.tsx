@@ -6,7 +6,7 @@ import "./heatmap.css";
 export default function Heatmap({ patient, titleVisible }: { patient: Patient, titleVisible: boolean }) {
     const header = [...Array(patient.active_phase.ground_truth.length + 1)]
     return (
-        <div className="box page-content">
+        <div className={titleVisible ? "box page-content" : ""}>
             {titleVisible ? <h1 className="title">Ground-truth X Prediction</h1> : ""}
             <table className="heatmap">
                 <thead>

@@ -1,17 +1,24 @@
 .navbar {
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: column;
     min-height: 100vh;
-    height: fit-content;
+    height: 100%;
     color: white;
     font-weight: bold;
     text-align: left;
     background: #5d44f8;
     padding: 20px;
     position: relative;
+    width: auto;
+    flex-shrink: 0;
+    overflow-y: auto;
   }
   
   .navbar ul {
     list-style-type: none;
     padding: 10px;
+    white-space: nowrap;
   }
 
   .outer-list {
@@ -33,7 +40,6 @@
     position: relative;
     transition: color 0.3s ease-in-out;
     cursor: pointer;
-    width: 100%;
   }
   
   .navbar a span,
@@ -100,8 +106,19 @@
     color: #d9d9ff; /* Světlejší barva textu při hoveru */
   }
 
-  .collapse-button {
-    position: absolute;
+  .collapse-button-box {
     top: 10px;
     right: 10px;
+    position: absolute;
+    height: 50px;
+    display: flex;
+  }
+
+  .collapse-button {
+    font-size: 1.5em;
+    transition: transform 0.3s ease;
+  }
+
+  .collapse-button:hover {
+    font-size: 1.7em;
   }

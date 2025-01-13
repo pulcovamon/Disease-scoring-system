@@ -144,12 +144,14 @@
 
   .page-number {
     padding: 10px;
+    cursor: pointer;
+    font-size: 0.9em;
   }
 
   .numbers {
     display: flex;
     flex-direction: row;
-    width: 250px;
+    width: 450px;
     justify-content: center;
   }
 
@@ -162,35 +164,41 @@
     background-color: gray;
   }
 
-  .page-number-dots {
-
+  .detail {
+    position: relative;
   }
-
-  .detail .catalog-preview {
+  
+  .catalog-preview {
     visibility: hidden;
-    text-align: center;
-    padding: 0;
-    margin: 0;
+    opacity: 0.5;
     position: absolute;
-    z-index: 1; 
-    left: 15%;
-    opacity: 0;
-    transition: opacity 1s;
-}
-
-.detail:hover .catalog-preview {
+    z-index: 1;
+    transition: opacity 0.3s;
+    height: auto;
+    margin: 0;
+    padding: 15px;
+    background-color: rgba(0, 0, 0, 0.5)
+  }
+  
+  .catalog-preview.down {
+    top: 0;
+  }
+  
+  .catalog-preview.up {
+    bottom: 0;
+  }
+  
+  .detail:hover .catalog-preview {
     visibility: visible;
     opacity: 1;
-}
-
-.detail-text:hover .catalog-preview {
-    visibility: visible;
-}
+  }
+  
 
 .current-page-number {
   background-color: #5d44f8;
   color: white;
   border-radius: 20px;
+  cursor: default;
 }
 
 .highlight-code {
@@ -200,5 +208,19 @@
 .patient-id {
   color: #5d44f8;
   font-weight: bold;
+}
+
+.detail-link-box {
+  width: 50px;
+}
+
+.detail-link {
+  font-size: 1em;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.detail-link:hover {
+  font-size: 1.2em;
 }
   

@@ -7,9 +7,15 @@ export default function Layout() {
   return (
     <div className="homepage">
       <Navbar />
-      <main>
-        <Outlet />
-      </main>
+      <div className="content">
+        <main>
+          <div className="page">
+            <Outlet />
+          </div>
+        </main>
+        <Footer />
+      </div>
     </div>
   );
 }
+

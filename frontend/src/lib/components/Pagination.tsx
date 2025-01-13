@@ -1,4 +1,9 @@
-import { faAngleLeft, faAngleRight, faAnglesLeft, faAnglesRight } from "@fortawesome/free-solid-svg-icons";
+import {
+  faAngleLeft,
+  faAngleRight,
+  faAnglesLeft,
+  faAnglesRight,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState, useEffect, useMemo } from "react";
 
@@ -18,20 +23,36 @@ export default function Pagination({
     return [...Array(totalPages).keys()].map((number) => {
       number++;
       if (number === currentPage) {
-        return <p key={number} className="page-number current-page-number">{number}</p>;
+        return (
+          <p key={number} className="page-number current-page-number">
+            {number}
+          </p>
+        );
       } else if (
-        number === 1 || 
-        number === currentPage - 1 || 
-        number === currentPage + 1 || 
-        number === totalPages
+        number === 1 ||
+        number === totalPages ||
+      (number - currentPage < 3 &&
+        currentPage - number < 3)
       ) {
-        return <p key={number} className="page-number">{number}</p>;
-      } else if (number === currentPage - 2 || number === currentPage + 2) {
-        return <p key={number} className="page-number page-number-dots">...</p>;
+        return (
+          <p
+            key={number}
+            className="page-number"
+            onClick={() => handlePageChange(number)}
+          >
+            {number}
+          </p>
+        );
+      } else if (number === currentPage - 3 || number === currentPage + 3) {
+        return (
+          <p key={number} className="page-number page-number-dots">
+            ...
+          </p>
+        );
       }
       return null;
     });
-  }, [totalPages, currentPage]);
+  }, [totalPages, currentPage, handlePageChange]);
 
   useEffect(() => {
     const handleColors = () => {
@@ -85,9 +106,7 @@ export default function Pagination({
       >
         <FontAwesomeIcon icon={faAngleLeft} />
       </button>
-      <div className="numbers">
-      {pageNumbers}
-      </div>
+      <div className="numbers">{pageNumbers}</div>
       <button
         className={"page-button " + nextCss}
         onClick={onNext}

@@ -17,7 +17,7 @@ export default function Navbar() {
     if (collapsed) {
       setOpenMenus({});
     }
-  }, [collapsed])
+  }, [collapsed]);
 
   const toggleMenu = (menu: string) => {
     setCollapsed(false);
@@ -29,9 +29,14 @@ export default function Navbar() {
 
   return (
     <div className="navbar">
-      <button className="collapse-button" onClick={() => setCollapsed(!collapsed)}>
-        <FontAwesomeIcon icon={collapsed ? faAnglesRight : faAnglesLeft} />
-      </button>
+      <div className="collapse-button-box">
+        <button
+          className="collapse-button"
+          onClick={() => setCollapsed(!collapsed)}
+        >
+          <FontAwesomeIcon icon={collapsed ? faAnglesRight : faAnglesLeft} />
+        </button>
+      </div>
       <ul className="outer-list">
         <li>
           <a href="/">

@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, MouseEvent } from "react";
 import { Patient, PatientList } from "../classes/patient";
 import Heatmap from "../components/Heatmap";
 import Filtering from "../components/Filtering";
 import Pagination from "../components/Pagination";
 import "./catalog.css";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShareFromSquare } from "@fortawesome/free-solid-svg-icons";
 
@@ -15,15 +15,43 @@ export default function Catalog() {
   const [patientCode, setPatientCode] = useState<string | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(0);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [position, setPosition] = useState("down");
+  
+  useEffect(() => {
+    const id = searchParams.get("id");
+    const code = searchParams.get("code");
+    const page = searchParams.get("page");
+  
+    if (id) {
+      setPatientId(Number(id));
+    } else {
+      setPatientId(undefined);
+    }
+  
+    if (code) {
+      setPatientCode(code);
+    } else {
+      setPatientCode(undefined);
+    }
+  
+    if (page) {
+      setCurrentPage(Number(page));
+    } else {
+      setCurrentPage(1);
+    }
+  }, [searchParams]);
 
   const limit = useMemo(() => {
-    return 15;
+    return 25;
   }, []);
+
   const patientList = useMemo(() => {
     return new PatientList();
   }, []);
 
   useEffect(() => {
+    setMessage("");
     const fetchNumberOfPatients = async () => {
       try {
         await patientList.getNumberOfPatients(patientCode);
@@ -37,6 +65,7 @@ export default function Catalog() {
   }, [patientList, limit, patientCode]);
 
   useEffect(() => {
+    setMessage("");
     const fetchPatients = async () => {
       try {
         if (patientId !== undefined) {
@@ -69,14 +98,50 @@ export default function Catalog() {
 
   const handlePatientId = (value: number | undefined) => {
     setPatientId(value);
+    const params = new URLSearchParams(searchParams);
+  
+    if (value !== undefined) {
+      params.set("id", value.toString());
+    } else {
+      params.delete("id");
+    }
+  
+    setSearchParams(params);
   };
-
+  
   const handlePatientCode = (value: string | undefined) => {
     setPatientCode(value);
+    const params = new URLSearchParams(searchParams);
+  
+    if (value !== undefined) {
+      params.set("code", value);
+    } else {
+      params.delete("code");
+    }
+  
+    setSearchParams(params);
   };
-
+  
   const handlePageChange = (pageId: number) => {
     setCurrentPage(pageId);
+    const params = new URLSearchParams(searchParams);
+  
+    if (pageId !== 1) {
+      params.set("page", pageId.toString());
+    } else {
+      params.delete("page");
+    }
+  
+    setSearchParams(params);
+  };
+
+
+  const handleMouseEnter = (event: MouseEvent) => {
+    if (event.clientY > window.innerHeight/2) {
+      setPosition("up");
+    } else {
+      setPosition("down");
+    }
   };
 
   const patientTable = patients.map((patient) => {
@@ -84,11 +149,13 @@ export default function Catalog() {
     return (
       <tr key={patient._id}>
         <td>
-          <div className="detail">
+          <div className="detail" onMouseEnter={(e) => handleMouseEnter(e)}>
             <span className="patient-id">{patient._id}</span>
-            <div className="catalog-preview">
-              <Heatmap patient={patient} titleVisible={false} />
-            </div>
+            <div
+            className={`catalog-preview ${position === "up" ? "up" : "down"}`}
+          >
+            <Heatmap patient={patient} titleVisible={false} />
+          </div>
           </div>
         </td>
         <td>
@@ -110,8 +177,9 @@ export default function Catalog() {
             {patient.codes.length > 5 ? "..." : ""}
           </span>
         </td>
-        <td>
+        <td className="detail-link-box">
           <Link
+            className="detail-link"
             to={`/catalog/${patient._id}${
               patientCode ? `?code=${patientCode}` : ""
             }`}
@@ -125,7 +193,7 @@ export default function Catalog() {
   });
 
   return (
-    <div className="catalog-pagebody">
+    <div className="catalog-pagebody page-content">
       {message}
       <div className="filtering">
         <Filtering<number | undefined>
@@ -154,6 +222,11 @@ export default function Catalog() {
         </thead>
         <tbody>{patientTable}</tbody>
       </table>
+      <Pagination
+        currentPage={currentPage}
+        handlePageChange={handlePageChange}
+        totalPages={patientId ? 1 : totalPages}
+      />
     </div>
   );
 }
