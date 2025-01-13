@@ -56,21 +56,15 @@
     left: 0;
     width: 0;
     height: 2px;
-    background: #ffffff; /* Barva podtržení */
+    background: #ffffff;
     transition: width 0.3s ease-in-out;
   }
   
   .navbar a:hover::before,
   .menu-button:hover::before {
-    width: 100%; /* Rozšíření podtržení */
+    width: 100%;
   }
-  
-  .navbar a:hover,
-  .menu-button:hover {
-    color: #d9d9ff; /* Světlejší barva textu při hoveru */
-  }
-  
-  /* Submenu styly */
+
   .submenu {
     list-style-type: none;
     padding-left: 20px;
@@ -94,16 +88,12 @@
     left: 0;
     width: 0;
     height: 2px;
-    background: #d9d9ff; /* Podtržení submenu odlišné barvy */
+    background: white;
     transition: width 0.3s ease-in-out;
   }
   
   .submenu a:hover::before {
-    width: 100%; /* Rozšíření podtržení */
-  }
-  
-  .submenu a:hover {
-    color: #d9d9ff; /* Světlejší barva textu při hoveru */
+    width: 100%;
   }
 
   .collapse-button-box {

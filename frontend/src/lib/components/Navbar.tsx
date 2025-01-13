@@ -59,7 +59,7 @@ export default function Navbar() {
                 <a href="/score">Import data</a>
               </li>
               <li>
-                <a href="#">History</a>
+                <a href="/result">History</a>
               </li>
             </ul>
           )}

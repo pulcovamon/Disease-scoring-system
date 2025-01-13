@@ -10,10 +10,45 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 
 from worker import celery_app
+from .utils import get_task_dict
 
 from . import models
 
 router = APIRouter()
+
+
+@router.get("/result/")
+def get_all_results():
+    i = celery_app.control.inspect()
+
+    # Aktivní, rezervované a naplánované úkoly
+    active_tasks = i.active() or {}
+    scheduled_tasks = i.scheduled() or {}
+    reserved_tasks = i.reserved() or {}
+
+    all_task_ids = set()
+
+    # Získání ID ze všech dostupných úkolů
+    for worker_tasks in [active_tasks, scheduled_tasks, reserved_tasks]:
+        for worker, tasks in worker_tasks.items():
+            for task in tasks:
+                task_id = task.get("id")
+                if task_id:
+                    all_task_ids.add(task_id)
+
+    # Ručně přidat dokončené úkoly (např. SUCCESS nebo FAILURE)
+    backend = celery_app.backend
+    if hasattr(backend, "client"):
+        # Pro Redis backend
+        keys = backend.client.keys("celery-task-meta-*")
+        for key in keys:
+            task_id = key.decode("utf-8").replace("celery-task-meta-", "")
+            all_task_ids.add(task_id)
+
+    # Generovat výsledky pro všechny úkoly
+    all_tasks = [get_task_dict(task_id) for task_id in all_task_ids]
+
+    return JSONResponse(status_code=200, content=all_tasks)
 
 
 @router.get("/result/{id}")

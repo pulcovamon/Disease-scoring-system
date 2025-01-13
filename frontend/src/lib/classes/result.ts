@@ -8,43 +8,51 @@ interface Task {
   disease: string | null;
 }
 
-export class Result {
-  public id: string;
-  public value: number | null = null;
-  public diseaseName: string | null = null;
+export class Results {
+  public tasks: Task[] = [];
   public message: string | null = null;
 
-  constructor(id: string) {
-    this.id = id;
-  }
-
-  public async getResult() {
-    return getMethod<Task>(`/result/${this.id}`)
+  public async getAllResults() {
+    return getMethod<Task[]>("/result/")
       .then((response) => {
-        const task = response as Task;
-        switch (task.status) {
-          case "SUCCESS":
-            this.value = task.result;
-            this.diseaseName = task.disease;
-            break;
-          case "SENT":
-            this.message = "Your request is pending, please try it later.";
-            break;
-          case "FAILURE":
-            this.message = "An error occured during computation.";
-            break;
-          default:
-            this.message = `Your request is in ${task.status} state.`;
-        }
+        const tasks = response as Task[];
+        this.tasks = tasks.map((task) => ({
+          status: task.status,
+          result: task.result,
+          task_id: task.task_id,
+          disease: task.disease,
+        }));
       })
       .catch((error) => {
         if (error instanceof HTTPError) {
           this.message = error.getMessage();
           console.error(error.getMessage());
         } else {
-          this.message = "An error occured.";
+          this.message = "An error occurred.";
           console.error(error);
         }
       });
+  }
+
+  public async getTaskById(taskId: string): Promise<Task> {
+    try {
+      const task = await getMethod<Task>(`/result/${taskId}`);
+      return task;
+    } catch (error) {
+      console.error(`Failed to fetch task with ID ${taskId}:`, error);
+      throw error;
+    }
+  }
+
+  public getCompletedTasks(): Task[] {
+    return this.tasks.filter((task) => task.status === "SUCCESS");
+  }
+
+  public getFailedTasks(): Task[] {
+    return this.tasks.filter((task) => task.status === "FAILURE");
+  }
+
+  public getPendingTasks(): Task[] {
+    return this.tasks.filter((task) => task.status === "PENDING");
   }
 }

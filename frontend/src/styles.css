@@ -94,19 +94,20 @@ main {
     transform: scaleX(1);
 }
 
-
 .pagebody {
     padding: 2%;
-    margin-left: 25%;
-    margin-right: 25%;
     margin-top: 1%;
     align-items: center;
+    position: relative;
+    flex-grow: 1;
+    margin: 20px; 
 }
 
 .page-content {
     padding: 2%;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .box {
@@ -119,15 +120,12 @@ main {
     padding: 20px;
 }
 
-.diseases {
-    border: none;
-    background-color: #478388;
-    font-size: 20px;
-    color: #ffebbc;
-    padding: 10px;
-    margin: 10px;
+.back-button {
+    position: absolute;
+    left: 15px;
+    color: #5d44f8;
 }
 
-.diseases:hover {
-    background-color: #294d50;
+.back-button:hover {
+    color: #4130b2;
 }
