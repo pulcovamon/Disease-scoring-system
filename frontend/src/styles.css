@@ -45,12 +45,23 @@ a {
 main {
     flex-grow: 1;
     min-height: calc(100vh - 150px);
+    margin: 0;
+    padding: 0;
+    background-size: cover;
+    background-position: center;
+    background-position: bottom right;
+}
+
+table {
+    background-color: rgba(255, 255, 255, 0.8);
 }
 
 .page {
     display: flex;
     flex-direction: row;
     justify-content: center;
+    margin: 0;
+    padding: 0;
 }
 
 .footer {
@@ -61,10 +72,12 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 0;
 }
 
 .footer-content {
     padding: 10px;
+    margin: 0;
 }
 
 .footer a {

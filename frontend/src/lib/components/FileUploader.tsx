@@ -43,29 +43,17 @@ const FileUploader: React.FC<FileUploaderProps> = ({ accept = "*", onFileSelect 
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
+        className="drag-box"
         style={{
           border: isDragging ? "2px dashed #4caf50" : "2px dashed #ccc",
-          padding: "20px",
-          borderRadius: "10px",
-          textAlign: "center",
-          cursor: "pointer",
           backgroundColor: isDragging ? "#f5f5f5" : "#fff",
-          transition: "background-color 0.3s",
         }}
       >
         <p style={{ margin: 0 }}>Drag and drop a file here, or click to upload</p>
         <button
           onClick={handleButtonClick}
           type="button"
-          style={{
-            marginTop: "10px",
-            padding: "10px 20px",
-            backgroundColor: "#4caf50",
-            color: "#fff",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
+          className="file-button"
         >
           Select File
         </button>

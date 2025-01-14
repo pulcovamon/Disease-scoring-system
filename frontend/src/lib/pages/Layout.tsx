@@ -8,7 +8,9 @@ export default function Layout() {
     <div className="homepage">
       <Navbar />
       <div className="content">
-        <main>
+        <main
+        style={{ backgroundImage: "url('/assets/background.jpg')" }}
+        >
           <div className="page">
             <Outlet />
           </div>

@@ -119,22 +119,22 @@
 }
 
 .tab-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
   width: 100%;
-  overflow: auto;
 }
 
 .separet-codes {
-  float: left;
-  width: 50%;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  gap: 20px;
+  grid-template-rows: 1fr 1fr;
 }
 
 .dataset {
-  float: right;
-  width: 50%;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  gap: 20px;
+  grid-template-rows: 1fr 1fr;
 }
 
 .page-body {
@@ -219,4 +219,28 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.drag-box {
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  background-color: #fff;
+  transition: background-color 0.3s;
+  border: 2px dashed #ccc;
+}
+
+.file-button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #5d44f8;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.file-button:hover {
+  background-color: #4731d3;
 }

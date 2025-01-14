@@ -75,7 +75,7 @@ export default function ScoringSystem() {
       </div>
       <div className="tab-content">
         <div className="separet-codes">
-          <h1 className="input-title">Insert separate codes</h1>
+          
           <div className="box" >
             <NewPatient patient={patient} handlePatientChange={handlePatientChange} />
           </div>
@@ -93,7 +93,7 @@ export default function ScoringSystem() {
       </div>
         </div>
         <div className="dataset">
-          <h1 className="input-title">Insert whole dataset</h1>
+          
         <div className="box">
         <CsvHandler uploadedFile={uploadedFile} handleFileUpload={handleFileUpload} />
       </div>
