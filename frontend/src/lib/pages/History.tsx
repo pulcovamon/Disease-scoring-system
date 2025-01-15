@@ -7,28 +7,58 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShareFromSquare } from "@fortawesome/free-solid-svg-icons";
 
 export default function History() {
-  const [content, setContent]: [JSX.Element, Function] = useState<JSX.Element>(
-    <LoadingSpinner />
-  );
-  const [tasks, setTasks]: [JSX.Element[], Function] = useState<JSX.Element[]>(
-    []
-  );
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const results = new Results();
-    results
-      .getAllResults()
-      .then(() => {
-        if (results.message != null) {
-          setContent(
-            <div className="page-content box">
-              <p className="error">{results.message}</p>
-            </div>
-          );
-        } else if (results.tasks.length > 0) {
-          setTasks(
-            results.tasks.map((task) => {
-              const taskRow = (
+    const fetchResults = async () => {
+      try {
+        const results = new Results();
+        await results.getAllResults();
+
+        if (results.message) {
+          setError(results.message);
+        } else {
+          setTasks(results.tasks);
+        }
+      } catch (err) {
+        console.error(err);
+        setError("An error occurred while fetching results.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResults();
+  }, []);
+
+  return (
+    <div className="pagebody">
+      {loading ? (
+        <LoadingSpinner />
+      ) : error ? (
+        <div className="page-content box">
+          <p className="error">{error}</p>
+        </div>
+      ) : tasks.length === 0 ? (
+        <div className="page-content box">
+          <p className="error">No tasks found.</p>
+        </div>
+      ) : (
+        <div className="page-content">
+          <table className="catalog-table">
+            <thead>
+              <tr>
+                <th>Task ID</th>
+                <th>Disease</th>
+                <th>Result</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {tasks.map((task) => (
                 <tr key={task.task_id}>
                   <td>{task.task_id}</td>
                   <td>{task.disease || "N/A"}</td>
@@ -50,45 +80,11 @@ export default function History() {
                     </Link>
                   </td>
                 </tr>
-              );
-              return taskRow;
-            })
-          );
-          setContent(
-            <div className="page-content">
-              <table className="catalog-table">
-                <thead>
-                  <tr>
-                    <th>Task ID</th>
-                    <th>Disease</th>
-                    <th>Result</th>
-                    <th>Status</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>{tasks}</tbody>
-              </table>
-            </div>
-          );
-        } else {
-          setContent(
-            <div className="page-content box">
-              <p className="error">No tasks found.</p>
-            </div>
-          );
-        }
-      })
-      .catch((error) => {
-        setContent(
-          <div className="page-content box">
-            <p className="error">An error occurred.</p>
-          </div>
-        );
-        console.error(error);
-      });
-  }, [tasks]);
-
-  return <div className="pagebody">
-    {content}
-    </div>;
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
 }

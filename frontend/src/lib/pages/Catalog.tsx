@@ -164,6 +164,7 @@ export default function Catalog() {
             .map((code) => {
               let cssClass = "code-table";
               if (code === patientCode) {
+                console.log(code);
                 cssClass += " highlight-code";
                 highlightCode = false;
               }

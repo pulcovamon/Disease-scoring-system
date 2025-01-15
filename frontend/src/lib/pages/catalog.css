@@ -57,10 +57,11 @@
   .code-table {
     display: inline-block;
     margin-right: 10px;
-    background-color: #e0f7fa;
     padding: 5px 8px;
     border-radius: 15px;
     font-size: 12px;
+    background-color: transparent;
+    background-color: #e0f7fa;
   }
   
   .error {
