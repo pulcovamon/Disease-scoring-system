@@ -1,22 +1,17 @@
 import { faFloppyDisk, faPen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChangeEvent, useState, KeyboardEvent } from "react";
-import { DiseaseType } from "../classes/disease";
 
 export function ClasifyForm({
-  disease,
   modelType,
   codes,
   handleAddCode,
   handleUpdateCode,
-  handleSendCodes
 }: {
-  disease: DiseaseType;
   modelType: string;
   codes: string[];
   handleAddCode: (code: string) => void;
   handleUpdateCode: (index: number, newCode: string) => void;
-  handleSendCodes: () => void;
 }) {
   const [newCode, setNewCode] = useState("");
   const [editIndex, setEditIndex] = useState<number | null>(null);
@@ -90,9 +85,6 @@ export function ClasifyForm({
       />
         </li>
       </ul>
-      <button className="send" onClick={handleSendCodes}>
-          Send
-        </button>
     </div>
   );
 }

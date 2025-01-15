@@ -91,6 +91,7 @@ export function NewPatient({ patient, handlePatientChange }: NewPatientData) {
           type="text"
           value={name}
           onChange={(e) => handleNameChange(e)}
+          disabled={patient.id !== null}
         />
         <label>Surname</label>
         <input
@@ -98,6 +99,7 @@ export function NewPatient({ patient, handlePatientChange }: NewPatientData) {
           type="text"
           value={surname}
           onChange={(e) => handleSurnameChange(e)}
+          disabled={patient.id !== null}
         />
       </div>
     </div>

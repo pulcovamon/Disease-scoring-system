@@ -1,7 +1,6 @@
 html, body {
     margin: 0;
     padding: 0;
-    background-color: white;
     font-family: Avantgarde, "TeX Gyre Adventor", "URW Gothic L", sans-serif;
     color: black;
 }
@@ -47,9 +46,16 @@ main {
     min-height: calc(100vh - 150px);
     margin: 0;
     padding: 0;
-    background-size: cover;
-    background-position: center;
-    background-position: bottom right;
+    background-color: transparent;
+}
+
+.background-image {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
 }
 
 table {

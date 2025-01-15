@@ -12,7 +12,7 @@ export default function CsvPreview({uploadedFile}: {uploadedFile: File|null}) {
         skipEmptyLines: true,
         complete: (result) => {
           const rows = result.data as string[][];
-          setCsvData(rows.slice(0, 6));
+          setCsvData(rows.slice(0, 11));
           setError(null);
         },
         error: (err) => {

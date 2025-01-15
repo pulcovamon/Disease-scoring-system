@@ -1,11 +1,6 @@
 import React, { useState, DragEvent } from "react";
 
-interface FileUploaderProps {
-  accept?: string;
-  onFileSelect: (file: File) => void;
-}
-
-const FileUploader: React.FC<FileUploaderProps> = ({ accept = "*", onFileSelect }) => {
+function FileUploader({ accept = "*", onFileSelect } : {accept: string, onFileSelect: (file: File) => void}) {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragOver = (event: DragEvent<HTMLDivElement>) => {

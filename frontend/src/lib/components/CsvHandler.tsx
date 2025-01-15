@@ -1,7 +1,5 @@
 import { faCloudArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState } from "react";
-import { FileField, FileInput } from "react-admin";
 import FileUploader from "./FileUploader";
 
 function CsvHandler({
@@ -24,30 +22,20 @@ function CsvHandler({
     URL.revokeObjectURL(url);
   };
 
-  const sendFile = () => {
-    if (!uploadedFile) {
-      alert("No file uploaded!");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", uploadedFile);
-  };
 
   return (
     <div className="dataset-input">
-      <div className="download-box">
+      <div className="download-box" onClick={downloadTemplate}>
         <button className="download-button" onClick={downloadTemplate}>
           <FontAwesomeIcon icon={faCloudArrowDown} />
         </button>{" "}
+        <span className="download-file">
         template.csv
+        </span>
       </div>
       <h4>Dataset of codes</h4>
       <div>
         <FileUploader accept=".csv" onFileSelect={handleFileUpload} />
-        <button onClick={sendFile} disabled={!uploadedFile} className="send">
-          Send
-        </button>
       </div>
       {uploadedFile && <p>Uploaded file: {uploadedFile.name}</p>}
     </div>

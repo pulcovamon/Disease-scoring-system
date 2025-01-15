@@ -115,26 +115,26 @@
   box-shadow: 0 0 5px rgba(93, 68, 248, 0.5);
 }
 
-.link-button {
-}
-
 .tab-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 20px;
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-.separet-codes {
-  display: grid;
+.model-detail {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
   gap: 20px;
-  grid-template-rows: 1fr 1fr;
+  align-items: center;
 }
 
-.dataset {
-  display: grid;
-  gap: 20px;
-  grid-template-rows: 1fr 1fr;
+.preview {
+  align-items: center;
+  justify-content: center;
+  margin-top: 200px;
 }
 
 .page-body {
@@ -164,6 +164,34 @@
   right: 0;
 }
 
+.download-box:hover {
+  cursor: pointer;
+}
+
+.download-file {
+  position: relative;
+  padding: 5px;
+}
+
+.download-file:hover {
+  color: #4731d3;
+}
+
+.download-file::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #4731d3;
+  transition: width 0.3s ease;
+}
+
+.download-file:hover::after {
+  width: 100%;
+}
+
 .download-button {
   padding: 5px;
   border-radius: 25px;
@@ -185,6 +213,13 @@
   border: #ddd solid 2px;
   padding: 10px;
   border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.patient-select:hover,
+.patient-select:focus,
+.patient-select:active {
+  border-color: #5d44f8;
 }
 
 .box {
@@ -243,4 +278,137 @@
 
 .file-button:hover {
   background-color: #4731d3;
+}
+
+.disease-image {
+  width: 25%;
+  border-radius: 25px;
+}
+
+.navigation {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 10px;
+}
+
+.navigation-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 50px;
+}
+
+.navigation-button {
+  font-size: 1.5em;
+  padding: 10px;
+  border-radius: 20px;
+  top: 50px;
+  width: 150px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.navigation-button:disabled {
+  background-color: gray;
+  cursor: not-allowed;
+}
+
+.navigation-button:hover {
+  background-color: #4731d3;
+}
+
+.navigation-button:disabled:hover {
+  background-color: gray;
+}
+
+.steps-box {
+  display: flex;
+  flex-direction: row;
+  font-size: 2.5em;
+  gap: 20px;
+  align-items: center;
+}
+
+.line {
+  color: #5d44f8;
+}
+
+.step {
+  padding: 13px;
+  position: relative;
+}
+
+.current-step {
+  padding: 10px;
+  background-color: rgba(93, 68, 248, 0.5);
+  border: 3px solid #5d44f8;
+  border-radius: 20px;
+}
+
+.check {
+  font-size: 0.8em;
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  color: #5d44f8;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  padding: 2px;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+.data-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  text-align: center;
+}
+
+.codes-preview {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.codes-preview span {
+  border: solid 2px #5d44f8;
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.patient-info {
+  display: flex;
+}
+
+.inputs {
+  display: block;
+}
+
+.patient {
+  flex: 50%;
+}
+
+.code-sequence {
+  flex: 100%;
+}
+
+.selected-model {
+  text-align: center;
+}
+
+.selected-model-title, .patient-value {
+  color: #5d44f8;
+  text-decoration: underline;
+}
+
+.data-input-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
