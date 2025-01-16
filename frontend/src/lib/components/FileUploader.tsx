@@ -1,6 +1,14 @@
 import React, { useState, DragEvent } from "react";
 
-function FileUploader({ accept = "*", onFileSelect } : {accept: string, onFileSelect: (file: File) => void}) {
+function FileUploader({
+  accept = "*",
+  onFileSelect,
+  unallowed
+}: {
+  accept: string;
+  onFileSelect: (file: File) => void;
+  unallowed: boolean
+}) {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
@@ -32,19 +40,31 @@ function FileUploader({ accept = "*", onFileSelect } : {accept: string, onFileSe
     document.getElementById("fileInput")?.click();
   };
 
+  function setBorder() {
+    if (isDragging) {
+      return "2px dashed #4caf50"
+    } 
+    if (unallowed) {
+      return "2px solid red"
+    } 
+    return "2px dashed #ccc"
+  }
+
   return (
     <div>
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className="drag-box"
+        className={`drag-box ${unallowed ? "unallowed" : ""}`}
         style={{
-          border: isDragging ? "2px dashed #4caf50" : "2px dashed #ccc",
+          border: setBorder(),
           backgroundColor: isDragging ? "#f5f5f5" : "#fff",
         }}
       >
-        <p style={{ margin: 0 }}>Drag and drop a file here, or click to upload</p>
+        <p style={{ margin: 0 }}>
+          Drag and drop a file here, or click to upload
+        </p>
         <button
           onClick={handleButtonClick}
           type="button"
@@ -62,6 +82,6 @@ function FileUploader({ accept = "*", onFileSelect } : {accept: string, onFileSe
       </div>
     </div>
   );
-};
+}
 
 export default FileUploader;

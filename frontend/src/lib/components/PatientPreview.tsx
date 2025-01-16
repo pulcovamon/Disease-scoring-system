@@ -1,4 +1,6 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Patient } from "../classes/patient";
+import { faDatabase } from "@fortawesome/free-solid-svg-icons";
 
 export default function PatientPreview({
   patient,
@@ -9,7 +11,9 @@ export default function PatientPreview({
 }) {
   return (
     <div className="data-preview">
-      <h4>Data Preview</h4>
+      <h4>Data Preview{" "}
+        <FontAwesomeIcon icon={faDatabase} />
+      </h4>
       <div className="data-input-preview">
       <span>Name: <span className="patient-value">
       {patient.name}

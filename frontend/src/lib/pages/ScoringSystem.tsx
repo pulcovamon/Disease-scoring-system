@@ -43,12 +43,13 @@ export default function ScoringSystem() {
     InputMethod.Manual
   );
   const navigate = useNavigate();
+  const [unallowed, setUnallowed] = useState<boolean>(false);
 
   const titles = [
     "Select a Model",
     "Select Input Method and Fill Data",
-    "Ckeck and send"
-  ]
+    "Ckeck and send",
+  ];
 
   function handleDiseaseChange(diseaseType: DiseaseType) {
     setDisease(diseaseType);
@@ -89,13 +90,21 @@ export default function ScoringSystem() {
       return false;
     }
     if (inputMethod === InputMethod.Manual) {
-      return (
-        patient.name.trim() === "" ||
-        patient.surname.trim() === "" ||
-        codes.length === 0
-      );
+      return patient.name.trim() === "" || codes.length === 0;
     }
     return uploadedFile === null;
+  }
+
+  function handleNextButton() {
+    if (isNextDisabled()) {
+      setUnallowed(true);
+    } else if (step === 2) {
+      setUnallowed(false);
+      handleSendCodes();
+    } else {
+      setUnallowed(false);
+      setStep(step + 1);
+    }
   }
 
   function renderInputMethod() {
@@ -104,22 +113,23 @@ export default function ScoringSystem() {
         return (
           <div className="tab-content inputs">
             <div className="patient-info">
-            <div className="box patient">
+              <div className="box patient">
                 <SelectedModel model={disease} />
               </div>
-            <div className="box patient">
-              <NewPatient
-                patient={patient}
-                handlePatientChange={handlePatientChange}
-              />
-            </div>
+              <div className="box patient">
+                <NewPatient
+                  patient={patient}
+                  handlePatientChange={handlePatientChange}
+                  unallowed={unallowed}
+                />
+              </div>
             </div>
             <div className="box code-sequence">
               <ClasifyForm
-                modelType="Medical codes sequence"
                 codes={codes}
                 handleAddCode={handleAddCode}
                 handleUpdateCode={handleUpdateCode}
+                unallowed={unallowed}
               />
             </div>
           </div>
@@ -128,17 +138,17 @@ export default function ScoringSystem() {
         return (
           <div className="tab-content">
             <div className="patient-info">
-            <div className="box patient">
-            <SelectedModel model={disease} />
+              <div className="box patient">
+                <SelectedModel model={disease} />
               </div>
-            <div className="box patient">
-              <CsvHandler
-                uploadedFile={uploadedFile}
-                handleFileUpload={handleFileUpload}
-              />
+              <div className="box patient">
+                <CsvHandler
+                  uploadedFile={uploadedFile}
+                  handleFileUpload={handleFileUpload}
+                  unallowed={unallowed}
+                />
+              </div>
             </div>
-            </div>
-
           </div>
         );
       default:
@@ -210,8 +220,8 @@ export default function ScoringSystem() {
       case Step.Send:
         return (
           <div>
-            <div className="box preview" >
-            <SelectedModel model={disease} />
+            <div className="box preview">
+              <SelectedModel model={disease} />
             </div>
             <div className="box preview">
               {inputMethod === InputMethod.Manual ? (
@@ -235,7 +245,7 @@ export default function ScoringSystem() {
       </div>
       {renderCurrentStep()}
       <div className="navigation-buttons">
-      <button
+        <button
           className="navigation-button"
           onClick={() => setStep(step - 1)}
           disabled={step === 0}
@@ -243,9 +253,10 @@ export default function ScoringSystem() {
           <FontAwesomeIcon icon={faArrowLeft} /> Back
         </button>
         <button
-          className="navigation-button"
-          onClick={step === 2 ? handleSendCodes : () => setStep(step + 1)}
-          disabled={isNextDisabled()}
+          className={`navigation-button ${
+            isNextDisabled() ? "navigation-button-disabled" : ""
+          }`}
+          onClick={handleNextButton}
         >
           {step === 2 ? (
             <span>

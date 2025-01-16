@@ -1,13 +1,15 @@
-import { faCloudArrowDown } from "@fortawesome/free-solid-svg-icons";
+import { faCloudArrowDown, faFileCsv } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import FileUploader from "./FileUploader";
 
 function CsvHandler({
   uploadedFile,
   handleFileUpload,
+  unallowed
 }: {
   uploadedFile: File | null;
   handleFileUpload: (file: File) => void;
+  unallowed: boolean
 }) {
   const downloadTemplate = () => {
     const template = "id,name,age\n1,John Doe,30\n2,Jane Smith,25";
@@ -33,9 +35,11 @@ function CsvHandler({
         template.csv
         </span>
       </div>
-      <h4>Dataset of codes</h4>
+      <h4>Dataset of codes{" "}
+        <FontAwesomeIcon icon={faFileCsv} />
+      </h4>
       <div>
-        <FileUploader accept=".csv" onFileSelect={handleFileUpload} />
+        <FileUploader accept=".csv" onFileSelect={handleFileUpload} unallowed={unallowed && uploadedFile === null} />
       </div>
       {uploadedFile && <p>Uploaded file: {uploadedFile.name}</p>}
     </div>

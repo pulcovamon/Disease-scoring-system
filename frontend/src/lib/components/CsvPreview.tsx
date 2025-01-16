@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Papa from "papaparse";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTable } from "@fortawesome/free-solid-svg-icons";
 
 export default function CsvPreview({uploadedFile}: {uploadedFile: File|null}) {
   const [csvData, setCsvData] = useState<string[][]>([]);
@@ -24,7 +26,9 @@ export default function CsvPreview({uploadedFile}: {uploadedFile: File|null}) {
 
   return (
     <div className="dataset-preview-box">
-      <h4>Dataset Preview</h4>
+      <h4>Dataset Preview{" "}
+        <FontAwesomeIcon icon={faTable} />
+      </h4>
       {error && <p style={{ color: "red" }}>Error: {error}</p>}
       {csvData.length > 0 && (
         <table className="dataset-table">

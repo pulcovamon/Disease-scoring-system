@@ -6,9 +6,10 @@ import { faUser } from "@fortawesome/free-solid-svg-icons";
 interface NewPatientData {
   patient: Patient;
   handlePatientChange: (patient: Patient) => void;
+  unallowed: boolean
 }
 
-export function NewPatient({ patient, handlePatientChange }: NewPatientData) {
+export function NewPatient({ patient, handlePatientChange, unallowed }: NewPatientData) {
   const [name, setName] = useState<string>(patient.name);
   const [surname, setSurname] = useState<string>(patient.surname);
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -64,7 +65,7 @@ export function NewPatient({ patient, handlePatientChange }: NewPatientData) {
   return (
     <div className="form-container">
       <h4>
-        Patient
+        Patient{" "}
         <FontAwesomeIcon icon={faUser} />
       </h4>
       <div className="patient-form">
@@ -86,9 +87,9 @@ export function NewPatient({ patient, handlePatientChange }: NewPatientData) {
             );
           })}
         </select>
-        <label>Name</label>
+        <label>Name *</label>
         <input
-          className="code-input"
+          className={`code-input ${unallowed && name === "" ? "unallowed" : ""}`}
           type="text"
           value={name}
           onChange={(e) => handleNameChange(e)}

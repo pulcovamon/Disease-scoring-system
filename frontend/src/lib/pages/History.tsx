@@ -50,6 +50,7 @@ export default function History() {
       ) : (
         <div className="content">
           <h2>Prediction History</h2>
+          <div className="banner-box">
           {taskId === null ? null : (
             <div className="sent-banner">
               <span>
@@ -61,6 +62,7 @@ export default function History() {
             </button>
             </div>
           )}
+          </div>
           <table className="catalog-table">
             <thead>
               <tr>

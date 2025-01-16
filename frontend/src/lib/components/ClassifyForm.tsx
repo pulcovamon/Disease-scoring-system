@@ -1,17 +1,17 @@
-import { faFloppyDisk, faPen } from "@fortawesome/free-solid-svg-icons";
+import { faFloppyDisk, faNotesMedical, faPen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChangeEvent, useState, KeyboardEvent } from "react";
 
 export function ClasifyForm({
-  modelType,
   codes,
   handleAddCode,
   handleUpdateCode,
+  unallowed
 }: {
-  modelType: string;
   codes: string[];
   handleAddCode: (code: string) => void;
   handleUpdateCode: (index: number, newCode: string) => void;
+  unallowed: boolean
 }) {
   const [newCode, setNewCode] = useState("");
   const [editIndex, setEditIndex] = useState<number | null>(null);
@@ -48,7 +48,9 @@ export function ClasifyForm({
 
   return (
     <div className="form-container">
-      <h4>{modelType}</h4>
+      <h4>Medical codes sequence{" "}
+        <FontAwesomeIcon icon={faNotesMedical} />
+      </h4>
       <ul className="codes-list">
         {codes.map((code, index) => (
           <li key={index} >
@@ -81,7 +83,7 @@ export function ClasifyForm({
         onChange={handleInputChange}
         onKeyDown={handleKeyPress}
         placeholder="Add a new code and press Enter"
-        className="code-input"
+        className={`code-input ${unallowed && codes.length === 0 ? "unallowed" : ""}`}
       />
         </li>
       </ul>

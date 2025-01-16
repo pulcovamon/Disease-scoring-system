@@ -308,7 +308,7 @@
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
-.navigation-button:disabled {
+.navigation-button-disabled {
   background-color: gray;
   cursor: not-allowed;
 }
@@ -317,7 +317,7 @@
   background-color: #4731d3;
 }
 
-.navigation-button:disabled:hover {
+.navigation-button-disabled:hover {
   background-color: gray;
 }
 
@@ -411,4 +411,8 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.unallowed {
+  border: 2px solid red;
 }
