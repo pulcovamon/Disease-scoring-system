@@ -70,7 +70,7 @@ export default function ScoringSystem() {
     dataSender.postData().then(() => {
       if (dataSender.message != null) {
       } else if (dataSender.id != null) {
-        navigate("/result");
+        navigate(`/result?id=${dataSender.id}`);
       } else {
       }
     });

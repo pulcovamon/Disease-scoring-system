@@ -59,3 +59,30 @@
     height: 30px;
   }
   
+  .highlight-row {
+    background-color: yellow;
+  }
+
+  .sent-banner {
+    background-color: #5d44f8;
+    color: white;
+    width: 100%;
+    padding: 0 10px;
+    border-radius: 25px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 80px;
+    align-items: center;
+    font-size: 1.2em;
+  }
+
+  .cross-button {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2em;
+  }
+
+  .cross-button:hover {
+    font-size: 1.5em;
+  }

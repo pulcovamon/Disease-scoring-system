@@ -2,14 +2,16 @@ import React, { useState, useEffect } from "react";
 import { Results } from "../classes/result";
 import "./history.css";
 import LoadingSpinner from "../components/LoadingSpinner";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faShareFromSquare } from "@fortawesome/free-solid-svg-icons";
+import { faShareFromSquare, faXmark } from "@fortawesome/free-solid-svg-icons";
 
 export default function History() {
   const [tasks, setTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
+  const [taskId, setTaskId] = useState<string|null>(searchParams.get("id"));
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -47,6 +49,18 @@ export default function History() {
         </div>
       ) : (
         <div className="page-content">
+          <h2>Prediction History</h2>
+          {taskId === null ? null : (
+            <div className="sent-banner">
+              <span>
+              You just send task with id <b>{taskId}</b>. Please wait until
+              prediction will be done.
+              </span>
+            <button onClick={() => setTaskId(null)} className="cross-button">
+              <FontAwesomeIcon icon={faXmark} />
+            </button>
+            </div>
+          )}
           <table className="catalog-table">
             <thead>
               <tr>
@@ -59,7 +73,12 @@ export default function History() {
             </thead>
             <tbody>
               {tasks.map((task) => (
-                <tr key={task.task_id}>
+                <tr
+                  key={task.task_id}
+                  className={
+                    taskId === task.task_id ? "highlight-row" : undefined
+                  }
+                >
                   <td>{task.task_id}</td>
                   <td>{task.disease || "N/A"}</td>
                   <td>
