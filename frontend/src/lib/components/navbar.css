@@ -67,10 +67,12 @@
 
   .active {
     background-color: #4130b2;
+    transition: width 0.3s ease-in-out;
   }
 
   .passive {
     background-color: #5d44f8;
+    transition: width 0.3s ease-in-out;
   }
 
   .submenu {
@@ -114,7 +116,7 @@
 
   .collapse-button {
     font-size: 1.5em;
-    transition: transform 0.3s ease;
+    transition: width 0.3s ease-in-out;
   }
 
   .collapse-button:hover {

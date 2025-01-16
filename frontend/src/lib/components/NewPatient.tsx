@@ -71,6 +71,7 @@ export function NewPatient({ patient, handlePatientChange }: NewPatientData) {
         <select
           className="patient-select"
           onChange={(e) => handleCurrentPatientChange(e)}
+          value={patient.id === null ? "new" : patient.id}
         >
           {patients.map((currentPatient) => {
             const value = currentPatient.id

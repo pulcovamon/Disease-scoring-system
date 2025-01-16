@@ -86,3 +86,9 @@
   .cross-button:hover {
     font-size: 1.5em;
   }
+
+  .content {
+    margin: 0;
+    padding: 0;
+    display: block;
+  }

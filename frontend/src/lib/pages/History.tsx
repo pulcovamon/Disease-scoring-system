@@ -40,15 +40,15 @@ export default function History() {
       {loading ? (
         <LoadingSpinner />
       ) : error ? (
-        <div className="page-content box">
+        <div className="content box">
           <p className="error">{error}</p>
         </div>
       ) : tasks.length === 0 ? (
-        <div className="page-content box">
+        <div className="content box">
           <p className="error">No tasks found.</p>
         </div>
       ) : (
-        <div className="page-content">
+        <div className="content">
           <h2>Prediction History</h2>
           {taskId === null ? null : (
             <div className="sent-banner">
