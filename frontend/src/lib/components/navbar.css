@@ -8,16 +8,17 @@
     font-weight: bold;
     text-align: left;
     background: #5d44f8;
-    padding: 20px;
+    padding: 0;
     position: relative;
     width: auto;
     flex-shrink: 0;
     overflow-y: auto;
+    padding-top: 50px;
   }
   
   .navbar ul {
     list-style-type: none;
-    padding: 10px;
+    padding: 0;
     white-space: nowrap;
   }
 
@@ -26,7 +27,7 @@
   }
   
   .navbar li {
-    margin-bottom: 10px;
+    padding: 5px;
   }
   
   .navbar a,
@@ -47,7 +48,6 @@
     margin: 0 10px;
   }
   
-  /* Podtržení efekt */
   .navbar a::before,
   .menu-button::before {
     content: "";
@@ -63,6 +63,14 @@
   .navbar a:hover::before,
   .menu-button:hover::before {
     width: 100%;
+  }
+
+  .active {
+    background-color: #4130b2;
+  }
+
+  .passive {
+    background-color: #5d44f8;
   }
 
   .submenu {
