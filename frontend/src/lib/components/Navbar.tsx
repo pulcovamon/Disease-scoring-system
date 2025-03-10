@@ -4,6 +4,7 @@ import {
   faAnglesRight,
   faHouse,
   faRobot,
+  faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
@@ -97,6 +98,32 @@ export default function Navbar() {
             <ul className="submenu">
               <li className={isActive("/catalog") ? "active" : "passive"}>
                 <a href="/catalog">Lung cancer</a>
+              </li>
+            </ul>
+          )}
+        </li>
+        <li
+          className={
+            (isActive("/account") || isActive("/models") || isActive("/datasets")) &&
+            !openMenus["personal"]
+              ? "active"
+              : "passive"
+          }
+          >
+          <div className="menu-button" onClick={() => toggleMenu("personal")}>
+            <FontAwesomeIcon icon={faUser} />
+            {collapsed ? <></> : <span>Personal</span>}
+          </div>
+          {openMenus["personal"] && (
+            <ul className="submenu">
+              <li className={isActive("/account") ? "active" : "passive"}>
+                <a href="/account">Account</a>
+              </li>
+              <li className={isActive("/models") ? "active" : "passive"}>
+                <a href="/models">Models</a>
+              </li>
+              <li className={isActive("/datasets") ? "active" : "passive"}>
+                <a href="/datasets">Datasets</a>
               </li>
             </ul>
           )}
