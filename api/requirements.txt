@@ -6,3 +6,5 @@ sqlmodel==0.0.18
 celery==5.3.6
 redis==5.0.1
 pymongo==4.10.1
+pandas==2.2.3
+python-multipart==0.0.20

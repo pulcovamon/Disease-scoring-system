@@ -4,9 +4,11 @@ API endpoints
 
 import json
 import os
+import io
+import pandas as pd
 
 from celery.result import AsyncResult
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile, File
 from fastapi.responses import JSONResponse
 
 from worker import celery_app
@@ -128,3 +130,54 @@ def predict(disease: str, data: models.Data):
         )
     response = {"id": task.id}
     return JSONResponse(status_code=202, content=response)
+
+
+@router.post("/{disease}/dataset")
+async def predict_dataset(disease: str, dataset: UploadFile):
+    if disease in [
+        "lung-cancer",
+        "multiple-sclerosis",
+        "hidradentis-supporativa",
+    ]:
+        disease = disease.split("-")
+        disease = f"{disease[0]}_{disease[1]}"
+    else:
+        raise HTTPException(
+            status_code=404, detail=f"Disease {disease} not found.")
+    try:
+        data = []
+
+        if dataset.content_type == "text/csv":
+            content = await dataset.read()
+            df = pd.read_csv(io.BytesIO(content))
+
+            if "id" not in df.columns or "codes" not in df.columns:
+                raise HTTPException(
+                    status_code=400,
+                    detail="CSV must contain 'id' and 'codes' columns!"
+                )
+            
+            data = [
+                {"id": row["id"], "codes": row["codes"].split(",")}
+                for _, row in df.iterrows()
+            ]
+
+        elif dataset.content_type == "application/json":
+            content = await dataset.read()
+            data = json.loads(content.decode("utf-8"))
+
+            if not all("id" in entry and "codes" in entry for entry in data):
+                raise HTTPException(
+                    status_code=400,
+                    detail="JSON entries must contain 'id' and 'codes' keys!"
+                )
+
+        else:
+            raise HTTPException(status_code=400, detail="File must be CSV or JSON!")
+
+        task = celery_app.send_task(disease, args=[data])
+        return JSONResponse(status_code=201, content={"id": task.id})
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+

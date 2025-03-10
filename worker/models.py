@@ -23,9 +23,9 @@ class MLModel:
         Returns:
 
         """
-        time.sleep(randint(10, 60))
-        if randint(0, 100) < 5:
-            raise RuntimeError
+        # time.sleep(randint(1, 5))
+        # if randint(0, 100) < 5:
+        #     raise RuntimeError
         return round(random(), 3)
 
 
