@@ -1,6 +1,6 @@
 from celery.result import AsyncResult
 
-from worker import celery_app
+from api.worker import celery_app
 
 def get_task_dict(task_id):
     task = AsyncResult(task_id, app=celery_app)
@@ -31,3 +31,6 @@ def get_task_dict(task_id):
                 "disease": None,
             }
     return response
+
+def sanitize_filename(filename: str) -> str:
+    return filename.replace(" ", "_")

@@ -8,29 +8,28 @@ import io
 import pandas as pd
 
 from celery.result import AsyncResult
-from fastapi import APIRouter, HTTPException, UploadFile, File
+from fastapi import APIRouter, HTTPException, UploadFile, File, BackgroundTasks, File, UploadFile
 from fastapi.responses import JSONResponse
 
-from worker import celery_app
-from .utils import get_task_dict
+from api.worker import celery_app
+from .utils import get_task_dict, sanitize_filename
 
 from . import models
 
 router = APIRouter()
 
+MODEL_DIR = "/app/models"
 
 @router.get("/result/")
-def get_all_results():
+async def get_all_results():
     i = celery_app.control.inspect()
 
-    # Aktivní, rezervované a naplánované úkoly
     active_tasks = i.active() or {}
     scheduled_tasks = i.scheduled() or {}
     reserved_tasks = i.reserved() or {}
 
     all_task_ids = set()
 
-    # Získání ID ze všech dostupných úkolů
     for worker_tasks in [active_tasks, scheduled_tasks, reserved_tasks]:
         for worker, tasks in worker_tasks.items():
             for task in tasks:
@@ -38,23 +37,20 @@ def get_all_results():
                 if task_id:
                     all_task_ids.add(task_id)
 
-    # Ručně přidat dokončené úkoly (např. SUCCESS nebo FAILURE)
     backend = celery_app.backend
     if hasattr(backend, "client"):
-        # Pro Redis backend
         keys = backend.client.keys("celery-task-meta-*")
         for key in keys:
             task_id = key.decode("utf-8").replace("celery-task-meta-", "")
             all_task_ids.add(task_id)
 
-    # Generovat výsledky pro všechny úkoly
     all_tasks = [get_task_dict(task_id) for task_id in all_task_ids]
 
     return JSONResponse(status_code=200, content=all_tasks)
 
 
 @router.get("/result/{id}")
-def get_result(id: str):
+async def get_result(id: str):
     """
     Get result from machine learning models.
     (probability of presence of given disease)
@@ -99,8 +95,8 @@ def get_result(id: str):
     return JSONResponse(status_code=200, content=response)
 
 
-@router.post("/{disease}/")
-def predict(disease: str, data: models.Data):
+@router.post("/{model}/")
+async def predict(disease: str, data: models.Data):
     """
     Reuqest calculation of probability of presence of disease
     from given examination codes (health assurance codes).
@@ -180,4 +176,19 @@ async def predict_dataset(disease: str, dataset: UploadFile):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+@router.post("/models/upload")
+async def upload_model(background_tasks: BackgroundTasks, file: UploadFile = File(...)
+):
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in [".pkl"]:
+        raise HTTPException(
+            status_code=400, detail=f"Unsupported file: {file.filename}."
+        )
+    model_path = os.path.join(os.getenv("MODEL_STORAGE_PATH", "/models"), "train_motif_dict.pkl")
+    with open(model_path, "wb") as f:
+        content = await file.read()
+        f.write(content)
+    return {"status": "File uploaded"}
 

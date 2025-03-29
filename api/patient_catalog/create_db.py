@@ -3,11 +3,29 @@ import os
 from pymongo import MongoClient
 
 client = MongoClient("mongodb://root:pass@0.0.0.0:27017")
-db = client.catalog_db
-db.lung_cancer.delete_many({})
 
-db.lung_cancer.create_index("_id")
-db.lung_cancer.create_index("codes")
+catalog_db = client["catalog_db"]
+catalog_db.lung_cancer.delete_many({})
+catalog_db.lung_cancer.create_index("_id")
+catalog_db.lung_cancer.create_index("codes")
+
+scoring_db = client["scoring_system"]
+models_collection = scoring_db["models"]
+
+default_models = {
+    "_id": "default",
+    "path": "/models/default/",
+    "user": None,
+    "children": [
+        {"filename": "model_1.pkl", "name": "Logistic Regression", "description": "Basic logistic regression model for testing."},
+        {"filename": "model_2.pkl", "name": "Random Forest", "description": "Random forest classifier with default hyperparameters."}
+    ]
+}
+
+models_collection.replace_one({"_id": "default"}, default_models, upsert=True)
+
+print("Default models inserted.")
+
 
 def parse_and_upload(file_path):
     with open(file_path, "r") as file:
@@ -59,7 +77,7 @@ def parse_and_upload(file_path):
             "codes": codes
         }
         
-        db.lung_cancer.insert_one(patient_data)
+        catalog_db.lung_cancer.insert_one(patient_data)
 
 file_path = "catalog.txt"
 parse_and_upload(file_path)

@@ -2,5 +2,21 @@
   "dependencies": {
     "papaparse": "^5.5.1",
     "react-admin": "^5.4.4"
-  }
+  },
+  "name": "scoring_system",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

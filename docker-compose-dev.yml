@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   catalog_db:
     image: mongo:latest
@@ -19,8 +21,6 @@ services:
 
   redis_server:
     image: redis:alpine
-    environment:
-      REDIS_PASSWORD: pass
     ports:
       - "6379:6379"
     volumes:
@@ -34,11 +34,14 @@ services:
       MONGO_URL: "mongodb://root:pass@catalog_db:27017"
       REDIS_URL: "redis://redis_server:6379"
       C_FORCE_ROOT: "true"
+      MODEL_STORAGE_PATH: "/models"
     depends_on:
       catalog_db:
         condition: service_healthy
     ports:
       - "8080:8080"
+    volumes:
+      - "model_storage:/models"
     networks:
       - scoring-system
 
@@ -47,12 +50,16 @@ services:
     environment:
       REDIS_URL: "redis://redis_server:6379"
       C_FORCE_ROOT: "true"
+      MODEL_STORAGE_PATH: "/models"
+    volumes:
+      - "model_storage:/models"
     networks:
       - scoring-system
 
 volumes:
   redis_data:
   patient_catalog_data:
+  model_storage:
 
 networks:
   scoring-system:
