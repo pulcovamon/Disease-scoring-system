@@ -1,5 +1,5 @@
 .PHONY: db setup app clean
-dotenv = env $(shell cat .env | xargs)
+dotenv = env $(shell cat .env-dev | xargs)
 PYTHON := $(shell pyenv which python)
 
 # Initialize and seed the database
