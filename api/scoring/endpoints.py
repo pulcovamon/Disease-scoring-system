@@ -12,7 +12,7 @@ from fastapi import APIRouter, HTTPException, UploadFile, File, BackgroundTasks,
 from fastapi.responses import JSONResponse
 
 from api.worker import celery_app
-from .utils import get_task_dict, sanitize_filename
+from api.scoring.utils import get_task_dict
 
 from . import models
 
@@ -178,17 +178,4 @@ async def predict_dataset(disease: str, dataset: UploadFile):
         raise HTTPException(status_code=500, detail=str(e))
     
 
-@router.post("/models/upload")
-async def upload_model(background_tasks: BackgroundTasks, file: UploadFile = File(...)
-):
-    ext = os.path.splitext(file.filename)[1].lower()
-    if ext not in [".pkl"]:
-        raise HTTPException(
-            status_code=400, detail=f"Unsupported file: {file.filename}."
-        )
-    model_path = os.path.join(os.getenv("MODEL_STORAGE_PATH", "/models"), "train_motif_dict.pkl")
-    with open(model_path, "wb") as f:
-        content = await file.read()
-        f.write(content)
-    return {"status": "File uploaded"}
 

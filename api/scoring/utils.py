@@ -31,6 +31,3 @@ def get_task_dict(task_id):
                 "disease": None,
             }
     return response
-
-def sanitize_filename(filename: str) -> str:
-    return filename.replace(" ", "_")
