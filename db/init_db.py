@@ -8,9 +8,9 @@ from pymongo.errors import ServerSelectionTimeoutError
 MONGO_URL = os.getenv("MONGO_URL", "mongodb://root:pass@localhost:27017")
 MODEL_STORAGE_PATH = os.getenv("MODEL_STORAGE_PATH", "./local_model_storage")
 CATALOG_PATH = os.getenv("CATALOG_PATH", "catalog.txt")
-DEFAULT_MODEL_SOURCE = os.getenv("DEFAULT_MODEL_SOURCE", "./default_models")
+DEFAULT_MODEL_SOURCE = os.getenv("DEFAULT_MODEL_SOURCE", "./db/default_models")
 
-# === Vytvoření adresáře pro modely, pokud neexistuje ===
+# === create directories and wait for db ===
 os.makedirs(MODEL_STORAGE_PATH, exist_ok=True)
 
 default_dir = os.path.join(MODEL_STORAGE_PATH, "default")
@@ -32,7 +32,7 @@ def wait_for_mongo(uri, timeout=30):
 
 client = wait_for_mongo(MONGO_URL)
 
-# === KATALOG ===
+# === catalog ===
 catalog_db = client["catalog_db"]
 catalog_db.lung_cancer.delete_many({})
 catalog_db.lung_cancer.create_index("_id")
@@ -95,7 +95,7 @@ parse_and_upload(CATALOG_PATH)
 print("✅ Patient data uploaded.")
 
 
-# === DEFAULTNÍ MODELY ===
+# === default models ===
 scoring_db = client["scoring_system"]
 models_collection = scoring_db["models"]
 
@@ -104,19 +104,18 @@ default_models = {
     "path": MODEL_STORAGE_PATH + "/default/",
     "user": None,
     "children": [
-        {"filename": "model_1.pkl", "name": "Logistic Regression", "description": "Basic logistic regression model for testing."},
-        {"filename": "model_2.pkl", "name": "Random Forest", "description": "Random forest classifier with default hyperparameters."}
+        {"filename": "random_forest_model.pkl", "name": "Random Forest", "description": "Random forest classifier with default hyperparameters."}
     ]
 }
 
 models_collection.replace_one({"_id": "default"}, default_models, upsert=True)
 print("✅ Default model metadata inserted into MongoDB.")
 
-# === Kopírování modelů ===
+# === Copy models ===
 target_dir = os.path.join(MODEL_STORAGE_PATH, "default")
 os.makedirs(target_dir, exist_ok=True)
 
-for model_file in ["model_1.pkl", "model_2.pkl"]:
+for model_file in ["random_forest_model.pkl"]:
     src = os.path.join(DEFAULT_MODEL_SOURCE, model_file)
     dst = os.path.join(target_dir, model_file)
     if os.path.exists(src):
