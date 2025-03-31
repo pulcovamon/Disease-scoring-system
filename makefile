@@ -48,10 +48,20 @@ db:
 	@echo "🧠 Running database initialization script..."
 	$(dotenv) db/.venv/bin/python db/init_db.py
 
+	@echo "🔍 Starting elasticsearch"
+	docker run -d --name elasticsearch \
+		-p 9200:9200 -p 9300:9300 \
+		-e "discovery.type=single-node" \
+		-e "xpack.security.enabled=false" \
+		elasticsearch:8.11.1
+
+	@echo "🧠 Indexing codes to Elasticsearch..."
+	$(dotenv) db/.venv/bin/python db/init_es.py
+
 # Start existing DB containers
 start-db:
 	@echo "▶️ Starting DB containers..."
-	-docker start catalog_db redis_server
+	-docker start catalog_db redis_server elasticsearch
 
 # Full setup (DB + requirements)
 setup: db requirements
@@ -70,7 +80,7 @@ app:
 # Clean only DB containers and volumes
 clean-db:
 	@echo "🧼 Stopping and removing containers..."
-	-docker rm -f catalog_db redis_server
+	-docker rm -f catalog_db redis_server elasticsearch
 
 	@echo "🧼 Removing Docker volumes..."
 	-docker volume rm patient_catalog_data
@@ -81,7 +91,7 @@ clean-db:
 # Stop DB containers without removing
 stop-db:
 	@echo "🛑 Stopping DB containers..."
-	-docker stop catalog_db redis_server
+	-docker stop catalog_db redis_server elasticsearch
 
 # Clean everything
 clean: clean-db

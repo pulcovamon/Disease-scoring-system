@@ -1,54 +1,38 @@
-"""
-Script for python logger setup.
-"""
-
 import logging
 import sys
+from pathlib import Path
 
 
-class Logger(object):
-    """
-    Logger singleton class
-    """
-
+class Logger:
     _instance = None
 
-    def __init__(self):
-        raise RuntimeError("Call get_instance() instead")
-
-    @classmethod
-    def get_instance(cls):
+    def __new__(cls):
         if cls._instance is None:
-            cls._instance = cls.__new__(cls)
+            cls._instance = super(Logger, cls).__new__(cls)
             cls._instance.setup_logger()
         return cls._instance
 
-    def debug(self, message):
-        self.logger.debug(message)
-
-    def info(self, message):
-        self.logger.info(message)
-
-    def warning(self, message):
-        self.logger.warning(message)
-
-    def error(self, message):
-        self.logger.error(message)
-
     def setup_logger(self):
-        """
-        Setup for python logger.
-        All messages are logged into file 'cardmaker-api.log' and stdout.
-        """
         formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
 
-        file_handler = logging.FileHandler("cardmaker-api.log")
+        log_path = Path("api/scoring-system-api.log")
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+
+        file_handler = logging.FileHandler(log_path)
         file_handler.setFormatter(formatter)
 
         stream_handler = logging.StreamHandler(sys.stdout)
         stream_handler.setFormatter(formatter)
 
-        self.logger = logging.getLogger("CardmakerApi")
+        self.logger = logging.getLogger("ScoringSystemLogger")
         self.logger.setLevel(logging.DEBUG)
-        self.logger.addHandler(file_handler)
-        self.logger.addHandler(stream_handler)
+
+        # prevent duplicate logs
+        if not self.logger.handlers:
+            self.logger.addHandler(file_handler)
+            self.logger.addHandler(stream_handler)
+
+    def debug(self, message): self.logger.debug(message)
+    def info(self, message): self.logger.info(message)
+    def warning(self, message): self.logger.warning(message)
+    def error(self, message): self.logger.error(message)

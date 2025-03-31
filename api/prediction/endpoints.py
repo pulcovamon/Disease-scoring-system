@@ -14,7 +14,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from api.worker import celery_app
-from api.scoring.utils import format_task_result, get_all_task_ids, models_db
+from api.prediction.utils import format_task_result, get_all_task_ids, models_db
 
 class PredictionRequest(BaseModel):
     codes: List[str]
