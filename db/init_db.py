@@ -10,7 +10,6 @@ MODEL_STORAGE_PATH = os.getenv("MODEL_STORAGE_PATH", "./local_model_storage")
 CATALOG_PATH = os.getenv("CATALOG_PATH", "catalog.txt")
 DEFAULT_MODEL_SOURCE = os.getenv("DEFAULT_MODEL_SOURCE", "./db/default_models")
 
-# === create directories and wait for db ===
 os.makedirs(MODEL_STORAGE_PATH, exist_ok=True)
 
 default_dir = os.path.join(MODEL_STORAGE_PATH, "default")
@@ -32,7 +31,6 @@ def wait_for_mongo(uri, timeout=30):
 
 client = wait_for_mongo(MONGO_URL)
 
-# === catalog ===
 catalog_db = client["catalog_db"]
 catalog_db.lung_cancer.delete_many({})
 catalog_db.lung_cancer.create_index("_id")
@@ -47,7 +45,7 @@ def parse_and_upload(file_path):
     for patient_data in patients_data:
         if not patient_data.strip():
             continue
-        
+
         patient_id_match = re.search(r"(\d+)\n", patient_data)
         if not patient_id_match:
             continue
@@ -87,41 +85,52 @@ def parse_and_upload(file_path):
             },
             "codes": codes
         }
-        
+
         catalog_db.lung_cancer.insert_one(patient_data)
 
 print(f"📂 Uploading data from {CATALOG_PATH}")
 parse_and_upload(CATALOG_PATH)
 print("✅ Patient data uploaded.")
 
-
-# === default models ===
 scoring_db = client["scoring_system"]
 models_collection = scoring_db["models"]
 
-default_models = {
-    "_id": "default",
-    "path": MODEL_STORAGE_PATH + "/default/",
-    "user": None,
-    "children": [
-        {"filename": "random_forest_model.pkl", "name": "Random Forest", "description": "Random forest classifier with default hyperparameters."}
-    ]
-}
+model_definitions = [
+    {
+        "filename": "random_forest_model.pkl",
+        "name": "Random Forest",
+        "description": "Random forest classifier with default hyperparameters.",
+        "image": None,
+    },
+]
 
-models_collection.replace_one({"_id": "default"}, default_models, upsert=True)
-print("✅ Default model metadata inserted into MongoDB.")
+default_user = "default"
+default_user_dir = os.path.join(MODEL_STORAGE_PATH, default_user)
+os.makedirs(default_user_dir, exist_ok=True)
 
-# === Copy models ===
-target_dir = os.path.join(MODEL_STORAGE_PATH, "default")
-os.makedirs(target_dir, exist_ok=True)
+for model in model_definitions:
+    src_path = os.path.join(DEFAULT_MODEL_SOURCE, model["filename"])
+    dst_path = os.path.join(default_user_dir, model["filename"])
 
-for model_file in ["random_forest_model.pkl"]:
-    src = os.path.join(DEFAULT_MODEL_SOURCE, model_file)
-    dst = os.path.join(target_dir, model_file)
-    if os.path.exists(src):
-        shutil.copy2(src, dst)
-        print(f"📁 Copied {model_file} to model storage.")
+    if os.path.exists(src_path):
+        shutil.copy2(src_path, dst_path)
+
+        model_doc = {
+            "user": default_user,
+            "path": dst_path,
+            "name": model["name"],
+            "description": model["description"],
+            "image": model["image"],
+            "is_public": True
+        }
+
+        if not models_collection.find_one({"path": dst_path}):
+            models_collection.insert_one(model_doc)
+            print(f"✅ Inserted model: {model['name']}")
+        else:
+            print(f"ℹ️ Model already exists: {model['name']}")
     else:
-        print(f"⚠️ WARNING: {model_file} not found in {DEFAULT_MODEL_SOURCE}")
+        print(f"⚠️ WARNING: {model['filename']} not found in {DEFAULT_MODEL_SOURCE}")
 
+print("✅ Default models registered in MongoDB.")
 print("✅ Init complete.")
