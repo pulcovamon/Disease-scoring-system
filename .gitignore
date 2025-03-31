@@ -6,6 +6,5 @@ __pycache__
 .env
 catalog.txt
 *.pkl
-scripts
 vizualization
 data
