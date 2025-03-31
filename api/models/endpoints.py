@@ -10,13 +10,14 @@ from bson.json_util import dumps
 from api.database import MongoDatabase
 from api.models.utils import sanitize_filename
 
-router = APIRouter()
+router = APIRouter(prefix="/model", tags=["Models"])
 models_db = MongoDatabase(db_name="scoring_system", collection_name="models")
 
 
 class ModelUploadForm(BaseModel):
     username: str
     model_name: str
+    disease: str
     description: str = ""
     is_public: bool = False
 
@@ -31,7 +32,7 @@ class ModelUploadForm(BaseModel):
         return cls(username=username, model_name=model_name, description=description, is_public=is_public)
 
 
-@router.post("/model")
+@router.post("")
 async def upload_model(
     form: ModelUploadForm = Depends(ModelUploadForm.as_form),
     file: UploadFile = File(...),
@@ -77,6 +78,7 @@ async def upload_model(
         "user": form.username,
         "path": model_path,
         "name": form.model_name,
+        "disease": form.disease,
         "description": form.description,
         "image": image_filename,
         "is_public": form.is_public,
@@ -88,7 +90,7 @@ async def upload_model(
 
     return {"status": "Model uploaded", "model_id": str(model_id)}
 
-@router.get("/model/{_id}")
+@router.get("/{_id}")
 async def get_model_by_id(_id: str):
     try:
         object_id = ObjectId(_id)
@@ -101,7 +103,7 @@ async def get_model_by_id(_id: str):
 
     return JSONResponse(content=dumps(data), status_code=200)
 
-@router.get("/model")
+@router.get("")
 async def get_models(
     username: Optional[str] = Query(None),
     include_public: bool = Query(False),

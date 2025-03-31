@@ -5,11 +5,11 @@ from typing import Optional
 
 from api.database import MongoDatabase
 
-router = APIRouter()
+router = APIRouter(prefix="/catalog", tags=["Catalog"])
 
 catalog_db = MongoDatabase(db_name="catalog_db", collection_name="lung_cancer")
 
-@router.get("/catalog/lung-cancer")
+@router.get("/lung-cancer")
 async def get_lung_cancer_catalog(skip: int = 0, limit: int = 20, code: Optional[str] = Query(None)):
     if code:
         data = catalog_db.get_documents_by_field_value("codes", code, skip, limit)
@@ -18,7 +18,7 @@ async def get_lung_cancer_catalog(skip: int = 0, limit: int = 20, code: Optional
 
     return JSONResponse(content=jsonable_encoder(data), status_code=200)
 
-@router.get("/catalog/lung-cancer/{id}")
+@router.get("/lung-cancer/{id}")
 async def get_patient_by_id(id: int):
     data = catalog_db.get_document_by_id(id)
     if not data:
@@ -28,7 +28,7 @@ async def get_patient_by_id(id: int):
         )
     return JSONResponse(content=jsonable_encoder(data), status_code=200)
 
-@router.get("/catalog/size")
+@router.get("/size")
 async def get_size_of_catalog(code: Optional[str] = Query(None)):
     filter_query = {"codes": {"$in": [code]}} if code else None
     count = catalog_db.get_document_count(filter_query)
