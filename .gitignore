@@ -7,3 +7,5 @@ __pycache__
 catalog.txt
 *.pkl
 scripts
+vizualization
+data
