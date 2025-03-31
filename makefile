@@ -75,6 +75,9 @@ clean-db:
 	@echo "🧼 Removing Docker volumes..."
 	-docker volume rm patient_catalog_data
 
+	@echo "🧼 Removing model storage..."
+	rm -rf model_storage/*
+
 # Stop DB containers without removing
 stop-db:
 	@echo "🛑 Stopping DB containers..."
@@ -87,9 +90,6 @@ clean: clean-db
 
 	@echo "🧼 Removing frontend dependencies..."
 	cd frontend && rm -rf node_modules
-
-	@echo "🧼 Removing model storage..."
-	rm -rf model_storage/*
 
 	@echo "✅ Full clean complete!"
 
