@@ -1,20 +1,28 @@
 """
 API endpoints
 """
-
 import json
 import os
 import io
 import pandas as pd
+from bson import ObjectId
+from typing import List
 
 from celery.result import AsyncResult
 from fastapi import APIRouter, HTTPException, UploadFile, File, BackgroundTasks, File, UploadFile
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 from api.worker import celery_app
 from api.scoring.utils import get_task_dict
+from api.database import MongoDatabase
 
 from . import models
+
+models_db = MongoDatabase(db_name="scoring_system", collection_name="models")
+
+class PredictionRequest(BaseModel):
+    codes: List[str]
 
 router = APIRouter()
 
@@ -73,11 +81,12 @@ async def get_result(id: str):
                 status_code=404, detail=f"Task with id {id} does not exist!"
             )
         case "SUCCESS":
+            result_data = task.result
             response = {
                 "status": task.status,
-                "result": task.result[0],
+                "result": result_data.get("prediction"),  # tady vytáhneš konkrétní hodnotu
                 "task_id": id,
-                "disease": task.result[1],
+                "disease": None,
             }
         case "FAILURE":
             response = json.loads(
@@ -94,39 +103,36 @@ async def get_result(id: str):
             }
     return JSONResponse(status_code=200, content=response)
 
-
-@router.post("/{model}/")
-async def predict(disease: str, data: models.Data):
+@router.post("/predict")
+async def predict(model_id: str, data: PredictionRequest):
     """
-    Reuqest calculation of probability of presence of disease
-    from given examination codes (health assurance codes).
-
-    Args:
-        disease (str): disease name
-        data (models.Data): sequence of health assurance codes
-
-    Returns:
-        JSON response with status code 202: task id
-
-    Raises:
-        HTTP exeption with status code 404:
-                if given disease does not exist
+    Request a model prediction based on model ID and input code sequence.
     """
-    if disease in [
-        "lung-cancer",
-        "multiple-sclerosis",
-        "hidradentis-supporativa",
-    ]:
-        disease = disease.split("-")
-        disease = f"{disease[0]}_{disease[1]}"
-        task = celery_app.send_task(disease, args=[data.codes])
-    else:
-        raise HTTPException(
-            status_code=404, detail=f"Disease {disease} not found."
-        )
-    response = {"id": task.id}
-    return JSONResponse(status_code=202, content=response)
+    try:
+        object_id = ObjectId(model_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid model ID")
 
+    model_doc = models_db.collection.find_one({
+        "$or": [
+            {"_id": object_id},
+            {"_id": model_id}
+        ]
+    })
+
+    if not model_doc:
+        raise HTTPException(status_code=404, detail="Model not found")
+
+    model_path = model_doc.get("path")
+    if not model_path or not os.path.isfile(model_path):
+        raise HTTPException(status_code=500, detail="Model file is missing on server")
+
+    encoder_path = model_doc.get("encoder")
+    if encoder_path and not os.path.isfile(encoder_path):
+        encoder_path = None
+
+    task = celery_app.send_task("run_model_prediction", args=[model_path, data.codes, encoder_path])
+    return JSONResponse(status_code=202, content={"task_id": task.id})
 
 @router.post("/{disease}/dataset")
 async def predict_dataset(disease: str, dataset: UploadFile):

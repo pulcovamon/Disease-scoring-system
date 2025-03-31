@@ -1,5 +1,9 @@
 celery==5.3.6
 redis==5.0.1
-pandas==2.2.3
 joblib
-pymongo
+scikit-learn
+hmmlearn
+numpy
+pandas
+torch
+tensorflow
