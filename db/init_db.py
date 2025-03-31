@@ -113,6 +113,7 @@ model_definitions = [
     {
         "filename": "random_forest_model.pkl",
         "name": "Random Forest",
+        "disease": "lung cancer",
         "description": "Random forest classifier with default hyperparameters.",
         "image": None,
     },
@@ -133,6 +134,7 @@ for model in model_definitions:
             "user": default_user,
             "path": dst_path,
             "name": model["name"],
+            "disease": model["disease"],
             "description": model["description"],
             "image": model["image"],
             "is_public": True
