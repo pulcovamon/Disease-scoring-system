@@ -73,7 +73,7 @@ clean-db:
 	-docker rm -f catalog_db redis_server
 
 	@echo "🧼 Removing Docker volumes..."
-	-docker volume rm patient_catalog_data redis_data
+	-docker volume rm patient_catalog_data
 
 # Stop DB containers without removing
 stop-db:
