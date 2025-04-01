@@ -24,32 +24,24 @@ http_basic = HTTPBasic()
 
 
 class JWTBearer(HTTPBearer):
-    """
-    JWT token checker.
-    Override '__call__' method to make the class callable in endpoints.
-    """
-
     def __init__(self, auto_error: bool = True):
         super(JWTBearer, self).__init__(auto_error=auto_error)
 
     async def __call__(self, request: Request):
-        token = await super(JWTBearer, self).__call__(request)
-        if token:
-            if token.scheme != "Bearer":
-                raise HTTPException(
-                    status_code=401, detail="Invalid authentication scheme!"
-                )
-            user = verify_jwt(token.credentials)
-            if not user:
-                raise HTTPException(
-                    status_code=401, detail="Invalid or expired token!"
-                )
-            logger.debug(token.credentials)
-            return token.credentials
-        else:
+        credentials = await super(JWTBearer, self).__call__(request)
+        if credentials:
+            if credentials.scheme != "Bearer":
+                if self.auto_error:
+                    raise HTTPException(
+                        status_code=401, detail="Invalid authentication scheme!"
+                    )
+                return None
+            return credentials.credentials
+        if self.auto_error:
             raise HTTPException(
                 status_code=401, detail="Invalid authorization code!"
             )
+        return None
 
 
 def hash_password(password: str, salt: bytes | None = None) -> Tuple[bytes, bytes]:
