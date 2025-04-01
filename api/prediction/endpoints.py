@@ -9,8 +9,8 @@ from bson import ObjectId
 from typing import List
 
 from celery.result import AsyncResult
-from fastapi import APIRouter, HTTPException, UploadFile, File, BackgroundTasks, File, UploadFile
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, HTTPException, UploadFile, Query, File, BackgroundTasks, File, UploadFile
+from fastapi.responses import JSONResponse, FileResponse
 from pydantic import BaseModel
 
 from api.worker import celery_app
@@ -22,6 +22,8 @@ class PredictionRequest(BaseModel):
 router = APIRouter(prefix="/prediction", tags=["Prediction"])
 
 MODEL_DIR = "/app/models"
+TEMPLATE_DIR = os.path.join("api", "templates")
+ALLOWED_FORMATS = {"csv", "json"}
 
 @router.get("/result/{id}")
 async def get_task_by_id(id: str):
@@ -122,6 +124,19 @@ async def predict_dataset(model_id: str, dataset: UploadFile):
     
     task = celery_app.send_task("run_model_prediction", args=[model_id, model_path, data, encoder_path])
     return JSONResponse(status_code=202, content={"task_id": task.id})
+
+
+@router.get("/template")
+def get_template(file_format: str = Query(default="csv", description="Format of the template: csv or json")):
+    file_format = file_format.lower()
+    if file_format not in ALLOWED_FORMATS:
+        raise HTTPException(status_code=400, detail="Only 'csv' and 'json' formats are supported.")
+
+    file_path = os.path.join(TEMPLATE_DIR, f"template.{file_format}")
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Template file not found.")
+
+    return FileResponse(file_path, filename=f"template.{file_format}", media_type="application/octet-stream")
 
     
 
