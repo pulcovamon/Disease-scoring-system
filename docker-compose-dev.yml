@@ -28,15 +28,49 @@ services:
     networks:
       - scoring-system
 
+  mysql_server:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: "pass"
+      MYSQL_DATABASE: "scoring_system"
+    ports:
+      - "3306:3306"
+    volumes:
+      - "mysql_data:/var/lib/mysql"
+    networks:
+      - scoring-system
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-ppass"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  elasticsearch:
+    image: elasticsearch:8.11.1
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - scoring-system
+
   api:
     build: ./api
     environment:
       MONGO_URL: "mongodb://root:pass@catalog_db:27017"
       REDIS_URL: "redis://redis_server:6379"
-      C_FORCE_ROOT: "true"
+      MYSQL_URL: "mysql+pymysql://root:pass@mysql_server:3306/scoring_system"
+      ES_HOST: "elasticsearch"
+      ES_PORT: "9200"
+      ES_INDEX: "medical_codes"
       MODEL_STORAGE_PATH: "/models"
+      C_FORCE_ROOT: "true"
     depends_on:
       catalog_db:
+        condition: service_healthy
+      mysql_server:
         condition: service_healthy
     ports:
       - "8080:8080"
@@ -49,8 +83,8 @@ services:
     build: ./worker
     environment:
       REDIS_URL: "redis://redis_server:6379"
-      C_FORCE_ROOT: "true"
       MODEL_STORAGE_PATH: "/models"
+      C_FORCE_ROOT: "true"
     volumes:
       - "model_storage:/models"
     networks:
@@ -60,6 +94,7 @@ volumes:
   redis_data:
   patient_catalog_data:
   model_storage:
+  mysql_data:
 
 networks:
   scoring-system:
