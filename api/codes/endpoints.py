@@ -18,13 +18,34 @@ logger = Logger()
 
 
 @router.get("")
-async def get_all_codes(limit: int = 100):
+async def get_all_codes(limit: int = 100, skip: int = 0):
     try:
-        result = es.search(index=INDEX_NAME, query={"match_all": {}}, size=limit)
+        result = es.search(
+            index=INDEX_NAME,
+            query={"match_all": {}},
+            size=limit,
+            from_=skip
+        )
         hits = result.get("hits", {}).get("hits", [])
         return [hit["_source"] for hit in hits]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+    
+@router.get("/count")
+async def get_total_codes():
+    try:
+        result = es.search(
+            index=INDEX_NAME,
+            query={"match_all": {}},
+            size=0,
+            track_total_hits=True
+        )
+        total = result["hits"]["total"]["value"]
+        return {"total_codes": total}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 
 @router.get("/search")
