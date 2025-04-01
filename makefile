@@ -45,8 +45,20 @@ db:
 		-p 6379:6379 \
 		redis:alpine
 
-	@echo "🧠 Running database initialization script..."
-	$(dotenv) db/.venv/bin/python db/init_db.py
+	@echo "🧠 Running mongo initialization script..."
+	$(dotenv) db/.venv/bin/python db/init_mongo.py
+
+	@echo "🛢️ Starting MySQL..."
+	docker run -d \
+		--name mysql_server \
+		-p 3306:3306 \
+		-e MYSQL_ROOT_PASSWORD=pass \
+		-e MYSQL_DATABASE=scoring_system \
+		-v mysql_data:/var/lib/mysql \
+		mysql:8.0
+
+	@echo "🧠 Running mysql initialization script..."
+	$(dotenv) api/.venv/bin/python -m api.auth.init_mysql
 
 	@echo "🔍 Starting elasticsearch"
 	docker run -d --name elasticsearch \
@@ -61,7 +73,7 @@ db:
 # Start existing DB containers
 start-db:
 	@echo "▶️ Starting DB containers..."
-	-docker start catalog_db redis_server elasticsearch
+	-docker start catalog_db redis_server mysql_server elasticsearch
 
 # Full setup (DB + requirements)
 setup: db requirements
@@ -80,10 +92,10 @@ app:
 # Clean only DB containers and volumes
 clean-db:
 	@echo "🧼 Stopping and removing containers..."
-	-docker rm -f catalog_db redis_server elasticsearch
+	-docker rm -f catalog_db redis_server mysql_server elasticsearch
 
 	@echo "🧼 Removing Docker volumes..."
-	-docker volume rm patient_catalog_data
+	-docker volume rm patient_catalog_data mysql_data
 
 	@echo "🧼 Removing model storage..."
 	rm -rf model_storage/*
@@ -91,7 +103,7 @@ clean-db:
 # Stop DB containers without removing
 stop-db:
 	@echo "🛑 Stopping DB containers..."
-	-docker stop catalog_db redis_server elasticsearch
+	-docker stop catalog_db redis_server mysql_server elasticsearch
 
 # Clean everything
 clean: clean-db

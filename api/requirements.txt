@@ -9,3 +9,8 @@ pymongo==4.10.1
 pandas==2.2.3
 python-multipart==0.0.20
 elasticsearch
+mysql-connector-python==8.4.0
+pydantic[email]
+bcrypt==4.2.0
+pyjwt==2.8.0
+pymysql
