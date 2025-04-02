@@ -70,14 +70,20 @@ def get_user_by_email(email: str) -> models.User | None:
         return result.first()
 
 
+def get_user_auth(user_id):
+    for session in get_session():
+        result = session.exec(select(models.Auth).where(models.Auth.user_id == user_id))
+        return result.first()
+
 def authenticate(email: str, password: str):
     user = get_user_by_email(email)
     if not user:
         logger.debug(f"{email} not in db")
         return
-    hashed_password, _ = hash_password(password, user.salt)
+    auth = get_user_auth(user.id)
+    hashed_password, _ = hash_password(password, auth.salt)
     if not secrets.compare_digest(
-        hashed_password, str.encode(user.hashed_password)
+        hashed_password, str.encode(auth.hashed_password)
     ):
         logger.debug(f"{hashed_password} is not same as {user.hashed_password}")
         return

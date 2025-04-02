@@ -34,18 +34,20 @@ async def register_user(data: models.UserCreate):
         first_name=data.first_name,
         last_name=data.last_name,
         email=data.email,
-        hashed_password=hashed_password.decode(),
-        salt=salt,
         is_approved=False,
         role="user"
     )
     for session in get_session():
-        session.add(new_user)
-        session.commit()
-        session.refresh(new_user)
-
+            session.add(new_user)
+            session.commit()
+            session.refresh(new_user)
+            admin_login = Auth(
+                user_id=new_user.id,
+                hashed_password=hashed_password.decode(),
+                salt=salt
+            )
     logger.info(f"Registered new user: {new_user.email}")
-    return JSONResponse(status_code=201, content={"user_id": str(new_user.id)})
+    return JSONResponse(status_code=201, content=jsonable_encoder(new_user))
 
 
 @router.post("/token", response_model=models.Token)
@@ -58,15 +60,15 @@ async def get_token(credentials: Annotated[HTTPBasicCredentials, Depends(http_ba
     return models.Token(access_token=access_token)
 
 
-@router.get("/user/me", response_model=models.UserRead)
+@router.get("/user/me", response_model=models.User)
 def get_current_user(token: str = Depends(JWTBearer())):
     user = verify_jwt(token)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid token")
-    return models.UserRead.model_validate(user)
+    return models.User.model_validate(user)
 
 
-@router.get("/user", response_model=models.UserRead)
+@router.get("/user", response_model=models.User)
 def admin_get_all_users(token: str = Depends(JWTBearer())):
     user = verify_jwt(token)
     if not user:
@@ -76,12 +78,7 @@ def admin_get_all_users(token: str = Depends(JWTBearer())):
     for session in get_session():
         statement = select(models.User)
         users = session.exec(statement).all()
-        users_read = []
-        for user in users:
-            user_read = models.UserRead.model_validate(user)
-            user_read.id = str(user_read.id)
-            users_read.append(user_read)
-    return JSONResponse(status_code=200, content=jsonable_encoder(users_read))
+    return JSONResponse(status_code=200, content=jsonable_encoder(users))
 
 
 @router.post("/user/approval")
@@ -98,3 +95,39 @@ def admin_approve_user(usedID: models.UserID, token: str = Depends(JWTBearer()))
         session.add(user_to_approve)
         session.commit()
     return Response(status_code=204)
+
+
+@router.post("/patient")
+def create_patient(patient: models.Patient, token: str = Depends(JWTBearer())):
+    user = verify_jwt(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    for session in get_session():
+        session.add(patient)
+        session.commit()
+        session.refresh(patient)
+    return JSONResponse(status_code=201, content=jsonable_encoder(patient))
+
+
+@router.get("/patient")
+def get_all_patients(token: str = Depends(JWTBearer())):
+    user = verify_jwt(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    for session in get_session():
+        statement = select(models.Patient).where(models.Patient.user_id == user.id)
+        patients = session.exec(statement).all()
+    return JSONResponse(status_code=201, content=jsonable_encoder(patients))
+
+
+@router.get("/patient/{id}")
+def get_patient_by_id(patient_id: int, token: str = Depends(JWTBearer())):
+    user = verify_jwt(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    for session in get_session():
+        statement = select(models.Patient).where(models.Patient.id == patient_id)
+        patient = session.exec(statement).one()
+        if patient.user_id != user.id:
+            raise HTTPException(status_code=403, detail=f"Patient with ID {patient_id} does not belog to this user. ")
+    return JSONResponse(status_code=201, content=jsonable_encoder(patient))

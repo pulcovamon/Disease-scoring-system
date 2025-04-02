@@ -2,7 +2,7 @@ import os
 import time
 import pymysql
 from sqlmodel import SQLModel, create_engine, Session, select
-from api.auth.models import User
+from api.auth.models import User, Auth, Patient
 from api.auth.security import hash_password
 
 MYSQL_URL = os.getenv("MYSQL_URL", "mysql+pymysql://root:pass@localhost:3306/scoring_system")
@@ -50,12 +50,18 @@ def init_db():
                 first_name="Admin",
                 last_name="Default",
                 email=admin_email,
-                hashed_password=hashed.decode(),
-                salt=salt,
                 is_approved=True,
                 role="admin"
             )
             session.add(admin_user)
+            session.commit()
+            session.refresh(admin_user)
+            admin_login = Auth(
+                user_id=admin_user.id,
+                hashed_password=hashed.decode(),
+                salt=salt
+            )
+            session.add(admin_login)
             session.commit()
         else:
             print("ℹ️ Admin user already exists.")

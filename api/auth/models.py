@@ -1,49 +1,39 @@
 import uuid
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Relationship
 from typing import Optional
 from pydantic import EmailStr
 
 
-class User(SQLModel, table=True):
-    id: uuid.UUID = Field(default_factory=lambda: uuid.uuid4(), primary_key=True, index=True)
-    first_name: str
-    last_name: str
-    email: EmailStr = Field(unique=True, index=True)
-    hashed_password: str
-    is_approved: bool = Field(default=False)
-    role: str = Field(default="user")
-    salt: bytes
-
-
-class UserCreate(SQLModel):
+class UserBase(SQLModel):
     first_name: str
     last_name: str
     email: EmailStr
+    
+class UserCreate(UserBase):
     password: str
-
-
-class UserRead(SQLModel):
-    id: uuid.UUID 
-    first_name: str
-    last_name: str
-    email: EmailStr
+    
+class User(UserBase ,table=True):
+    __tablename__ = "users"
+    id: uuid.UUID = Field(default_factory=lambda: uuid.uuid4(), primary_key=True, index=True)
     is_approved: bool
     role: str
     
+class Auth(SQLModel, table=True):
+    __tablename__ = "auth"
+    user_id: uuid.UUID = Field(default=None, foreign_key="users.id", primary_key=True)
+    hashed_password: str
+    salt: bytes
     
 class UserID(SQLModel):
     id: uuid.UUID 
-
-
-class UserLogin(SQLModel):
-    email: EmailStr
-    password: str
-
 
 class Token(SQLModel):
     access_token: str
     token_type: str = "bearer"
 
-
-class TokenData(SQLModel):
-    email: Optional[str] = None
+class Patient(SQLModel, table=True):
+    __tablename__ = "patients"
+    id: int|None = Field(default=None, primary_key=True)
+    name: str
+    surname: str|None
+    user_id: uuid.UUID = Field(default=None, foreign_key="users.id", primary_key=False)
