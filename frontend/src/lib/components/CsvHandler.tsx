@@ -1,6 +1,7 @@
 import { faCloudArrowDown, faFileCsv } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import FileUploader from "./FileUploader";
+import { getBlob } from "../classes/api";
 
 function CsvHandler({
   uploadedFile,
@@ -11,24 +12,26 @@ function CsvHandler({
   handleFileUpload: (file: File) => void;
   unallowed: boolean
 }) {
-  const downloadTemplate = () => {
-    const template = "id,name,age\n1,John Doe,30\n2,Jane Smith,25";
-    const blob = new Blob([template], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "template.csv";
-    a.click();
-
-    URL.revokeObjectURL(url);
-  };
-
+  const downloadTemplate = async (fileFormat: "csv" | "json" = "csv") => {
+    try {
+      const blob = await getBlob("/prediction/template", { file_format: fileFormat });
+      const url = URL.createObjectURL(blob);
+  
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `template.${fileFormat}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Failed to download template:", err);
+    }
+  };  
 
   return (
     <div className="dataset-input">
-      <div className="download-box" onClick={downloadTemplate}>
-        <button className="download-button" onClick={downloadTemplate}>
+      <div className="download-box" onClick={() => downloadTemplate("csv")}>
+        <button className="download-button" onClick={() => downloadTemplate("csv")}>
           <FontAwesomeIcon icon={faCloudArrowDown} />
         </button>{" "}
         <span className="download-file">

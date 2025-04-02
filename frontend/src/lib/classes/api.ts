@@ -50,3 +50,17 @@ export async function postMethod<Type>(
   }
   return response.json() as Type;
 }
+
+export async function getBlob(path: string, queryParams?: { [key: string]: string | number }): Promise<Blob> {
+  const options = {
+    method: "GET",
+    headers: {
+      accept: "*/*",
+    },
+  };
+  const response = await fetch(getUrl(path, queryParams), options);
+  if (!response.ok) {
+    throw new HTTPError({ code: response.status as HttpErrorCode });
+  }
+  return await response.blob();
+}

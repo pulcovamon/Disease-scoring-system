@@ -416,3 +416,20 @@
 .unallowed {
   border: 2px solid red;
 }
+
+.model-info p {
+  text-align: left;
+}
+
+.selected-model {
+  padding: 20px;
+}
+
+.selected-model h3 {
+  text-align: left;
+}
+
+.selected-model p {
+  font-size: 1em;
+  text-align: left;
+}

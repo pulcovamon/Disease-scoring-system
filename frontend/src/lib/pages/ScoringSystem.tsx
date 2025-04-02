@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DiseaseInfo, DiseaseType } from "../classes/disease";
 import "./scoringSystem.css";
 import { DataSender } from "../classes/data";
@@ -17,6 +17,8 @@ import {
 import Steps from "../components/Steps";
 import PatientPreview from "../components/PatientPreview";
 import SelectedModel from "../components/SelectedModel";
+import { Model } from "../classes/model";
+import { getMethod } from "../classes/api";
 
 enum Step {
   SelectModel,
@@ -31,6 +33,13 @@ enum InputMethod {
 
 export default function ScoringSystem() {
   const [step, setStep] = useState<Step>(Step.SelectModel);
+  const [models, setModels] = useState<Model[]>([]);
+  const [currentModel, setCurrentModel] = useState<Model|null>(null);
+  const [modelOptions, setModelOptions] = useState<{}>({
+      "include_default": true,
+      "include_user": false,
+      "incluse_public": false
+    })
   const [disease, setDisease] = useState<DiseaseType>(DiseaseType.LungCancer);
   const [codes, setCodes] = useState<string[]>([]);
   const [patient, setPatient] = useState<Patient>({
@@ -51,8 +60,30 @@ export default function ScoringSystem() {
     "Ckeck and send",
   ];
 
+  useEffect(() => {
+    async function fetchModels() {
+      try {
+        const models = await getMethod<Model[]>("/model", modelOptions);
+        setModels(models);
+        if (models.length > 0) {
+          setCurrentModel(models[0]);
+        }
+      } catch (err) {
+        console.error("An error occurred", err);
+        setModels([]);
+      }
+    }
+  
+    fetchModels();
+  }, []);
+  
   function handleDiseaseChange(diseaseType: DiseaseType) {
     setDisease(diseaseType);
+    setCodes([]);
+  }
+
+  function handleModelChange(model: Model) {
+    setCurrentModel(model);
     setCodes([]);
   }
 
@@ -107,6 +138,13 @@ export default function ScoringSystem() {
     }
   }
 
+  function getDiseaseKeyFromName(diseaseName: string): DiseaseType | undefined {
+    const lower = diseaseName.toLowerCase();
+    return Object.values(DiseaseType).find((key) =>
+      lower.includes(key.replaceAll("_", " "))
+    );
+  }  
+
   function renderInputMethod() {
     switch (inputMethod) {
       case InputMethod.Manual:
@@ -114,7 +152,7 @@ export default function ScoringSystem() {
           <div className="tab-content inputs">
             <div className="patient-info">
               <div className="box patient">
-                <SelectedModel model={disease} />
+                <SelectedModel model={currentModel} getDiseaseKeyFromName={getDiseaseKeyFromName} />
               </div>
               <div className="box patient">
                 <NewPatient
@@ -139,7 +177,7 @@ export default function ScoringSystem() {
           <div className="tab-content">
             <div className="patient-info">
               <div className="box patient">
-                <SelectedModel model={disease} />
+              <SelectedModel model={currentModel} getDiseaseKeyFromName={getDiseaseKeyFromName} />
               </div>
               <div className="box patient">
                 <CsvHandler
@@ -156,42 +194,54 @@ export default function ScoringSystem() {
     }
   }
 
+
   function renderCurrentStep() {
     switch (step) {
       case Step.SelectModel:
+        const diseaseKey = getDiseaseKeyFromName(currentModel?.disease || "");
+        const diseaseInfo = diseaseKey ? DiseaseInfo[diseaseKey] : undefined;
+      
         return (
           <div>
             <div className="tabs">
-              {Object.values(DiseaseType).map((diseaseType) => (
+              {Object.values(models).map((model) => (
                 <button
-                  key={diseaseType}
-                  className={`tab ${disease === diseaseType ? "active" : ""}`}
-                  onClick={() => handleDiseaseChange(diseaseType)}
+                  key={model._id}
+                  className={`tab ${currentModel === model ? "active" : ""}`}
+                  onClick={() => handleModelChange(model)}
                 >
                   <span>
-                    {DiseaseInfo[diseaseType].name}{" "}
-                    <FontAwesomeIcon icon={DiseaseInfo[diseaseType].icon} />
+                    {model.name}
+                    {getDiseaseKeyFromName(model.disease) && (
+                      <FontAwesomeIcon
+                        icon={DiseaseInfo[getDiseaseKeyFromName(model.disease)!].icon}
+                        style={{ marginLeft: "0.5rem" }}
+                      />
+                    )}
                   </span>
                 </button>
               ))}
             </div>
-
+      
             <div className="tab-content box">
               <div className="model-detail">
-                <img
-                  className="disease-image"
-                  src={`/assets/${DiseaseInfo[disease].image}`}
-                  alt={DiseaseInfo[disease].name}
-                ></img>
-                <div>
-                  <h3>{DiseaseInfo[disease].name}</h3>
-                  <p>{DiseaseInfo[disease].intro}</p>
-                  <p>{DiseaseInfo[disease].description}</p>
+                {diseaseInfo && (
+                  <img
+                    className="disease-image"
+                    src={`/assets/${diseaseInfo.image}`}
+                    alt={diseaseInfo.name}
+                  />
+                )}
+                <div className="model-info">
+                  <h2>{currentModel?.name}</h2>
+                  <p>{currentModel?.description}</p>
+                  <h3>{currentModel?.disease}</h3>
+                  {diseaseInfo && <p>{diseaseInfo.description}</p>}
                 </div>
               </div>
             </div>
           </div>
-        );
+        );      
       case Step.SelectInputMethod:
         return (
           <div>
@@ -221,7 +271,7 @@ export default function ScoringSystem() {
         return (
           <div>
             <div className="box preview">
-              <SelectedModel model={disease} />
+            <SelectedModel model={currentModel} getDiseaseKeyFromName={getDiseaseKeyFromName} />
             </div>
             <div className="box preview">
               {inputMethod === InputMethod.Manual ? (

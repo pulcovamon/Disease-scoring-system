@@ -21,27 +21,21 @@ export const DiseaseInfo = {
     name: "Lung Cancer",
     icon: faLungs,
     description:
-      "This model predicts the probability of developing lung cancer based on medical codes and patient data.",
-    intro:
-      "Lung cancer is a type of cancer that begins in the lungs. Early detection can significantly improve treatment outcomes.",
+      "Lung cancer is a serious disease in which abnormal cells grow uncontrollably in the lung tissue, often due to smoking or exposure to environmental toxins. It is one of the most common and deadly forms of cancer, but early diagnosis can greatly improve outcomes.",
     image: "lung-cancer.jpg"
   },
   [DiseaseType.MultipleSclerosis]: {
     name: "Multiple Sclerosis",
     icon: faBrain,
     description:
-      "This model predicts the likelihood of multiple sclerosis, a condition that affects the brain and spinal cord.",
-    intro:
-      "Multiple sclerosis is a chronic condition that can lead to a range of symptoms, including fatigue, vision problems, and mobility issues.",
+      "Multiple sclerosis is a chronic autoimmune disorder that affects the central nervous system, particularly the brain and spinal cord. It can lead to symptoms such as fatigue, vision problems, difficulty walking, and muscle weakness, with severity varying between individuals.",
     image: "multiple-sclerosis.jpg"
   },
   [DiseaseType.HidradenitisSuppurativa]: {
     name: "Hidradenitis Suppurativa",
     icon: faHandDots,
     description:
-      "This model estimates the probability of hidradenitis suppurativa, a painful skin condition.",
-    intro:
-      "Hidradenitis suppurativa is a chronic skin condition that causes small, painful lumps to form under the skin, often in areas where the skin rubs together.",
+      "Hidradenitis suppurativa is a long-term skin condition characterized by painful, inflamed lumps and abscesses that typically occur in areas where skin rubs together. Over time, the condition can cause scarring and tunnels under the skin, significantly affecting quality of life.",
     image: "hidradenitis-supporativa.jpg"
   },
 };
