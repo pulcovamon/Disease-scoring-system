@@ -15,9 +15,11 @@ from pydantic import BaseModel
 
 from api.worker import celery_app
 from api.prediction.utils import format_task_result, get_all_task_ids, models_db
+from api.auth.models import Patient
 
 class PredictionRequest(BaseModel):
     codes: List[str]
+    patient: Patient|int|None
 
 router = APIRouter(prefix="/prediction", tags=["Prediction"])
 
