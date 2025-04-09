@@ -48,3 +48,13 @@ export class DataSender {
       });
   }
 }
+
+export interface CodeInfo {
+  code: string;
+  name: string;
+  specialty: string;
+  tfidf_label_0?: number;
+  tfidf_label_1?: number;
+  frequency?: number;
+}
+

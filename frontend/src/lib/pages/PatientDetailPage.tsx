@@ -13,6 +13,7 @@ export default function PatientDetailPage() {
   const code = searchParams.get("code");
   const [patient, setPatient] = useState<Patient | null>(null);
   const [message, setMessage] = useState<JSX.Element | string>("");
+  const [colorMode, setColorMode] = useState<"specialty" | "tfidf0" | "tfidf1" | "frequency">("specialty");  
 
   useEffect(() => {
     async function fetchPatient() {
@@ -41,10 +42,20 @@ export default function PatientDetailPage() {
     fetchPatient();
   }, [id]);
 
+  const handleColorModeChange = (newMode: typeof colorMode) => {
+    setColorMode(newMode);
+  };
+
   const content = patient ? (
     <>
       <Heatmap patient={patient} titleVisible={true} />
-      <PatientCodes patient={patient} titleVisible={true} currentCode={code} />
+      <PatientCodes
+      patient={patient}
+      titleVisible={true}
+      currentCode={code}
+      colorMode={colorMode}
+      onColorModeChange={handleColorModeChange}
+    />
     </>
   ) : (
     message
