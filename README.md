@@ -12,43 +12,61 @@ docker-compose up -d --build
 
 ## Run with makefile
 ### Setup
-- Install python and ts requirements
+
+- Install python and ts requirements (also creates venv, runs npm init and so on)
+
 ```
-make requirements (also creates venv, runs npm init and so on)
+make requirements
 ```
+
 - Create db containers and run init scripts
-```
-- Reinstall python and ts requirements
-```
-make reinstall
+
 ```
 make db
 ```
+
+- Reinstall python and ts requirements
+
+```
+make reinstall
+```
+
 - Start existing db containers
+
 ```
 make start-db
 ```
+
 - Whole setup (requirements + db)
+
 ```
 make setup
 ```
 
 ### Run app
+
 Run api, worker and frontend services using live server
+
 ```
 make app
 ```
 
 ### Cleanup
+
 - Stop database containers
+
 ```
 make stop-db
 ```
+
 - Stop and remove db containers and volumes
+
 ```
 make clean-db
 ```
+
 - Remove db containers and volumes and also all venvs and node modules
+
 ```
 make clean
 ```
