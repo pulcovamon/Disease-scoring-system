@@ -4,6 +4,12 @@ import { getMethod } from "../classes/api";
 import { CodeInfo } from "../classes/data";
 import { codeCache } from "../classes/codeCache";
 import Legend from "./Legend";
+import {
+  getColorStyleFromValue,
+  getCategoricalColor,
+  fetchStats,
+  StatMap,
+} from "../utils/colorUtils";
 
 codeCache.init();
 
@@ -31,6 +37,14 @@ export default function PatientCodes({
     return fromCache;
   });
 
+  const [stats, setStats] = useState<StatMap | null>(null);
+
+  useEffect(() => {
+    fetchStats()
+      .then((data) => setStats(data))
+      .catch(() => setStats(null));
+  }, []);
+
   useEffect(() => {
     const fetchMissing = async () => {
       const uniqueCodes = Array.from(new Set(patient.codes));
@@ -52,68 +66,56 @@ export default function PatientCodes({
     fetchMissing();
   }, [patient.codes]);
 
-  const getColorClass = (info: CodeInfo | null) => {
-    if (!info) return "code-default";
+  const getColorStyle = (info: CodeInfo | null | undefined): React.CSSProperties => {
+    if (info === null) {
+      return {
+        backgroundImage: "repeating-linear-gradient(45deg, #ddd, #ddd 4px, #fff 4px, #fff 8px)",
+        color: "#888",
+      };
+    }
+
+    if (info === undefined) {
+      return {
+        backgroundColor: "#f0f0f0",
+        color: "#bbb",
+      };
+    }
 
     if (colorMode === "specialty") {
-      const cls = `code-${info.specialty.replace(/\s+/g, "-").toLowerCase()}`;
-      console.log("🧠 specialty:", info.specialty, "→", cls);
-      return cls;
+      return {
+        backgroundColor: getCategoricalColor(info.specialty),
+        color: "#000",
+      };
     }
 
-    return "";
-  };
+    const value =
+      colorMode === "tfidf0"
+        ? info.tfidf_label_0 ?? 0
+        : colorMode === "tfidf1"
+        ? info.tfidf_label_1 ?? 0
+        : info.frequency ?? 1;
 
-  const getColorStyle = (info: CodeInfo | null) => {
-    if (!info) return {};
+    if (!stats) return {};
 
-    switch (colorMode) {
-      case "tfidf0": {
-        const value = info.tfidf_label_0 ?? 0;
-        const intensity = Math.min(1, value * 5);
-        return {
-          backgroundColor: `rgba(0, 102, 204, ${intensity.toFixed(2)})`,
-          color: intensity > 0.6 ? "#fff" : "#000",
-        };
-      }
-
-      case "tfidf1": {
-        const value = info.tfidf_label_1 ?? 0;
-        const intensity = Math.min(1, value * 5);
-        return {
-          backgroundColor: `rgba(153, 51, 255, ${intensity.toFixed(2)})`,
-          color: intensity > 0.6 ? "#fff" : "#000",
-        };
-      }
-
-      case "frequency": {
-        const logFreq = Math.log10(info.frequency || 1);
-        const normalized = Math.min(1, logFreq / 5);
-        const grey = Math.round(255 - normalized * 200);
-        return {
-          backgroundColor: `rgb(${grey}, ${grey}, ${grey})`,
-          color: grey < 100 ? "#fff" : "#000",
-        };
-      }
-
-      default:
-        return {};
-    }
+    return getColorStyleFromValue(value, stats[colorMode], colorMode);
   };
 
   const codes = patient.codes.map((code, index) => {
     const info = codeDetails[code] ?? codeCache.get(code);
-    const colorClass = getColorClass(info!);
-    const colorStyle = getColorStyle(info!);
+    const style = getColorStyle(info);
+
+    const isUnknown = info === null;
 
     return (
       <li
         key={index}
-        className={`code ${code === currentCode ? "current-code" : ""} ${colorClass}`}
-        style={colorStyle}
+        className={`code ${code === currentCode ? "current-code" : ""} ${isUnknown ? "code-unknown" : ""}`}
+        style={style}
         title={
           info
             ? `${info.name}${info.specialty ? ` (${info.specialty})` : ""}`
+            : info === null
+            ? "Unknown code"
             : "Loading..."
         }
       >
@@ -137,9 +139,9 @@ export default function PatientCodes({
           <option value="specialty">Speciality (Odbornost)</option>
           <option value="tfidf0">TF-IDF (active phase 0)</option>
           <option value="tfidf1">TF-IDF (active phase 1)</option>
-          <option value="frequency">Frequence</option>
+          <option value="frequency">Frequency</option>
         </select>
-        <Legend mode={colorMode} />
+        <Legend mode={colorMode} stats={stats} />
       </div>
       <ul className="code-list">{codes}</ul>
     </div>

@@ -1,5 +1,3 @@
-# db/load_codes_to_es.py
-
 import time
 import os
 import pandas as pd
@@ -10,7 +8,9 @@ ES_HOST = os.getenv("ES_HOST", "localhost")
 ES_PORT = os.getenv("ES_PORT", "9200")
 ES_URL = f"http://{ES_HOST}:{ES_PORT}"
 INDEX_NAME = os.getenv("ES_INDEX", "medical_codes")
-CSV_PATH = os.path.join("db", "data", "codes.csv")
+
+CODES_CSV = os.path.join("db", "data", "codes.csv")
+TFIDF_CSV = os.path.join("db", "data", "code_tfidf_by_label.csv")
 TIMEOUT = 30
 
 def wait_for_es(url: str, timeout: int = 30):
@@ -51,14 +51,11 @@ def create_index_if_not_exists(es: Elasticsearch, index_name: str):
             "mappings": {
                 "properties": {
                     "code": {"type": "keyword"},
-                    "name": {
-                        "type": "text",
-                        "analyzer": "czech_fuzzy"
-                    },
-                    "specialty": {
-                        "type": "text",
-                        "analyzer": "czech_fuzzy"
-                    }
+                    "name": {"type": "text", "analyzer": "czech_fuzzy"},
+                    "specialty": {"type": "text", "analyzer": "czech_fuzzy"},
+                    "tfidf_label_0": {"type": "float"},
+                    "tfidf_label_1": {"type": "float"},
+                    "frequency": {"type": "integer"}
                 }
             }
         })
@@ -68,13 +65,21 @@ def create_index_if_not_exists(es: Elasticsearch, index_name: str):
 
 def index_data(es: Elasticsearch, df: pd.DataFrame):
     df["Odbornost_nazev"] = df["Odbornost_nazev"].fillna("")
+    df["Nazev_vykonu"] = df["Nazev_vykonu"].fillna("")
+    df["tfidf_label_0"] = df["tfidf_label_0"].fillna(0.0)
+    df["tfidf_label_1"] = df["tfidf_label_1"].fillna(0.0)
+    df["frequency"] = df["frequency"].fillna(0).astype(int)
+
     actions = [
         {
             "_index": INDEX_NAME,
             "_source": {
                 "code": str(row["Kod"]),
                 "name": row["Nazev_vykonu"],
-                "specialty": row["Odbornost_nazev"]
+                "specialty": row["Odbornost_nazev"],
+                "tfidf_label_0": float(row["tfidf_label_0"]),
+                "tfidf_label_1": float(row["tfidf_label_1"]),
+                "frequency": int(row["frequency"])
             }
         }
         for _, row in df.iterrows()
@@ -92,6 +97,16 @@ if __name__ == "__main__":
     wait_for_es(ES_URL, timeout=TIMEOUT)
     es = Elasticsearch(ES_URL)
 
-    df = pd.read_csv(CSV_PATH)
+    # Načtení a spojení dat
+    df_codes = pd.read_csv(CODES_CSV)
+    df_tfidf = pd.read_csv(TFIDF_CSV)
+
+    # Oprava typu pro merge
+    df_codes["Kod"] = df_codes["Kod"].astype(str)
+    df_tfidf["code"] = df_tfidf["code"].astype(str)
+
+    df_merged = pd.merge(df_codes, df_tfidf, left_on="Kod", right_on="code", how="left").drop(columns=["code"])
+    
     create_index_if_not_exists(es, INDEX_NAME)
-    index_data(es, df)
+    index_data(es, df_merged)
+

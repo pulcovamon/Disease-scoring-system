@@ -12,6 +12,7 @@
     "@types/node": "^16.18.104",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "d3-scale-chromatic": "^3.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.25.1",
@@ -44,6 +45,8 @@
     ]
   },
   "devDependencies": {
+    "@types/chroma-js": "^3.1.1",
+    "@types/d3-scale-chromatic": "^3.1.0",
     "@types/papaparse": "^5.3.15",
     "concurrently": "^9.1.2"
   }

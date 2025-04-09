@@ -1,4 +1,5 @@
 import os
+import math
 from fastapi import APIRouter, HTTPException, Query
 from elasticsearch import Elasticsearch
 from typing import List, Optional
@@ -67,8 +68,57 @@ async def search_codes(query: str = Query(default=..., description="Search query
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("/aggregated-params")
+async def get_aggregated_params():
+    logger.info("Fetching aggregated statistics")
+    try:
+        aggs_query = {
+            "size": 10000,
+            "_source": ["tfidf_label_0", "tfidf_label_1", "frequency"],
+            "query": {"match_all": {}}
+        }
+
+        result = es.search(index=INDEX_NAME, body=aggs_query)
+        hits = result["hits"]["hits"]
+
+        tfidf0_values = [hit["_source"].get("tfidf_label_0", 0) or 0 for hit in hits]
+        tfidf1_values = [hit["_source"].get("tfidf_label_1", 0) or 0 for hit in hits]
+        frequency_values = [hit["_source"].get("frequency", 0) or 0 for hit in hits]
+
+        def compute_stats(values):
+            import math
+            count = len(values)
+            mean = sum(values) / count if count else 0
+            std = (sum((x - mean) ** 2 for x in values) / count) ** 0.5 if count else 0
+            return {
+                "count": count,
+                "min": min(values) if values else 0,
+                "max": max(values) if values else 0,
+                "avg": mean,
+                "sum": sum(values),
+                "std": std,
+                "logMean": math.log1p(mean),
+                "logStd": math.log1p(std) if std > 0 else 1e-6
+            }
+
+        return {
+            "tfidf0": compute_stats(tfidf0_values),
+            "tfidf1": compute_stats(tfidf1_values),
+            "frequency": compute_stats(frequency_values)
+        }
+
+    except Exception as e:
+        logger.error(f"Aggregation failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/{code}")
 async def get_code_by_id(code: str):
+    if not code or not code.strip():
+        raise HTTPException(status_code=400, detail="Invalid code")
+
+    code = code.lstrip("0")
+    logger.debug(code)
     try:
         result = es.search(index=INDEX_NAME, query={"match": {"code": code}})
         hits = result.get("hits", {}).get("hits", [])
@@ -76,5 +126,6 @@ async def get_code_by_id(code: str):
             raise HTTPException(status_code=404, detail="Code not found")
         return hits[0]["_source"]
     except Exception as e:
+        logger.error(e)
         raise HTTPException(status_code=500, detail=str(e))
 
