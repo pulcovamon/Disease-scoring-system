@@ -5,7 +5,7 @@ import Heatmap from "../components/Heatmap";
 import PatientCodes from "../components/PatientCodes";
 import "./patientDetailPage.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRightToBracket } from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 
 export default function PatientDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -64,7 +64,7 @@ export default function PatientDetailPage() {
   return (
     <div className="page-content">
       <Link className="back-button" to={"/catalog"}>
-        <FontAwesomeIcon icon={faArrowRightToBracket} /> Back to Catalog
+        <FontAwesomeIcon icon={faChevronLeft} /> Back to Catalog
       </Link>
       <h1 className="title">Patient ID {patient?._id}</h1>
       <div className="patient-detail-page">{content}</div>
