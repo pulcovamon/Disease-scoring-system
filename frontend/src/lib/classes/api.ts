@@ -18,7 +18,7 @@ function getUrl(path: string, queryParams?: {[key: string]: any}): string {
   return url;
 }
 
-export async function getMethod<Type>(path: string, queryParams?: {[key: string]: string | number}): Promise<Type> {
+export async function getMethod<Type>(path: string, queryParams?: {[key: string]: string | number | boolean}): Promise<Type> {
   const options = {
     method: "GET",
     headers: {
