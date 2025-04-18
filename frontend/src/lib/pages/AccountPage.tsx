@@ -1,5 +1,6 @@
-import React from "react";
+import { useAuthGuard } from "../hooks/useAuthGuard";
 
 export default function AccountPage() {
-    return <h1>My account</h1>
+  useAuthGuard();
+  return <h1>My account</h1>;
 }
