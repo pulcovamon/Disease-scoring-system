@@ -9,6 +9,8 @@ import History from "./lib/pages/History";
 import AccountPage from "./lib/pages/AccountPage";
 import ModelsPage from "./lib/pages/ModelsPage";
 import DatasetsPage from "./lib/pages/DatasetsPage";
+import Login from "./lib/pages/LoginPage";
+import Register from "./lib/pages/RegisterPage";
 
 export default function App() {
   return (
@@ -24,6 +26,8 @@ export default function App() {
           <Route path="account" element={<AccountPage />} />
           <Route path="models" element={<ModelsPage />} />
           <Route path="datasets" element={<DatasetsPage />} />
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
         </Route>
       </Routes>
     </BrowserRouter>
