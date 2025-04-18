@@ -1,0 +1,164 @@
+.models-page button {
+    border-radius: 10px;
+    padding: 10px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.models-page button:hover {
+    background-color: #4130b2;
+    color: white;
+}
+
+.models-page button:disabled {
+    background-color: gray;
+    cursor: not-allowed;
+    color: white;
+}
+
+.models-page li {
+    list-style: none;
+}
+
+.dialog {
+    z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease;
+}
+
+.dialog-content {
+    background-color: #fff;
+    color: #111;
+    width: 50%;
+    max-width: 600px;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    position: relative;
+    animation: slideUp 0.3s ease;
+    max-height: 80vh;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+.dialog p {
+    font-size: 1rem;
+}
+
+button.dialog-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    font-size: 1.5rem;
+    color: gray;
+    border: none;
+    cursor: pointer;
+}
+
+button.dialog-close:hover {
+    color: #5d44f8;
+    background-color: transparent;
+}
+
+/* FORM STYLY */
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+form label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 500;
+    gap: 0.3rem;
+}
+
+form input[type="text"],
+form input[type="file"],
+form textarea {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+form input[type="checkbox"] {
+    align-self: flex-start;
+    margin-top: 0.5rem;
+}
+
+form button[type="submit"] {
+    background-color: #5d44f8;
+    color: white;
+}
+
+form button[type="submit"]:hover {
+    background-color: #4130b2;
+}
+
+form button[type="submit"]:disabled {
+    background-color: gray;
+    cursor: not-allowed;
+}
+
+.uploaded-model {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f1f1f1;
+    padding: 6px 12px;
+    border-radius: 6px;
+    margin-top: 0.5rem;
+}
+
+.uploaded-model button {
+    background-color: transparent;
+    color: #5d44f8;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+}
+
+.uploaded-model button:hover {
+    background-color: #5d44f8;
+    color: white;
+    border-radius: 5px;
+    padding: 4px 8px;
+}
+
+@media (max-width: 768px) {
+    .dialog-content {
+        width: 90%;
+        padding: 1.5rem;
+    }
+}
+
+/* Animace */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}

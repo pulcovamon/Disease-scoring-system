@@ -1,23 +1,33 @@
-import React, { useState } from "react";
-import FileUploader from "../components/FileUploader";
+import { useState } from "react";
+import "./modelsPage.css";
+import ModelUpload from "../components/ModelUpload";
+import { Model } from "../classes/model";
+import ModelList from "../components/ModelList";
+import { useAuthGuard } from "../hooks/useAuthGuard";
 
 export default function ModelsPage() {
-  const [models, setModels] = useState<File[]>([]);
+  const isReady = useAuthGuard();
 
-  function addModel(file: File) {
-    setModels([...models, file]);
-  }
+  const [model, setModel] = useState<File | null>(null);
+  const [sendDialogOpen, setSendDialogOpen] = useState<boolean>(false);
+
+  function sendModel(modelToSend: Model, modelFile: File, encoderFile?: File, imageFile?: File) {}
+
+  if (!isReady) return <div>Checking authentication...</div>;
 
   return (
-    <div>
-      <div>
-        <ul>
-          {models.map((m) => (
-            <li key={m.name}>{m.name}</li>
-          ))}
-        </ul>
-      </div>
-      <FileUploader onFileSelect={addModel} unallowed={false} accept=".pkl" />
+    <div className="models-page">
+      <button className="open-send-dialog" onClick={() => setSendDialogOpen(true)}>New model</button>
+      {sendDialogOpen && (
+        <ModelUpload
+          model={model}
+          uploadModel={setModel}
+          removeModel={() => setModel(null)}
+          setSendDialogOpen={setSendDialogOpen}
+          send={sendModel}
+        />
+      )}
+      <ModelList />
     </div>
   );
 }
