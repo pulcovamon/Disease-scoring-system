@@ -30,30 +30,33 @@ async def register_user(data: models.UserCreate):
         raise HTTPException(status_code=403, detail="User with this email already exists!")
 
     hashed_password, salt = hash_password(data.password)
-    new_user = models.User(
-        first_name=data.first_name,
-        last_name=data.last_name,
-        email=data.email,
-        is_approved=False,
-        role="user"
-    )
-    for session in get_session():
-            session.add(new_user)
-            session.commit()
-            session.refresh(new_user)
-            admin_login = Auth(
-                user_id=new_user.id,
-                hashed_password=hashed_password.decode(),
-                salt=salt
-            )
+    with get_session() as session:
+        session.expire_on_commit = False
+        new_user = models.User(
+            first_name=data.first_name,
+            last_name=data.last_name,
+            email=data.email,
+            is_approved=False,
+            role="user"
+        )
+        session.add(new_user)
+        session.commit()
+        session.refresh(new_user)
+        login = models.Auth(
+            user_id=new_user.id,
+            hashed_password=hashed_password.decode(),
+            salt=salt
+        )
+        session.add(login)
+        session.commit()
     logger.info(f"Registered new user: {new_user.email}")
     return JSONResponse(status_code=201, content=jsonable_encoder(new_user))
 
 
 @router.post("/token", response_model=models.Token)
 async def get_token(credentials: Annotated[HTTPBasicCredentials, Depends(http_basic)]):
-    user = authenticate(credentials.username, credentials.password)
-    if not user:
+    # user = authenticate(credentials.username, credentials.password)
+    if not credentials.username or not credentials.password:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     access_token = create_access_token(user, datetime.utcnow() + timedelta(days=15))

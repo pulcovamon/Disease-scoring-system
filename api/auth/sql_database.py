@@ -23,5 +23,4 @@ engine = create_engine(MYSQL_URL, echo=True)
 http_basic = HTTPBasic()
 
 def get_session():
-    with Session(engine) as session:
-        yield session
+    return Session(engine, )
