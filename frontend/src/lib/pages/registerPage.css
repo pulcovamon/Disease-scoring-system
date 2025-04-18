@@ -1,0 +1,146 @@
+.register-page {
+padding: 2rem;
+}
+
+.register-form {
+background: rgba(255, 255, 255, 0.7);
+padding: 2.5rem;
+border-radius: 1rem;
+box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+width: 100%;
+max-width: 450px;
+display: flex;
+flex-direction: column;
+gap: 1.25rem;
+}
+
+.register-form h2 {
+margin: 0;
+font-size: 1.5rem;
+text-align: center;
+color: #333;
+}
+
+.register-form label {
+display: flex;
+flex-direction: column;
+font-size: 0.95rem;
+color: #555;
+}
+
+.register-form input {
+margin-top: 0.25rem;
+padding: 0.5rem 0.75rem;
+border: 1px solid #ccc;
+border-radius: 0.5rem;
+font-size: 1rem;
+transition: border-color 0.2s;
+}
+
+.register-form input:focus {
+border-color: #007bff;
+outline: none;
+}
+
+.register-form button {
+padding: 0.6rem;
+background-color: #007bff;
+color: white;
+border: none;
+border-radius: 0.5rem;
+font-size: 1rem;
+cursor: pointer;
+transition: background-color 0.2s ease;
+}
+
+.register-form button:hover {
+background-color: #0056b3;
+}
+
+.error {
+color: #d33;
+font-size: 0.9rem;
+text-align: center;
+}
+
+.success {
+color: #2a8c44;
+font-size: 0.9rem;
+text-align: center;
+}
+
+.login-link {
+font-size: 0.95rem;
+text-align: center;
+margin-top: 1rem;
+color: #555;
+}
+
+.login-link a {
+color: #007bff;
+text-decoration: none;
+font-weight: 500;
+}
+
+.login-link a:hover {
+text-decoration: underline;
+}
+
+.input-error {
+border: 1px solid #d33 !important;
+background-color: #fff0f0;
+}
+
+.field-error {
+color: #d33;
+font-size: 0.85rem;
+margin-top: 0.25rem;
+display: block;
+}
+
+.input-wrapper {
+position: relative;
+display: flex;
+align-items: center;
+}
+
+.input-wrapper input {
+flex: 1;
+padding-right: 2.5rem;
+}
+
+.input-wrapper button {
+background-color: transparent;
+color: gray;
+transition: ease 0.3s;
+}
+
+.input-wrapper button:hover {
+    background-color: transparent;
+    color: #5d44f8;
+}
+
+.toggle-password {
+position: absolute;
+right: 0.5rem;
+background: none;
+border: none;
+padding: 0;
+margin: 0;
+font: inherit;
+font-size: 1.1rem;
+color: #555;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+height: 100%;
+}
+
+.toggle-password:focus {
+outline: none;
+}
+
+.toggle-password:hover {
+color: #000;
+}  
