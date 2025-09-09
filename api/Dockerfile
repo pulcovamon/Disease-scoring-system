@@ -1,8 +1,8 @@
 FROM python:3.12
 
-WORKDIR /app
+WORKDIR /api
 
-COPY . /app
+COPY . /api
 
 RUN pip install --upgrade pip
 
