@@ -5,17 +5,21 @@ services:
       MONGO_INITDB_ROOT_USERNAME: "root"
       MONGO_INITDB_ROOT_PASSWORD: "pass"
       MONGO_INITDB_DATABASE: "catalog_db"
-    ports:
-      - "27017:27017"
     volumes:
       - "patient_catalog_data:/data/db"
     networks:
       - scoring-system
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongo",
+             "-u", "root",
+             "-p", "pass",
+             "--authenticationDatabase=admin",
+             "--eval", "db.adminCommand('ping')"]
       interval: 10s
-      timeout: 10s
-      retries: 3
+      timeout: 5s
+      retries: 6
+      start_period: 40s
+
 
   redis_server:
     image: redis:alpine
