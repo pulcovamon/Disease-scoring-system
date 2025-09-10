@@ -1,15 +1,12 @@
-FROM python:3.12
+FROM python:3.12-slim
 
-COPY requirements.txt /tmp
-
-RUN pip install --upgrade pip
-
-RUN pip install -r /tmp/requirements.txt
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --upgrade pip && pip install -r /tmp/requirements.txt
 
 WORKDIR /app
-
 COPY . /app/api
 
-EXPOSE 8080
+ENV PYTHONPATH=/app
 
-CMD ["python", "api/main.py"]
+EXPOSE 8080
+CMD ["python", "-m", "api.main"]
