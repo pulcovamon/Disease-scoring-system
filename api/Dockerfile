@@ -1,13 +1,15 @@
 FROM python:3.12
 
+COPY requirements.txt /tmp
+
+RUN pip install --upgrade pip
+
+RUN pip install -r /tmp/requirements.txt
+
 WORKDIR /app
 
 COPY . /app/api
 
-RUN pip install --upgrade pip
-
-RUN pip install -r requirements.txt
-
 EXPOSE 8080
 
-CMD ["python", "main.py"]
+CMD ["python", "api/main.py"]
