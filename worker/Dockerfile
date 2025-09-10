@@ -1,11 +1,13 @@
-FROM python:3.12
+FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY . /app
+COPY requirements.txt /app/requirements.txt
+RUN pip install --upgrade pip && pip install -r /app/requirements.txt
 
-RUN pip install --upgrade pip
+COPY . /app/worker
 
-RUN pip install -r requirements.txt
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
 
-ENTRYPOINT celery -A tasks worker --loglevel=info
+CMD ["celery", "-A", "worker.tasks", "worker", "--loglevel=info"]
