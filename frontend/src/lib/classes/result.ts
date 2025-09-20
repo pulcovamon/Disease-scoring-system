@@ -13,7 +13,7 @@ export class Results {
   public message: string | null = null;
 
   public async getAllResults() {
-    return getMethod<Task[]>("/result/")
+    return getMethod<Task[]>("/prediction/result/")
       .then((response) => {
         const tasks = response as Task[];
         this.tasks = tasks.map((task) => ({
@@ -36,7 +36,7 @@ export class Results {
 
   public async getTaskById(taskId: string): Promise<Task> {
     try {
-      const task = await getMethod<Task>(`/result/${taskId}`);
+      const task = await getMethod<Task>(`/prediction/result/${taskId}`);
       return task;
     } catch (error) {
       console.error(`Failed to fetch task with ID ${taskId}:`, error);

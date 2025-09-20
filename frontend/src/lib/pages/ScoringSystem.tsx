@@ -34,12 +34,12 @@ enum InputMethod {
 export default function ScoringSystem() {
   const [step, setStep] = useState<Step>(Step.SelectModel);
   const [models, setModels] = useState<Model[]>([]);
-  const [currentModel, setCurrentModel] = useState<Model|null>(null);
+  const [currentModel, setCurrentModel] = useState<Model | null>(null);
   const [modelOptions, setModelOptions] = useState<{}>({
-      "include_default": true,
-      "include_user": false,
-      "incluse_public": false
-    })
+    include_default: true,
+    include_user: false,
+    incluse_public: false,
+  });
   const [disease, setDisease] = useState<DiseaseType>(DiseaseType.LungCancer);
   const [codes, setCodes] = useState<string[]>([]);
   const [patient, setPatient] = useState<Patient>({
@@ -73,14 +73,9 @@ export default function ScoringSystem() {
         setModels([]);
       }
     }
-  
+
     fetchModels();
   }, []);
-  
-  function handleDiseaseChange(diseaseType: DiseaseType) {
-    setDisease(diseaseType);
-    setCodes([]);
-  }
 
   function handleModelChange(model: Model) {
     setCurrentModel(model);
@@ -98,12 +93,18 @@ export default function ScoringSystem() {
   }
 
   function handleSendCodes() {
-    const dataSender = new DataSender(codes);
+    const dataSender = new DataSender(
+      codes,
+      currentModel!._id,
+      inputMethod === InputMethod.Manual ? "patient" : "dataset"
+    );
     dataSender.postData().then(() => {
       if (dataSender.message != null) {
+        console.log(dataSender.message);
       } else if (dataSender.id != null) {
         navigate(`/result?id=${dataSender.id}`);
       } else {
+        console.log(dataSender);
       }
     });
   }
@@ -143,7 +144,7 @@ export default function ScoringSystem() {
     return Object.values(DiseaseType).find((key) =>
       lower.includes(key.replaceAll("_", " "))
     );
-  }  
+  }
 
   function renderInputMethod() {
     switch (inputMethod) {
@@ -152,7 +153,10 @@ export default function ScoringSystem() {
           <div className="tab-content inputs">
             <div className="patient-info">
               <div className="box patient">
-                <SelectedModel model={currentModel} getDiseaseKeyFromName={getDiseaseKeyFromName} />
+                <SelectedModel
+                  model={currentModel}
+                  getDiseaseKeyFromName={getDiseaseKeyFromName}
+                />
               </div>
               <div className="box patient">
                 <NewPatient
@@ -177,7 +181,10 @@ export default function ScoringSystem() {
           <div className="tab-content">
             <div className="patient-info">
               <div className="box patient">
-              <SelectedModel model={currentModel} getDiseaseKeyFromName={getDiseaseKeyFromName} />
+                <SelectedModel
+                  model={currentModel}
+                  getDiseaseKeyFromName={getDiseaseKeyFromName}
+                />
               </div>
               <div className="box patient">
                 <CsvHandler
@@ -194,13 +201,12 @@ export default function ScoringSystem() {
     }
   }
 
-
   function renderCurrentStep() {
     switch (step) {
       case Step.SelectModel:
         const diseaseKey = getDiseaseKeyFromName(currentModel?.disease || "");
         const diseaseInfo = diseaseKey ? DiseaseInfo[diseaseKey] : undefined;
-      
+
         return (
           <div>
             <div className="tabs">
@@ -214,7 +220,10 @@ export default function ScoringSystem() {
                     {model.name}
                     {getDiseaseKeyFromName(model.disease) && (
                       <FontAwesomeIcon
-                        icon={DiseaseInfo[getDiseaseKeyFromName(model.disease)!].icon}
+                        icon={
+                          DiseaseInfo[getDiseaseKeyFromName(model.disease)!]
+                            .icon
+                        }
                         style={{ marginLeft: "0.5rem" }}
                       />
                     )}
@@ -222,7 +231,7 @@ export default function ScoringSystem() {
                 </button>
               ))}
             </div>
-      
+
             <div className="tab-content box">
               <div className="model-detail">
                 {diseaseInfo && (
@@ -241,7 +250,7 @@ export default function ScoringSystem() {
               </div>
             </div>
           </div>
-        );      
+        );
       case Step.SelectInputMethod:
         return (
           <div>
@@ -271,7 +280,10 @@ export default function ScoringSystem() {
         return (
           <div>
             <div className="box preview">
-            <SelectedModel model={currentModel} getDiseaseKeyFromName={getDiseaseKeyFromName} />
+              <SelectedModel
+                model={currentModel}
+                getDiseaseKeyFromName={getDiseaseKeyFromName}
+              />
             </div>
             <div className="box preview">
               {inputMethod === InputMethod.Manual ? (
