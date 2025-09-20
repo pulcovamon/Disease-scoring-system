@@ -126,11 +126,10 @@ async def get_models(
     include_default: bool = Query(True),
     token: Optional[str] = Security(JWTBearer(auto_error=False))
 ):
-    user = verify_jwt(token)
-
     filters = []
 
     if include_user:
+        user = verify_jwt(token)
         if not user:
             raise HTTPException(status_code=401, detail="Permission denied!")
         filters.append({"user": str(user.id)})
