@@ -86,7 +86,13 @@ def index_data(es: Elasticsearch, df: pd.DataFrame):
     ]
     print(f"📥 Indexing {len(actions)} documents...")
     try:
-        helpers.bulk(es, actions)
+        helpers.bulk(
+            es,
+            actions,
+            chunk_size=200,
+            request_timeout=120,
+            refresh=False
+        )
         print("✅ Data indexed.")
     except helpers.BulkIndexError as e:
         print(f"❌ {len(e.errors)} documents failed to index.")
@@ -95,13 +101,16 @@ def index_data(es: Elasticsearch, df: pd.DataFrame):
 
 if __name__ == "__main__":
     wait_for_es(ES_URL, timeout=TIMEOUT)
-    es = Elasticsearch(ES_URL)
+    es = Elasticsearch(
+        ES_URL,
+        request_timeout=60,
+        retry_on_timeout=True,
+        max_retries=5,
+    )
 
-    # Načtení a spojení dat
     df_codes = pd.read_csv(CODES_CSV)
     df_tfidf = pd.read_csv(TFIDF_CSV)
 
-    # Oprava typu pro merge
     df_codes["Kod"] = df_codes["Kod"].astype(str)
     df_tfidf["code"] = df_tfidf["code"].astype(str)
 
