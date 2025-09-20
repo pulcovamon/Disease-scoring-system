@@ -80,6 +80,7 @@ export function NewPatient({ patient, handlePatientChange, unallowed }: NewPatie
               : "New patient";
             return (
               <option
+              key={currentPatient.id}
                 value={currentPatient.id === null ? "new" : currentPatient.id}
               >
                 {value}

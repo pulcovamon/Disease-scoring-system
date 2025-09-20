@@ -22,8 +22,8 @@ export default function PatientPreview({
       {patient.surname}
         </span></span>
       <div className="codes-preview">
-        {codes.map((code) => {
-          return <span className="code-list">{code}</span>;
+        {codes.map((code, index) => {
+          return <span key={index} className="code-list">{code}</span>;
         })}
       </div>
       </div>
