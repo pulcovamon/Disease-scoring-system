@@ -13,7 +13,7 @@ import { useLocation } from "react-router-dom";
 
 export default function Navbar() {
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
-  const [collapsed, setCollapsed] = useState<boolean>(localStorage.getItem("navbarCollapsed") == "true");
+  const [collapsed, setCollapsed] = useState<boolean>(localStorage.getItem("navbarCollapsed") === "true");
   const location = useLocation();
 
   useEffect(() => {

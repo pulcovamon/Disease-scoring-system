@@ -33,7 +33,6 @@ export function getContinuousColor(
   mode: "tfidf0" | "tfidf1" | "frequency"
 ): string {
   const norm = normalizeLogSigmoid(value, stats.logMean, stats.logStd);
-  console.log(stats)
   switch (mode) {
     case "tfidf0":
       return chroma.scale(["#e6f0ff", "#003366"]).mode("lab")(norm).hex();
@@ -51,7 +50,6 @@ export function getColorStyleFromValue(
   stats: { mean: number; std: number; logMean: number; logStd: number },
   mode: "tfidf0" | "tfidf1" | "frequency"
 ): React.CSSProperties {
-  console.log("here");
   const bg = getContinuousColor(value, stats, mode);
   const dark = isDarkColor(bg);
   return {

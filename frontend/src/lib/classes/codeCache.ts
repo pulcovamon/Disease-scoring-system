@@ -37,7 +37,9 @@ export const codeCache = {
     code: string,
     fetcher: () => Promise<CodeInfo>
   ): Promise<CodeInfo | null> {
-    if (code in memoryCache) return memoryCache[code];
+    if (code in memoryCache && memoryCache[code]) {
+      return memoryCache[code];
+    }
 
     if (pending[code]) return pending[code]!;
 

@@ -50,8 +50,9 @@ export default function PatientCodes({
       const uniqueCodes = Array.from(new Set(patient.codes));
       const results = await Promise.all(
         uniqueCodes.map(async (code) => {
-          const info = await codeCache.fetchOrGet(code, () =>
-            getMethod<CodeInfo>(`/code/${code}`)
+          const info = await codeCache.fetchOrGet(code, () => {
+            return getMethod<CodeInfo>(`/code/${code}`);
+          }
           );
           return [code, info] as const;
         })
