@@ -19,12 +19,17 @@ function getUrl(path: string, queryParams?: {[key: string]: any}): string {
 }
 
 export async function getMethod<Type>(path: string, queryParams?: {[key: string]: string | number | boolean}): Promise<Type> {
-  const options = {
+  const options: { [key: string]: any } = {
     method: "GET",
     headers: {
       accept: "application/json",
     },
   }
+  const token = localStorage.getItem("token");
+  if (token) {
+    options.headers.Authorization = `Bearer ${token}`;
+  }
+  
   const response = await fetch(getUrl(path, queryParams), options);
   if (!response.ok) {
     throw new HTTPError({ code: response.status as HttpErrorCode });

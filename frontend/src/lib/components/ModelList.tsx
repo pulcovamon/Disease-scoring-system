@@ -22,7 +22,6 @@ export default function ModelList() {
           <h3>{model.name}</h3>
           <p>{model.description || "No description"}</p>
           <p><strong>Disease:</strong> {model.disease}</p>
-          {/* Můžeš přidat i tlačítko na "detail" */}
         </div>
       ))}
     </div>
