@@ -65,13 +65,13 @@ def create_access_token(user: models.User, expiration: datetime) -> str | None:
 
 
 def get_user_by_email(email: str) -> models.User | None:
-    for session in get_session():
+    with get_session() as session:
         result = session.exec(select(models.User).where(models.User.email == email))
         return result.first()
 
 
 def get_user_auth(user_id):
-    for session in get_session():
+    with get_session() as session:
         result = session.exec(select(models.Auth).where(models.Auth.user_id == user_id))
         return result.first()
 
@@ -95,7 +95,7 @@ def verify_jwt(token: str):
         logger.error("Cannot obtain secret key!")
         return
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token.encode(), SECRET_KEY, algorithms=[ALGORITHM])
         logger.debug(payload)
         email = payload.get("email")
         if not email:
@@ -105,7 +105,7 @@ def verify_jwt(token: str):
         if not user:
             return
     except Exception as e:
-        logger.info(e)
+        logger.error(e)
         return
     return user
 

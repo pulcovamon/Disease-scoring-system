@@ -55,7 +55,8 @@ async def register_user(data: models.UserCreate):
 
 @router.post("/token", response_model=models.Token)
 async def get_token(credentials: Annotated[HTTPBasicCredentials, Depends(http_basic)]):
-    # user = authenticate(credentials.username, credentials.password)
+    user = authenticate(credentials.username, credentials.password)
+    logger.info(credentials.username)
     if not credentials.username or not credentials.password:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
@@ -65,6 +66,7 @@ async def get_token(credentials: Annotated[HTTPBasicCredentials, Depends(http_ba
 
 @router.get("/user/me", response_model=models.User)
 def get_current_user(token: str = Depends(JWTBearer())):
+    logger.info(token)
     user = verify_jwt(token)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid token")
