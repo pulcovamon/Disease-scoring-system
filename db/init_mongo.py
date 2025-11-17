@@ -8,8 +8,8 @@ from pymongo.errors import ServerSelectionTimeoutError
 
 MONGO_URL = os.getenv("MONGO_URL", "mongodb://root:pass@localhost:27017")
 MODEL_STORAGE_PATH = os.getenv("MODEL_STORAGE_PATH", "./local_model_storage")
-CATALOG_PATH = os.path.join("db", "data", "catalog.txt")
-DEFAULT_MODEL_SOURCE = os.path.join("db", "data", "default_models")
+CATALOG_PATH = os.path.join("data", "catalog.txt")
+DEFAULT_MODEL_SOURCE = os.path.join("data", "default_models")
 
 os.makedirs(MODEL_STORAGE_PATH, exist_ok=True)
 

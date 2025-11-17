@@ -1,24 +1,19 @@
 .PHONY: requirements db setup clean-db stop-db start-db clean app reinstall
 
 dotenv = env $(shell cat .env-dev | xargs)
-PYTHON := $(shell pyenv which python)
+PYTHONPATH_ROOT = $(CURDIR)
+NODE_LOCALSTORAGE_FILE = $(CURDIR)/.node-localstorage
 
 # Install all Python and frontend dependencies
 requirements:
-	@echo "🐍 Creating virtual environment for DB..."
-	$(PYTHON) -m venv db/.venv
-	db/.venv/bin/pip install --upgrade pip
-	db/.venv/bin/pip install -r db/requirements.txt
+	@echo "🐍 Syncing dependencies for DB (uv)..."
+	cd db && uv sync
 
-	@echo "🐍 Creating virtual environment for API..."
-	$(PYTHON) -m venv api/.venv
-	api/.venv/bin/pip install --upgrade pip
-	api/.venv/bin/pip install -r api/requirements.txt
+	@echo "🐍 Syncing dependencies for API (uv)..."
+	cd api && uv sync
 
-	@echo "🐍 Creating virtual environment for Worker..."
-	$(PYTHON) -m venv worker/.venv
-	worker/.venv/bin/pip install --upgrade pip
-	worker/.venv/bin/pip install -r worker/requirements.txt
+	@echo "🐍 Syncing dependencies for Worker (uv)..."
+	cd worker && uv sync
 
 	@echo "🌐 Installing frontend dependencies..."
 	cd frontend && npm install
@@ -46,7 +41,7 @@ db:
 		redis:alpine
 
 	@echo "🧠 Running mongo initialization script..."
-	$(dotenv) db/.venv/bin/python db/init_mongo.py
+	$(dotenv) uv run --directory db init_mongo.py
 
 	@echo "🛢️ Starting MySQL..."
 	docker run -d \
@@ -58,7 +53,7 @@ db:
 		mysql:8.0
 
 	@echo "🧠 Running mysql initialization script..."
-	$(dotenv) api/.venv/bin/python -m api.auth.init_mysql
+	$(dotenv) PYTHONPATH=$(PYTHONPATH_ROOT) uv run --directory api -m api.auth.init_mysql
 
 	@echo "🔍 Starting elasticsearch"
 	docker run -d --name elasticsearch \
@@ -68,7 +63,7 @@ db:
 		elasticsearch:8.11.1
 
 	@echo "🧠 Indexing codes to Elasticsearch..."
-	$(dotenv) db/.venv/bin/python db/init_es.py
+	$(dotenv) PYTHONPATH=$(PYTHONPATH_ROOT) uv run --directory db init_es.py
 
 # Start existing DB containers
 start-db:
@@ -82,12 +77,13 @@ setup: db requirements
 # Run the application services for development
 app:
 	@echo "🚀 Starting app with .env variables..."
+	@touch $(NODE_LOCALSTORAGE_FILE)
 	$(dotenv) npx concurrently \
 		--names "API,WORKER,FRONTEND" \
 		--prefix-colors "blue,green,magenta" \
-		"api/.venv/bin/uvicorn api.main:app --port 8080 --reload" \
-		"worker/.venv/bin/celery -A worker.tasks worker --loglevel=info" \
-		"cd frontend && npm start"
+		"PYTHONPATH=$(PYTHONPATH_ROOT) uv run --directory api uvicorn api.main:app --port 8080 --reload" \
+		"PYTHONPATH=$(PYTHONPATH_ROOT) uv run --project worker celery -A worker.tasks worker --loglevel=info" \
+		"export NODE_OPTIONS=--localstorage-file=$(NODE_LOCALSTORAGE_FILE); cd frontend && npm start"
 
 # Clean only DB containers and volumes
 clean-db:
@@ -117,10 +113,10 @@ clean: clean-db
 
 # Install requirements again (without removing venv)
 reinstall:
-	@echo "📦 Reinstalling Python dependencies..."
-	db/.venv/bin/pip install -r db/requirements.txt
-	api/.venv/bin/pip install -r api/requirements.txt
-	worker/.venv/bin/pip install -r worker/requirements.txt
+	@echo "📦 Resyncing Python dependencies with uv..."
+	cd db && uv sync
+	cd api && uv sync
+	cd worker && uv sync
 
 	@echo "📦 Reinstalling frontend dependencies..."
 	cd frontend && npm install

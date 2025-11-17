@@ -8,9 +8,10 @@ ES_HOST = os.getenv("ES_HOST", "localhost")
 ES_PORT = os.getenv("ES_PORT", "9200")
 ES_URL = f"http://{ES_HOST}:{ES_PORT}"
 INDEX_NAME = os.getenv("ES_INDEX", "medical_codes")
+ES_COMPAT_VERSION = os.getenv("ES_COMPAT_VERSION", "8")
 
-CODES_CSV = os.path.join("db", "data", "codes.csv")
-TFIDF_CSV = os.path.join("db", "data", "code_tfidf_by_label.csv")
+CODES_CSV = os.path.join("data", "codes.csv")
+TFIDF_CSV = os.path.join("data", "code_tfidf_by_label.csv")
 TIMEOUT = 30
 
 def wait_for_es(url: str, timeout: int = 30):
@@ -27,8 +28,21 @@ def wait_for_es(url: str, timeout: int = 30):
         time.sleep(1)
     raise TimeoutError("❌ Could not connect to Elasticsearch.")
 
+def index_exists_http(index_name: str) -> bool:
+    url = f"{ES_URL}/{index_name}"
+    try:
+        response = requests.head(url, timeout=5)
+    except requests.RequestException as exc:
+        raise RuntimeError(f"❌ Failed to check index '{index_name}' existence: {exc}") from exc
+
+    if response.status_code == 200:
+        return True
+    if response.status_code == 404:
+        return False
+    raise RuntimeError(f"❌ Unexpected status code {response.status_code} when checking index '{index_name}'")
+
 def create_index_if_not_exists(es: Elasticsearch, index_name: str):
-    if not es.indices.exists(index=index_name):
+    if not index_exists_http(index_name):
         print(f"📦 Creating index '{index_name}'...")
         es.indices.create(index=index_name, body={
             "settings": {
@@ -101,11 +115,16 @@ def index_data(es: Elasticsearch, df: pd.DataFrame):
 
 if __name__ == "__main__":
     wait_for_es(ES_URL, timeout=TIMEOUT)
+    compat_headers = {
+        "Accept": f"application/vnd.elasticsearch+json; compatible-with={ES_COMPAT_VERSION}",
+        "Content-Type": f"application/vnd.elasticsearch+json; compatible-with={ES_COMPAT_VERSION}",
+    }
     es = Elasticsearch(
         ES_URL,
         request_timeout=60,
         retry_on_timeout=True,
         max_retries=5,
+        headers=compat_headers,
     )
 
     df_codes = pd.read_csv(CODES_CSV)
@@ -118,4 +137,3 @@ if __name__ == "__main__":
     
     create_index_if_not_exists(es, INDEX_NAME)
     index_data(es, df_merged)
-

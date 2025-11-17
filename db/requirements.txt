@@ -1,4 +1,4 @@
 pymongo
 requests
 pandas
-elasticsearch
+elasticsearch==8.11.1
