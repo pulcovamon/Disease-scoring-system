@@ -8,12 +8,14 @@
     "@fortawesome/free-regular-svg-icons": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@tailwindcss/vite": "^4.1.17",
     "chroma-js": "^3.1.2",
     "d3-scale-chromatic": "^3.1.0",
     "papaparse": "^5.5.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.25.1",
+    "tailwindcss": "^4.1.17",
     "ts-custom-error": "^3.3.1"
   },
   "scripts": {
@@ -41,15 +43,15 @@
     ]
   },
   "devDependencies": {
-    "@types/jest": "^27.5.2",
-    "@types/node": "^22.9.0",
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
     "@types/chroma-js": "^3.1.1",
     "@types/d3-scale-chromatic": "^3.1.0",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^22.9.0",
     "@types/papaparse": "^5.3.15",
-    "concurrently": "^9.1.2",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.4.0",
+    "concurrently": "^9.1.2",
     "typescript": "^4.9.5",
     "vite": "^5.4.8"
   }
