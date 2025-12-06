@@ -5,6 +5,6 @@ export interface Model {
         name: string,
         disease: string,
         description: string|null,
-        image: null,
+        image: string | null,
         is_public: boolean
 }

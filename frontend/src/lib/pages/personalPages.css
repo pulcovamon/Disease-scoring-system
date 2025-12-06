@@ -1,0 +1,270 @@
+.personal-page {
+  width: 100%;
+  max-width: 1200px;
+}
+
+.page-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.page-hero h2 {
+  margin: 4px 0;
+  font-size: 2rem;
+  color: #1f2937;
+}
+
+.eyebrow {
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #5d44f8;
+  margin: 0;
+}
+
+.muted {
+  color: #4b5563;
+  margin: 4px 0 0;
+}
+
+.subtle {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.section-card {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(93, 68, 248, 0.12);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 12px 30px rgba(17, 24, 39, 0.08);
+}
+
+.status-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  margin: 12px 0;
+  font-weight: 600;
+}
+
+.status-banner.success {
+  background: #e7f9f0;
+  color: #166534;
+}
+
+.status-banner.error {
+  background: #feecec;
+  color: #b91c1c;
+}
+
+.status-banner.warning {
+  background: #fff7e6;
+  color: #92400e;
+}
+
+.status-banner.info {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.status-pill.success {
+  background: #e7f9f0;
+  color: #166534;
+}
+
+.status-pill.warning {
+  background: #fff7e6;
+  color: #92400e;
+}
+
+.status-pill.neutral {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.initials-badge {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #5d44f8, #8f7afe);
+  color: white;
+  font-weight: 800;
+  font-size: 1.4rem;
+  box-shadow: 0 10px 25px rgba(93, 68, 248, 0.35);
+}
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.meta-tile {
+  background: #f8f7ff;
+  border: 1px solid #e3defc;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.meta-label {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.75rem;
+  color: #6b21a8;
+}
+
+.meta-value {
+  font-weight: 700;
+  color: #111827;
+  word-break: break-word;
+}
+
+.ghost-button {
+  background: transparent;
+  border: 1px solid #5d44f8;
+  color: #5d44f8;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(93, 68, 248, 0.15);
+}
+
+.ghost-button:hover {
+  background: #5d44f8;
+  color: white;
+}
+
+.primary-button {
+  background: #5d44f8;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 700;
+  box-shadow: 0 10px 24px rgba(93, 68, 248, 0.2);
+}
+
+.primary-button:hover {
+  background: #4a33d1;
+}
+
+.filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+
+.filters-row label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.model-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.model-card {
+  background: white;
+  border: 1px solid #ebe9fa;
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 12px 30px rgba(17, 24, 39, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.model-card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.model-card h3 {
+  margin: 0;
+  color: #1f2937;
+}
+
+.model-card .description {
+  color: #4b5563;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.model-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  background: #eef2ff;
+  color: #4338ca;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.chip.subtle {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.dataset-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.dataset-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.dataset-actions button {
+  flex: 1;
+  min-width: 140px;
+}
+
+.file-name {
+  font-weight: 700;
+  color: #1f2937;
+  margin-top: 8px;
+}
+
+.inline-help {
+  font-size: 0.9rem;
+  color: #4b5563;
+  margin-top: 8px;
+}

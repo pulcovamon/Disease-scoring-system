@@ -1,38 +1,41 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./loginPage.css";
+import { useAuth } from "../store/auth";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login, status } = useAuth();
+
+  const redirectTo = useMemo(() => {
+    const from = (location.state as { from?: string } | undefined)?.from;
+    return from && from !== "/login" ? from : "/models";
+  }, [location.state]);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      navigate(redirectTo, { replace: true });
+    }
+  }, [navigate, redirectTo, status]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
+    setError(null);
+    setSubmitting(true);
 
-    try {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/auth/token`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                username: email,
-                password: password,
-            }),
-            });
-
-      if (!res.ok) {
-        throw new Error("Login failed");
-      }
-
-      const data = await res.json();
-      localStorage.setItem("token", data.access_token);
-      navigate("/models");
-    } catch (err) {
+    const success = await login(email, password);
+    if (!success) {
       setError("Login failed. Check email and password.");
+    } else {
+      navigate(redirectTo, { replace: true });
     }
+
+    setSubmitting(false);
   }
 
   return (
@@ -47,7 +50,9 @@ export default function Login() {
           Password:
           <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" required />
         </label>
-        <button type="submit">Login</button>
+        <button type="submit" disabled={submitting}>
+          {submitting ? "Logging in..." : "Login"}
+        </button>
 
         {error && <p className="error">{error}</p>}
 

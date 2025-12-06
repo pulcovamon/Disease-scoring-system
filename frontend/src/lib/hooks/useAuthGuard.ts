@@ -1,18 +1,20 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../store/auth";
 
 export function useAuthGuard(): boolean {
   const navigate = useNavigate();
-  const [checked, setChecked] = useState(false);
+  const location = useLocation();
+  const { status } = useAuth();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-    } else {
-      setChecked(true);
+    if (status === "unauthenticated") {
+      navigate("/login", {
+        replace: true,
+        state: { from: location.pathname + location.search },
+      });
     }
-  }, [navigate]);
+  }, [location.pathname, location.search, navigate, status]);
 
-  return checked;
+  return status === "authenticated";
 }

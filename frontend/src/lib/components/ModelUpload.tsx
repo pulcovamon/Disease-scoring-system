@@ -9,7 +9,8 @@ type ModelUploadProps = {
   uploadModel: (file: File) => void
   removeModel: () => void
   setSendDialogOpen: (open: boolean) => void
-  send: (modelToSend: Model, modelFile: File, encoderFile?: File, imageFile?: File) => void
+  send: (modelToSend: Model, modelFile: File, encoderFile?: File, imageFile?: File) => Promise<boolean>
+  sending: boolean
 }
 
 export default function ModelUpload({
@@ -17,7 +18,8 @@ export default function ModelUpload({
   uploadModel,
   removeModel,
   setSendDialogOpen,
-  send
+  send,
+  sending
 }: ModelUploadProps) {
   const [modelName, setModelName] = useState("")
   const [disease, setDisease] = useState("")
@@ -123,7 +125,7 @@ export default function ModelUpload({
 
           <button
             type="submit"
-            onClick={(e) => {
+            onClick={async (e) => {
                 e.preventDefault();
               
                 if (!model) return;
@@ -139,13 +141,22 @@ export default function ModelUpload({
                   is_public: isPublic
                 };
               
-                send(modelToSend, model, encoder || undefined, image || undefined);
-                setSendDialogOpen(false);
+                const success = await send(modelToSend, model, encoder || undefined, image || undefined);
+                if (success) {
+                  setModelName("");
+                  setDisease("");
+                  setDescription("");
+                  setIsPublic(false);
+                  setImage(null);
+                  setEncoder(null);
+                  removeModel();
+                  setSendDialogOpen(false);
+                }
               }}
               
-            disabled={!model || modelName.trim() === "" || disease.trim() === ""}
+            disabled={!model || modelName.trim() === "" || disease.trim() === "" || sending}
           >
-            Send
+            {sending ? "Uploading..." : "Send"}
           </button>
         </form>
       </div>
