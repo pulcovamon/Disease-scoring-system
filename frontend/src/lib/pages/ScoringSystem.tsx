@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo } from "react";
 import { DiseaseInfo, DiseaseType } from "../classes/disease";
 import "./scoringSystem.css";
-import { DataSender } from "../classes/data";
 import CsvHandler from "../components/CsvHandler";
 import { ClasifyForm } from "../components/ClassifyForm";
-import { Patient } from "../classes/patient";
 import { NewPatient } from "../components/NewPatient";
 import CsvPreview from "../components/CsvPreview";
 import { useNavigate } from "react-router-dom";
@@ -17,42 +15,48 @@ import {
 import Steps from "../components/Steps";
 import PatientPreview from "../components/PatientPreview";
 import SelectedModel from "../components/SelectedModel";
-import { Model } from "../classes/model";
-import { getMethod } from "../classes/api";
-
-enum Step {
-  SelectModel,
-  SelectInputMethod,
-  Send,
-}
-
-enum InputMethod {
-  Manual,
-  CSV,
-}
+import LoadingSpinner from "../components/LoadingSpinner";
+import {
+  ScoringWizardProvider,
+  useScoringWizard,
+  WizardInputMethod,
+  WizardStep,
+} from "../store/scoringWizard";
 
 export default function ScoringSystem() {
-  const [step, setStep] = useState<Step>(Step.SelectModel);
-  const [models, setModels] = useState<Model[]>([]);
-  const [currentModel, setCurrentModel] = useState<Model | null>(null);
-  const [modelOptions, setModelOptions] = useState<{}>({
-    include_default: true,
-    include_user: false,
-    incluse_public: false,
-  });
-  const [disease, setDisease] = useState<DiseaseType>(DiseaseType.LungCancer);
-  const [codes, setCodes] = useState<string[]>([]);
-  const [patient, setPatient] = useState<Patient>({
-    id: null,
-    name: "",
-    surname: "",
-  });
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [inputMethod, setInputMethod] = useState<InputMethod>(
-    InputMethod.Manual
+  return (
+    <ScoringWizardProvider>
+      <ScoringSystemView />
+    </ScoringWizardProvider>
   );
+}
+
+function ScoringSystemView() {
   const navigate = useNavigate();
-  const [unallowed, setUnallowed] = useState<boolean>(false);
+  const {
+    step,
+    currentModel,
+    models,
+    loadingModels,
+    modelsError,
+    inputMethod,
+    setInputMethod,
+    codes,
+    addCode,
+    updateCode,
+    patient,
+    setPatient,
+    uploadedFile,
+    setUploadedFile,
+    unallowed,
+    nextStep,
+    previousStep,
+    isNextDisabled,
+    currentModelId,
+    selectModel,
+    sending,
+    submissionError,
+  } = useScoringWizard();
 
   const titles = [
     "Select a Model",
@@ -60,95 +64,28 @@ export default function ScoringSystem() {
     "Ckeck and send",
   ];
 
-  useEffect(() => {
-    async function fetchModels() {
-      try {
-        const models = await getMethod<Model[]>("/model", modelOptions);
-        setModels(models);
-        if (models.length > 0) {
-          setCurrentModel(models[0]);
-        }
-      } catch (err) {
-        console.error("An error occurred", err);
-        setModels([]);
-      }
-    }
-
-    fetchModels();
-  }, []);
-
-  function handleModelChange(model: Model) {
-    setCurrentModel(model);
-    setCodes([]);
-  }
-
-  function handleAddCode(code: string) {
-    setCodes((prevCodes) => [...prevCodes, code]);
-  }
-
-  function handleUpdateCode(index: number, newCode: string) {
-    const updatedCodes = [...codes];
-    updatedCodes[index] = newCode;
-    setCodes(updatedCodes);
-  }
-
-  function handleSendCodes() {
-    const dataSender = new DataSender(
-      codes,
-      currentModel!._id,
-      inputMethod === InputMethod.Manual ? "patient" : "dataset"
-    );
-    dataSender.postData().then(() => {
-      if (dataSender.message != null) {
-        console.log(dataSender.message);
-      } else if (dataSender.id != null) {
-        navigate(`/result?id=${dataSender.id}`);
-      } else {
-        console.log(dataSender);
-      }
-    });
-  }
-
-  function handlePatientChange(patient: Patient) {
-    setPatient(patient);
-  }
-
-  function handleFileUpload(file: File) {
-    setUploadedFile(file);
-  }
-
-  function isNextDisabled() {
-    if (step === 0) {
-      return false;
-    }
-    if (inputMethod === InputMethod.Manual) {
-      return patient.name.trim() === "" || codes.length === 0;
-    }
-    return uploadedFile === null;
-  }
-
-  function handleNextButton() {
-    if (isNextDisabled()) {
-      setUnallowed(true);
-    } else if (step === 2) {
-      setUnallowed(false);
-      handleSendCodes();
-    } else {
-      setUnallowed(false);
-      setStep(step + 1);
-    }
-  }
-
-  function getDiseaseKeyFromName(diseaseName: string): DiseaseType | undefined {
+  const getDiseaseKeyFromName = (diseaseName: string): DiseaseType | undefined => {
     const lower = diseaseName.toLowerCase();
     return Object.values(DiseaseType).find((key) =>
       lower.includes(key.replaceAll("_", " "))
     );
-  }
+  };
 
-  function renderInputMethod() {
+  const diseaseInfo = useMemo(() => {
+    const key = getDiseaseKeyFromName(currentModel?.disease || "");
+    return key ? DiseaseInfo[key] : undefined;
+  }, [currentModel]);
+
+  const handleNextButton = async () => {
+    const { taskId, error } = await nextStep();
+    if (taskId) {
+      navigate(`/result?id=${taskId}`);
+    }
+  };
+
+  const renderInputMethod = () => {
     switch (inputMethod) {
-      case InputMethod.Manual:
+      case WizardInputMethod.Manual:
         return (
           <div className="tab-content inputs">
             <div className="patient-info">
@@ -161,7 +98,7 @@ export default function ScoringSystem() {
               <div className="box patient">
                 <NewPatient
                   patient={patient}
-                  handlePatientChange={handlePatientChange}
+                  handlePatientChange={setPatient}
                   unallowed={unallowed}
                 />
               </div>
@@ -169,14 +106,14 @@ export default function ScoringSystem() {
             <div className="box code-sequence">
               <ClasifyForm
                 codes={codes}
-                handleAddCode={handleAddCode}
-                handleUpdateCode={handleUpdateCode}
+                handleAddCode={addCode}
+                handleUpdateCode={updateCode}
                 unallowed={unallowed}
               />
             </div>
           </div>
         );
-      case InputMethod.CSV:
+      case WizardInputMethod.CSV:
         return (
           <div className="tab-content">
             <div className="patient-info">
@@ -189,7 +126,7 @@ export default function ScoringSystem() {
               <div className="box patient">
                 <CsvHandler
                   uploadedFile={uploadedFile}
-                  handleFileUpload={handleFileUpload}
+                  handleFileUpload={(file) => setUploadedFile(file)}
                   unallowed={unallowed}
                 />
               </div>
@@ -199,37 +136,41 @@ export default function ScoringSystem() {
       default:
         return null;
     }
-  }
+  };
 
-  function renderCurrentStep() {
+  const renderCurrentStep = () => {
     switch (step) {
-      case Step.SelectModel:
-        const diseaseKey = getDiseaseKeyFromName(currentModel?.disease || "");
-        const diseaseInfo = diseaseKey ? DiseaseInfo[diseaseKey] : undefined;
-
+      case WizardStep.SelectModel:
         return (
           <div>
             <div className="tabs">
-              {Object.values(models).map((model) => (
-                <button
-                  key={model._id}
-                  className={`tab ${currentModel === model ? "active" : ""}`}
-                  onClick={() => handleModelChange(model)}
-                >
-                  <span>
-                    {model.name}
-                    {getDiseaseKeyFromName(model.disease) && (
-                      <FontAwesomeIcon
-                        icon={
-                          DiseaseInfo[getDiseaseKeyFromName(model.disease)!]
-                            .icon
-                        }
-                        style={{ marginLeft: "0.5rem" }}
-                      />
-                    )}
-                  </span>
-                </button>
-              ))}
+              {loadingModels ? (
+                <LoadingSpinner />
+              ) : modelsError ? (
+                <div className="box">{modelsError}</div>
+              ) : (
+                models.map((model) => (
+                  <button
+                    key={model._id}
+                    className={`tab ${currentModelId === model._id ? "active" : ""}`}
+                    onClick={() => model._id && selectModel(model._id)}
+                    disabled={!model._id}
+                  >
+                    <span>
+                      {model.name}
+                      {getDiseaseKeyFromName(model.disease) && (
+                        <FontAwesomeIcon
+                          icon={
+                            DiseaseInfo[getDiseaseKeyFromName(model.disease)!]
+                              .icon
+                          }
+                          style={{ marginLeft: "0.5rem" }}
+                        />
+                      )}
+                    </span>
+                  </button>
+                ))
+              )}
             </div>
 
             <div className="tab-content box">
@@ -251,23 +192,23 @@ export default function ScoringSystem() {
             </div>
           </div>
         );
-      case Step.SelectInputMethod:
+      case WizardStep.SelectInputMethod:
         return (
           <div>
             <div className="tabs">
               <button
                 className={`tab ${
-                  inputMethod === InputMethod.Manual ? "active" : ""
+                  inputMethod === WizardInputMethod.Manual ? "active" : ""
                 }`}
-                onClick={() => setInputMethod(InputMethod.Manual)}
+                onClick={() => setInputMethod(WizardInputMethod.Manual)}
               >
                 Manual Input
               </button>
               <button
                 className={`tab ${
-                  inputMethod === InputMethod.CSV ? "active" : ""
+                  inputMethod === WizardInputMethod.CSV ? "active" : ""
                 }`}
-                onClick={() => setInputMethod(InputMethod.CSV)}
+                onClick={() => setInputMethod(WizardInputMethod.CSV)}
               >
                 Upload CSV
               </button>
@@ -276,7 +217,7 @@ export default function ScoringSystem() {
           </div>
         );
 
-      case Step.Send:
+      case WizardStep.Send:
         return (
           <div>
             <div className="box preview">
@@ -286,18 +227,23 @@ export default function ScoringSystem() {
               />
             </div>
             <div className="box preview">
-              {inputMethod === InputMethod.Manual ? (
+              {inputMethod === WizardInputMethod.Manual ? (
                 <PatientPreview patient={patient} codes={codes} />
               ) : (
                 <CsvPreview uploadedFile={uploadedFile} />
               )}
             </div>
+            {submissionError && (
+              <div className="box">
+                {submissionError}
+              </div>
+            )}
           </div>
         );
       default:
         return null;
     }
-  }
+  };
 
   return (
     <div className="page-body">
@@ -309,8 +255,8 @@ export default function ScoringSystem() {
       <div className="navigation-buttons">
         <button
           className="navigation-button"
-          onClick={() => setStep(step - 1)}
-          disabled={step === 0}
+          onClick={previousStep}
+          disabled={step === WizardStep.SelectModel}
         >
           <FontAwesomeIcon icon={faArrowLeft} /> Back
         </button>
@@ -319,10 +265,11 @@ export default function ScoringSystem() {
             isNextDisabled() ? "navigation-button-disabled" : ""
           }`}
           onClick={handleNextButton}
+          disabled={sending}
         >
-          {step === 2 ? (
+          {step === WizardStep.Send ? (
             <span>
-              Send <FontAwesomeIcon icon={faPaperPlane} />
+              {sending ? "Sending..." : "Send"} <FontAwesomeIcon icon={faPaperPlane} />
             </span>
           ) : (
             <span>
