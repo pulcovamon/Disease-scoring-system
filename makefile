@@ -83,7 +83,7 @@ app:
 		--prefix-colors "blue,green,magenta" \
 		"PYTHONPATH=$(PYTHONPATH_ROOT) uv run --directory api uvicorn api.main:app --port 8080 --reload" \
 		"PYTHONPATH=$(PYTHONPATH_ROOT) uv run --project worker celery -A worker.tasks worker --loglevel=info" \
-		"export NODE_OPTIONS=--localstorage-file=$(NODE_LOCALSTORAGE_FILE); cd frontend && npm start"
+		"export NODE_OPTIONS=--localstorage-file=$(NODE_LOCALSTORAGE_FILE); cd frontend && npm run dev"
 
 # Clean only DB containers and volumes
 clean-db:

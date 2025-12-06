@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./registerPage.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faE, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { baseURL } from "../classes/api";
 
 export default function Register() {
   const [firstName, setFirstName] = useState("");
@@ -30,7 +31,7 @@ export default function Register() {
       }      
 
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/auth/user`, {
+      const res = await fetch(`${baseURL}/auth/user`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -13,6 +13,7 @@ import {
   getMethod,
   registerAuthTokenGetter,
   registerUnauthorizedHandler,
+  baseURL,
 } from "../classes/api";
 
 type AuthStatus = "loading" | "authenticated" | "unauthenticated";
@@ -94,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(
     async (email: string, password: string) => {
       try {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/auth/token`, {
+        const res = await fetch(`${baseURL}/auth/token`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

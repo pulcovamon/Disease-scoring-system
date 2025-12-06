@@ -4,7 +4,14 @@
 import HTTPError from "./httpError";
 import type { HttpErrorCode } from "./httpError";
 
-export const baseURL = process.env.REACT_APP_API_URL;
+const envApiUrl =
+  typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_API_URL
+    ? (import.meta as any).env.VITE_API_URL
+    : typeof process !== "undefined"
+      ? (process as any)?.env?.REACT_APP_API_URL
+      : "";
+
+export const baseURL = envApiUrl ?? "";
 
 type TokenGetter = () => string | null;
 type UnauthorizedHandler = () => void;
