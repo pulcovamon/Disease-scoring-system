@@ -7,38 +7,13 @@ import {
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect, useState } from "react";
 import "./navbar.css";
 import { useLocation } from "react-router-dom";
+import { useNavbarStore } from "../store/navbar";
 
 export default function Navbar() {
-  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
-  const [collapsed, setCollapsed] = useState<boolean>(localStorage.getItem("navbarCollapsed") === "true");
   const location = useLocation();
-
-  useEffect(() => {
-    const stored = localStorage.getItem("navbarCollapsed");
-    if (stored !== null) setCollapsed(stored === "true");
-    const openMenus = localStorage.getItem("openMenus");
-  }, []);
-  
-  useEffect(() => {
-    localStorage.setItem("navbarCollapsed", collapsed.toString());
-  }, [collapsed]);  
-
-  useEffect(() => {
-    if (collapsed) {
-      setOpenMenus({});
-    }
-  }, [collapsed]);
-
-  const toggleMenu = (menu: string) => {
-    setCollapsed(false);
-    setOpenMenus((prev) => ({
-      ...prev,
-      [menu]: !prev[menu],
-    }));
-  };
+  const { collapsed, toggleCollapse, toggleMenu, openMenus } = useNavbarStore();
 
   function isActive(path: string) {
     if (path === "/") {
@@ -52,7 +27,7 @@ export default function Navbar() {
       <div className="collapse-button-box">
         <button
           className="collapse-button"
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={() => toggleCollapse()}
         >
           <FontAwesomeIcon icon={collapsed ? faAnglesRight : faAnglesLeft} />
         </button>
