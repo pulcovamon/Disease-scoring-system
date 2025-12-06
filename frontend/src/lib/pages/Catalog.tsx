@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo, MouseEvent } from "react";
-import { Patient, PatientList } from "../classes/catalogData";
+import React, { useMemo, MouseEvent, useState } from "react";
+import { Patient } from "../classes/catalogData";
 import Heatmap from "../components/Heatmap";
 import Filtering from "../components/Filtering";
 import Pagination from "../components/Pagination";
@@ -7,94 +7,53 @@ import "./catalog.css";
 import { Link, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShareFromSquare } from "@fortawesome/free-solid-svg-icons";
+import { useCatalogCount, useCatalogPatients } from "../hooks/useCatalogData";
 
 export default function Catalog() {
-  const [patients, setPatients] = useState<Patient[]>([]);
-  const [message, setMessage] = useState<JSX.Element | string>("");
+  const [position, setPosition] = useState("down");
   const [patientId, setPatientId] = useState<number | undefined>(undefined);
   const [patientCode, setPatientCode] = useState<string | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(0);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [position, setPosition] = useState("down");
-  
-  useEffect(() => {
+
+  React.useEffect(() => {
     const id = searchParams.get("id");
     const code = searchParams.get("code");
     const page = searchParams.get("page");
-  
-    if (id) {
-      setPatientId(Number(id));
-    } else {
-      setPatientId(undefined);
-    }
-  
-    if (code) {
-      setPatientCode(code);
-    } else {
-      setPatientCode(undefined);
-    }
-  
-    if (page) {
-      setCurrentPage(Number(page));
-    } else {
-      setCurrentPage(1);
-    }
+
+    setPatientId(id ? Number(id) : undefined);
+    setPatientCode(code || undefined);
+    setCurrentPage(page ? Number(page) : 1);
   }, [searchParams]);
 
   const limit = useMemo(() => {
     return 25;
   }, []);
 
-  const patientList = useMemo(() => {
-    return new PatientList();
-  }, []);
-
-  useEffect(() => {
-    setMessage("");
-    const fetchNumberOfPatients = async () => {
-      try {
-        await patientList.getNumberOfPatients(patientCode);
-        setTotalPages(Math.ceil(patientList.totalPatients / limit));
-      } catch (error) {
-        setMessage("An error occurred.");
-        console.error(error);
-      }
+  const patientQuery = useMemo(() => {
+    if (patientId !== undefined) {
+      return { id: patientId };
+    }
+    return {
+      skip: currentPage * limit - limit,
+      limit,
+      code: patientCode,
     };
-    fetchNumberOfPatients();
-  }, [patientList, limit, patientCode]);
+  }, [currentPage, limit, patientCode, patientId]);
 
-  useEffect(() => {
-    setMessage("");
-    const fetchPatients = async () => {
-      try {
-        if (patientId !== undefined) {
-          await patientList.getPatients({ id: patientId });
-        } else {
-          const queryParams = {
-            skip: currentPage * limit - limit,
-            limit: limit,
-            code: patientCode,
-          };
-          await patientList.getPatients(queryParams);
-        }
+  const {
+    patients,
+    loading: loadingPatients,
+    error: patientsError,
+  } = useCatalogPatients(patientQuery);
 
-        if (patientList.message != null) {
-          setMessage(<p className="error">{patientList.message}</p>);
-        } else if (patientList.patients.length > 0) {
-          setMessage("");
-          setPatients(patientList.patients);
-        } else {
-          setMessage(<p className="error">"An error occurred."</p>);
-        }
-      } catch (error) {
-        setMessage("An error occurred.");
-        console.error(error);
-      }
-    };
+  const { total, loading: loadingTotal, error: totalError } = useCatalogCount(patientCode);
 
-    fetchPatients();
-  }, [patientId, patientCode, currentPage, limit, patientList]);
+  const totalPages = useMemo(() => {
+    if (patientId) return 1;
+    if (!total || total === 0) return 0;
+    return Math.max(1, Math.ceil(total / limit));
+  }, [limit, patientId, total]);
 
   const handlePatientId = (value: number | undefined) => {
     setPatientId(value);
@@ -137,7 +96,7 @@ export default function Catalog() {
 
 
   const handleMouseEnter = (event: MouseEvent) => {
-    if (event.clientY > window.innerHeight/2) {
+    if (event.clientY > window.innerHeight / 2) {
       setPosition("up");
     } else {
       setPosition("down");
@@ -193,9 +152,18 @@ export default function Catalog() {
     );
   });
 
+  const message = patientsError || totalError ? (
+    <p className="error">{patientsError || totalError}</p>
+  ) : null;
+  const emptyState =
+    !loadingPatients && !patientsError && patients.length === 0 ? (
+      <p className="error">No patients found.</p>
+    ) : null;
+
   return (
     <div className="catalog-pagebody page-content">
       {message}
+      {emptyState}
       <div className="filtering">
         <Filtering<number | undefined>
           label="Patient ID"
@@ -208,6 +176,7 @@ export default function Catalog() {
           handleSubmit={handlePatientCode}
         />
       </div>
+      {(loadingPatients || loadingTotal) && <p>Loading catalog...</p>}
       <Pagination
         currentPage={currentPage}
         handlePageChange={handlePageChange}
