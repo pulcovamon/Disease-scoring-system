@@ -2,47 +2,56 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShareFromSquare } from "@fortawesome/free-solid-svg-icons";
+import { useTranslations } from "../i18n/useTranslations";
+import { useLanguage } from "../store/language";
 
 export default function Home() {
+  const { t } = useTranslations();
+  const { buildPath } = useLanguage();
+
   return (
     <div className="flex flex-col items-center gap-10 px-4 py-10 md:py-14">
       <div className="max-w-5xl text-center md:text-left space-y-4">
         <h1 className="text-3xl md:text-4xl font-bold text-[var(--text-color)]">
-          Welcome to the Disease Scoring System!
+          {t("home.title", "Welcome to the Disease Scoring System!")}
         </h1>
         <p className="text-base md:text-lg leading-relaxed text-[var(--text-muted)]">
-          Predict disease outcomes based on input data. Upload patient codes, view prediction history,
-          and analyze training results — all in one place.
+          {t(
+            "home.subtitle",
+            "Predict disease outcomes based on input data. Upload patient codes, view prediction history, and analyze training results — all in one place."
+          )}
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-6xl">
         {[
           {
-            title: "Upload Data and Make Predictions",
+            title: t("home.card.upload.title", "Upload Data and Make Predictions"),
             body: (
               <>
-                Choose from two methods to input data:
+                {t("home.card.upload.desc1", "Choose from two methods to input data:")}
                 <br />
-                <strong>Manual Entry:</strong> Add patient codes individually and provide the patient’s name.
+                <strong>{t("home.card.upload.manual", "Manual Entry:")}</strong>{" "}
+                {t("home.card.upload.manualDesc", "Add patient codes individually and provide the patient’s name.")}
                 <br />
-                <strong>Upload Dataset:</strong> Submit a CSV file containing multiple codes for batch processing.
+                <strong>{t("home.card.upload.dataset", "Upload Dataset:")}</strong>{" "}
+                {t("home.card.upload.datasetDesc", "Submit a CSV file containing multiple codes for batch processing.")}
               </>
             ),
-            link: "/score",
-            cta: "Get Started",
+            link: buildPath("/score"),
+            cta: t("home.card.upload.cta", "Get Started"),
           },
           {
-            title: "View Prediction History",
-            body: "Review predictions, track progress, and revisit past outcomes for analysis.",
-            link: "/result",
-            cta: "View History",
+            title: t("home.card.history.title", "View Prediction History"),
+            body: t("home.card.history.body", "Review predictions, track progress, and revisit past outcomes for analysis."),
+            link: buildPath("/result"),
+            cta: t("home.card.history.cta", "View History"),
           },
           {
-            title: "Analyze Training Results",
-            body: "Examine training datasets and compare ground truth values with model predictions.",
-            link: "/catalog",
-            cta: "Explore Catalog",
+            title: t("home.card.catalog.title", "Analyze Training Results"),
+            body: t("home.card.catalog.body", "Examine training datasets and compare ground truth values with model predictions."),
+            link: buildPath("/catalog"),
+            cta: t("home.card.catalog.cta", "Explore Catalog"),
           },
         ].map((card) => (
           <div

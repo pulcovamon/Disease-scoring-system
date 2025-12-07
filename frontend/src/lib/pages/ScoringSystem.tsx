@@ -25,6 +25,7 @@ import {
   WizardInputMethod,
   WizardStep,
 } from "../store/scoringWizard";
+import { useTranslations } from "../i18n/useTranslations";
 
 export default function ScoringSystem() {
   return (
@@ -36,6 +37,7 @@ export default function ScoringSystem() {
 
 function ScoringSystemView() {
   const navigate = useNavigate();
+  const { t } = useTranslations();
   const {
     step,
     currentModel,
@@ -62,9 +64,9 @@ function ScoringSystemView() {
   } = useScoringWizard();
 
   const titles = [
-    "Select a Model",
-    "Select Input Method and Fill Data",
-    "Check and Send",
+    t("form.title.selectModel", "Select a Model"),
+    t("form.title.selectInput", "Select Input Method and Fill Data"),
+    t("form.title.checkAndSend", "Check and Send"),
   ];
 
   const getDiseaseKeyFromName = (diseaseName: string): DiseaseType | undefined => {
@@ -165,8 +167,8 @@ function ScoringSystemView() {
           <div className="space-y-4">
             <div className="inline-flex gap-2 rounded-xl border border-[var(--border-muted)] bg-[var(--bg-surface-muted)] p-1" role="tablist">
               {[
-                { key: WizardInputMethod.Manual, label: "Manual Input" },
-                { key: WizardInputMethod.CSV, label: "Upload CSV" },
+                { key: WizardInputMethod.Manual, label: t("form.input.manual", "Manual Input") },
+                { key: WizardInputMethod.CSV, label: t("form.input.csv", "Upload CSV") },
               ].map((tab) => (
                 <button
                   key={tab.key}
@@ -231,7 +233,7 @@ function ScoringSystemView() {
           onClick={previousStep}
           disabled={step === WizardStep.SelectModel}
         >
-          <FontAwesomeIcon icon={faArrowLeft} /> Back
+          <FontAwesomeIcon icon={faArrowLeft} /> {t("form.button.back", "Back")}
         </button>
         <button
           className={`px-5 py-3 rounded-xl text-white font-semibold shadow transition ${
@@ -242,11 +244,11 @@ function ScoringSystemView() {
         >
           {step === WizardStep.Send ? (
             <span>
-              {sending ? "Sending..." : "Send"} <FontAwesomeIcon icon={faPaperPlane} />
+              {sending ? t("form.button.sending", "Sending...") : t("form.button.send", "Send")} <FontAwesomeIcon icon={faPaperPlane} />
             </span>
           ) : (
             <span>
-              Next <FontAwesomeIcon icon={faArrowRight} />
+              {t("form.button.next", "Next")} <FontAwesomeIcon icon={faArrowRight} />
             </span>
           )}
         </button>
@@ -343,6 +345,7 @@ function ModelCard({
   ownerName,
   onShowDetails,
 }: ModelCardProps) {
+  const { t } = useTranslations();
   const diseaseKey = getDiseaseKeyFromName(model.disease);
   const diseaseInfo = diseaseKey ? DiseaseInfo[diseaseKey] : undefined;
   const handleSelect = () => {
@@ -394,11 +397,11 @@ function ModelCard({
             }`}
           >
             <FontAwesomeIcon icon={model.is_public ? faGlobe : faLock} />
-            {model.is_public ? "Public" : "Private"}
+            {model.is_public ? t("form.cards.model.public", "Public") : t("form.cards.model.private", "Private")}
           </span>
           {isActive && (
             <div className="absolute top-2 left-2 text-xs font-semibold px-3 py-1 rounded-full bg-[var(--primary)] text-white shadow-md">
-              Active
+              {t("form.cards.model.active", "Active")}
             </div>
           )}
         </div>
@@ -419,7 +422,7 @@ function ModelCard({
                   isActive ? "bg-[var(--primary)]" : "bg-[var(--secondary)]/80"
                 }`}
               />
-              <span>{isActive ? "Selected" : "Tap to select"}</span>
+              <span>{isActive ? t("form.cards.model.status.selected", "Selected") : t("form.cards.model.selected", "Tap to select")}</span>
             </div>
             <button
               className={`flex items-center gap-2 font-semibold px-3 py-2 rounded-lg transition ${
@@ -432,7 +435,7 @@ function ModelCard({
                 onShowDetails(model);
               }}
             >
-              View details <FontAwesomeIcon icon={faArrowRight} />
+              {t("form.cards.model.view", "View details")} <FontAwesomeIcon icon={faArrowRight} />
             </button>
           </div>
         </div>

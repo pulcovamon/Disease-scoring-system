@@ -9,16 +9,18 @@ import {
 import "./personalPages.css";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { useAuth } from "../store/auth";
+import { useTranslations } from "../i18n/useTranslations";
 
 export default function AccountPage() {
   const { user, status, logout, refreshUser } = useAuth();
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslations();
 
   useEffect(() => {
     if (status === "authenticated" && !user) {
-      refreshUser().catch(() => setError("Unable to load your profile right now."));
+      refreshUser().catch(() => setError(t("history.error")));
     }
-  }, [refreshUser, status, user]);
+  }, [refreshUser, status, t, user]);
 
   const initials = useMemo(() => {
     if (!user) return "";
@@ -27,9 +29,9 @@ export default function AccountPage() {
   }, [user]);
 
   const roleLabel = useMemo(() => {
-    if (!user?.role) return "User";
+    if (!user?.role) return t("account.role.user");
     return user.role.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
-  }, [user]);
+  }, [t, user]);
 
   if (status === "loading" || (status === "authenticated" && !user)) {
     return (
@@ -44,12 +46,12 @@ export default function AccountPage() {
     <div className="pagebody personal-page">
       <div className="page-hero">
         <div>
-          <p className="eyebrow">Personal</p>
-          <h2>Account</h2>
-          <p className="muted">Manage your profile and see your approval status.</p>
+          <p className="eyebrow">{t("personal.label")}</p>
+          <h2>{t("account.title")}</h2>
+          <p className="muted">{t("account.subtitle")}</p>
         </div>
         <button className="ghost-button" onClick={() => logout(true)}>
-          <FontAwesomeIcon icon={faRightFromBracket} /> Log out
+          <FontAwesomeIcon icon={faRightFromBracket} /> {t("account.logout")}
         </button>
       </div>
 
@@ -72,7 +74,7 @@ export default function AccountPage() {
             <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-end" }}>
               <span className={`status-pill ${user.is_approved ? "success" : "warning"}`}>
                 <FontAwesomeIcon icon={user.is_approved ? faCircleCheck : faClock} />
-                {user.is_approved ? "Approved" : "Awaiting approval"}
+                {user.is_approved ? t("account.status.approved") : t("account.status.pending")}
               </span>
               <span className="status-pill neutral">
                 <FontAwesomeIcon icon={faUserShield} />
@@ -83,35 +85,32 @@ export default function AccountPage() {
 
           {!user.is_approved && (
             <div className="status-banner warning">
-              We&apos;ll notify you once an administrator approves your account. You can still explore public
-              models and prepare datasets.
+              {t("account.notify")}
             </div>
           )}
 
           <div className="meta-grid">
             <div className="meta-tile">
-              <div className="meta-label">Email</div>
+              <div className="meta-label">{t("account.email")}</div>
               <div className="meta-value">{user.email}</div>
             </div>
             <div className="meta-tile">
-              <div className="meta-label">Name</div>
+              <div className="meta-label">{t("account.name")}</div>
               <div className="meta-value">
                 {user.first_name} {user.last_name}
               </div>
             </div>
             <div className="meta-tile">
-              <div className="meta-label">Role</div>
+              <div className="meta-label">{t("account.role")}</div>
               <div className="meta-value">{roleLabel}</div>
             </div>
             <div className="meta-tile">
-              <div className="meta-label">User ID</div>
+              <div className="meta-label">{t("account.userId")}</div>
               <div className="meta-value">{user.id}</div>
             </div>
           </div>
 
-          <p className="inline-help">
-            Your session token is stored locally. If you shared this device, log out to clear your token.
-          </p>
+          <p className="inline-help">{t("account.sessionNote")}</p>
         </div>
       ) : null}
     </div>

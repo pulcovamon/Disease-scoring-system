@@ -13,6 +13,7 @@ import {
   ThemeMode,
 } from "../utils/colorUtils";
 import { useTheme } from "../store/theme";
+import { useTranslations } from "../i18n/useTranslations";
 
 codeCache.init();
 
@@ -30,6 +31,7 @@ export default function PatientCodes({
   onColorModeChange: (mode: "specialty" | "tfidf0" | "tfidf1" | "frequency") => void;
 }) {
   const { theme } = useTheme();
+  const { t } = useTranslations();
   const [codeDetails, setCodeDetails] = useState<Record<string, CodeInfo | null>>(() => {
     const fromCache: Record<string, CodeInfo | null> = {};
     for (const code of patient.codes) {
@@ -131,8 +133,8 @@ export default function PatientCodes({
           info
             ? `${info.name}${info.specialty ? ` (${info.specialty})` : ""}`
             : info === null
-            ? "Unknown code"
-            : "Loading..."
+            ? t("codes.status.unknown")
+            : t("codes.status.loading")
         }
       >
         {code}
@@ -142,14 +144,14 @@ export default function PatientCodes({
 
   return (
     <div className="space-y-4">
-      {titleVisible && <h1 className="text-xl font-semibold text-[var(--text-color)]">Codes</h1>}
+      {titleVisible && <h1 className="text-xl font-semibold text-[var(--text-color)]">{t("codes.title")}</h1>}
       <div className="space-y-3">
         <div className="flex flex-wrap gap-2">
           {[
-            { key: "specialty", label: "Specialty" },
-            { key: "tfidf0", label: "TF-IDF (0)" },
-            { key: "tfidf1", label: "TF-IDF (1)" },
-            { key: "frequency", label: "Frequency" },
+            { key: "specialty", label: t("codes.mode.specialty") },
+            { key: "tfidf0", label: t("codes.mode.tfidf0") },
+            { key: "tfidf1", label: t("codes.mode.tfidf1") },
+            { key: "frequency", label: t("codes.mode.frequency") },
           ].map((item) => (
             <button
               type="button"

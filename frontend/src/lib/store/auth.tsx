@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useLanguage } from "./language";
 import {
   getMethod,
   registerAuthTokenGetter,
@@ -44,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<AuthStatus>(token ? "loading" : "unauthenticated");
   const navigate = useNavigate();
   const location = useLocation();
+  const { buildPath } = useLanguage();
   const tokenRef = useRef<string | null>(token);
 
   const setTokenAndPersist = useCallback((nextToken: string | null) => {
@@ -62,13 +64,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setStatus("unauthenticated");
       setTokenAndPersist(null);
       if (redirect) {
-        navigate("/login", {
+        navigate(buildPath("/login"), {
           replace: true,
           state: { from: location.pathname + location.search },
         });
       }
     },
-    [location.pathname, location.search, navigate, setTokenAndPersist]
+    [buildPath, location.pathname, location.search, navigate, setTokenAndPersist]
   );
 
   const refreshUser = useCallback(async () => {

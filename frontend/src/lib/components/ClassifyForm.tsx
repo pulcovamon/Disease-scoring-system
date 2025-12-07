@@ -1,6 +1,7 @@
 import { faFloppyDisk, faNotesMedical, faPen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChangeEvent, useState, KeyboardEvent } from "react";
+import { useTranslations } from "../i18n/useTranslations";
 
 export function ClasifyForm({
   codes,
@@ -16,6 +17,7 @@ export function ClasifyForm({
   const [newCode, setNewCode] = useState("");
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [editValue, setEditValue] = useState<string>("");
+  const { t } = useTranslations();
 
   function handleInputChange(event: ChangeEvent<HTMLInputElement>) {
     setNewCode(event.target.value);
@@ -50,10 +52,10 @@ export function ClasifyForm({
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2 text-[var(--text-color)]">
         <FontAwesomeIcon icon={faNotesMedical} className="text-[var(--primary)]" />
-        <h4 className="text-lg font-semibold m-0">Medical codes sequence</h4>
+        <h4 className="text-lg font-semibold m-0">{t("form.codes.title", "Medical codes sequence")}</h4>
       </div>
       <div className="space-y-3">
-        <label className="text-sm text-[var(--text-muted)] font-medium">Codes</label>
+        <label className="text-sm text-[var(--text-muted)] font-medium">{t("form.codes.label", "Codes")}</label>
         <div className="flex flex-wrap gap-2">
           {codes.map((code, index) => (
             <div
@@ -94,12 +96,12 @@ export function ClasifyForm({
           value={newCode}
           onChange={handleInputChange}
           onKeyDown={handleKeyPress}
-          placeholder="Add a new code and press Enter"
+          placeholder={t("form.codes.addPlaceholder", "Add a new code and press Enter")}
           className={`w-full rounded-xl border px-3 py-3 bg-[var(--bg-surface)] text-[var(--text-color)] placeholder:text-[var(--text-muted)]/70 focus:border-[var(--primary)] focus:outline-none transition ${
             unallowed && codes.length === 0 ? "border-red-400" : "border-[var(--border-muted)]"
           }`}
         />
-        <p className="text-xs text-[var(--text-muted)]">Enter code and press Enter to add it.</p>
+        <p className="text-xs text-[var(--text-muted)]">{t("form.codes.help", "Enter code and press Enter to add it.")}</p>
       </div>
     </div>
   );

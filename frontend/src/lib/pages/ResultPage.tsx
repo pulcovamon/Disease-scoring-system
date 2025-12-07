@@ -11,6 +11,8 @@ import {
   faTriangleExclamation,
   faRotateRight,
 } from "@fortawesome/free-solid-svg-icons";
+import { useTranslations } from "../i18n/useTranslations";
+import { useLanguage } from "../store/language";
 
 type Task = {
   status: string;
@@ -23,6 +25,8 @@ type Task = {
 
 export default function ResultPage() {
   const { id } = useParams<{ id: string }>();
+  const { t } = useTranslations();
+  const { buildPath } = useLanguage();
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +34,7 @@ export default function ResultPage() {
 
   const fetchTask = useCallback(async () => {
     if (!id) {
-      setError("Invalid task ID.");
+      setError(t("result.invalid"));
       setLoading(false);
       return;
     }
@@ -43,14 +47,14 @@ export default function ResultPage() {
       setTask(fetched as Task);
     } catch (err: any) {
       if (err?.response?.status === 404) {
-        setError("Task not found.");
+        setError(t("result.notFound"));
       } else {
-        setError("An error occurred while fetching the result.");
+        setError(t("result.fetchError"));
       }
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, t]);
 
   useEffect(() => {
     fetchTask();
@@ -65,7 +69,7 @@ export default function ResultPage() {
       return (
         <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-100">
           <FontAwesomeIcon icon={faCheckCircle} />
-          Success
+          {t("history.status.success")}
         </span>
       );
     }
@@ -73,23 +77,23 @@ export default function ResultPage() {
       return (
         <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold bg-red-600 text-white dark:bg-red-500">
           <FontAwesomeIcon icon={faTriangleExclamation} />
-          Failed
+          {t("history.status.failed")}
         </span>
       );
     }
     return (
       <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-100">
         <FontAwesomeIcon icon={faCircleNotch} className="animate-spin" />
-        Processing
+        {t("result.processing")}
       </span>
     );
-  }, [isFail, isSuccess]);
+  }, [isFail, isSuccess, t]);
 
   const probabilityText =
     isSuccess && task?.result != null ? `${(task.result * 100).toFixed(1)} %` : "—";
 
   const handleRerun = () => {
-    setInfo("Rerun requested (mock action).");
+    setInfo(t("result.info.rerun"));
   };
 
   return (
@@ -97,13 +101,15 @@ export default function ResultPage() {
       <div className="flex items-center gap-3 mb-4">
         <Link
           className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--bg-surface-muted)] text-[var(--text-color)] hover:bg-[var(--border-muted)] transition"
-          to="/result"
+          to={buildPath("/result")}
         >
           <FontAwesomeIcon icon={faArrowLeft} />
-          Back to history
+          {t("result.back")}
         </Link>
         {id && (
-          <span className="text-[var(--text-muted)] text-sm">Task ID: {id}</span>
+          <span className="text-[var(--text-muted)] text-sm">
+            {t("result.taskId")}: {id}
+          </span>
         )}
       </div>
 
@@ -115,18 +121,18 @@ export default function ResultPage() {
         </div>
       ) : !task ? (
         <div className="box">
-          <p className="text-[var(--text-muted)]">No result found.</p>
+          <p className="text-[var(--text-muted)]">{t("result.noResult")}</p>
         </div>
       ) : (
         <div className="space-y-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
               <h2 className="text-2xl font-bold text-[var(--text-color)]">
-                {task.disease ? `${task.disease} prediction` : "Prediction result"}
+                {task.disease
+                  ? t("result.titleWithDisease").replace("{disease}", task.disease)
+                  : t("result.title")}
               </h2>
-              <p className="text-[var(--text-muted)]">
-                Status, probability and quick actions for this prediction.
-              </p>
+              <p className="text-[var(--text-muted)]">{t("result.subtitle")}</p>
             </div>
             {statusChip}
           </div>
@@ -135,30 +141,34 @@ export default function ResultPage() {
             <div className="relative rounded-2xl border border-[var(--border-muted)] bg-[var(--bg-surface)] p-6 overflow-hidden">
               <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-[var(--primary)]/10 via-transparent to-[var(--secondary)]/10" />
               <div className="relative flex flex-col gap-4">
-                <p className="text-sm uppercase tracking-wide text-[var(--text-muted)]">Probability</p>
+                <p className="text-sm uppercase tracking-wide text-[var(--text-muted)]">
+                  {t("result.probability")}
+                </p>
                 <div className="text-4xl font-bold text-[var(--text-color)]">{probabilityText}</div>
                 <p className="text-sm text-[var(--text-muted)]">
-                  Probability of {task.disease || "the disease"} presence based on the selected model.
-                  Results are stored for 24 hours.
+                  {t("result.probability.description").replace(
+                    "{disease}",
+                    task.disease || t("result.disease").toLowerCase()
+                  )}
                 </p>
               </div>
             </div>
 
             <div className="rounded-2xl border border-[var(--border-muted)] bg-[var(--bg-surface)] p-6 space-y-4">
               <div className="grid grid-cols-2 gap-3 text-sm">
-                <InfoCell label="Status" value={task.status} />
+                <InfoCell label={t("result.status")} value={task.status} />
                 <InfoCell
-                  label="Created"
+                  label={t("result.created")}
                   value={task.created_at ? new Date(task.created_at).toLocaleString() : "N/A"}
                 />
-                <InfoCell label="Task ID" value={task.task_id} />
-                <InfoCell label="Disease" value={task.disease || "N/A"} />
+                <InfoCell label={t("result.taskId")} value={task.task_id} />
+                <InfoCell label={t("result.disease")} value={task.disease || "N/A"} />
               </div>
               {isFail && (
                 <div className="rounded-xl border border-[var(--border-muted)] bg-red-50 dark:bg-red-900/20 p-3">
-                  <p className="text-xs text-[var(--text-muted)] mb-1">Failure reason</p>
+                  <p className="text-xs text-[var(--text-muted)] mb-1">{t("history.failureReason")}</p>
                   <p className="text-[var(--text-color)] text-sm">
-                    {task.error || "An error occurred during computation."}
+                    {task.error || t("result.failure.noDetails")}
                   </p>
                 </div>
               )}
@@ -167,11 +177,11 @@ export default function ResultPage() {
 
           <div className="flex flex-wrap items-center gap-3">
             <Link
-              to="/score"
+              to={buildPath("/score")}
               className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-muted)] text-[var(--text-color)] hover:border-[var(--primary)] transition"
             >
               <FontAwesomeIcon icon={faArrowUpRightFromSquare} />
-              New prediction
+              {t("result.newPrediction")}
             </Link>
             {isFail && (
               <button
@@ -179,7 +189,7 @@ export default function ResultPage() {
                 className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] transition shadow"
               >
                 <FontAwesomeIcon icon={faRotateRight} />
-                Rerun
+                {t("result.rerun")}
               </button>
             )}
             {isProcessing && (
@@ -188,7 +198,7 @@ export default function ResultPage() {
                 className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] transition shadow"
               >
                 <FontAwesomeIcon icon={faRotateRight} className="animate-spin" />
-                Refresh status
+                {t("result.refresh")}
               </button>
             )}
             {info && <span className="text-sm text-[var(--text-muted)]">{info}</span>}

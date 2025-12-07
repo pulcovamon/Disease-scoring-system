@@ -1,6 +1,7 @@
 import React from "react";
 import { DiseaseType, diseases } from "../classes/disease";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "../store/language";
 
 interface ModelSelectionProps {
   disease: DiseaseType;
@@ -9,6 +10,7 @@ interface ModelSelectionProps {
 
 export default function ModelSelection({ disease, setDisease }: ModelSelectionProps) {
   const navigate = useNavigate();
+  const { buildPath } = useLanguage();
 
   return (
     <div className="page-body">
@@ -24,7 +26,7 @@ export default function ModelSelection({ disease, setDisease }: ModelSelectionPr
           </button>
         ))}
       </div>
-      <button onClick={() => navigate("/patient")}>Pokračovat</button>
+      <button onClick={() => navigate(buildPath("/patient"))}>Pokračovat</button>
     </div>
   );
 }

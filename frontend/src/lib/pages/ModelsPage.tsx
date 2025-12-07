@@ -9,6 +9,7 @@ import ModelList from "../components/ModelList";
 import { postFormMethod } from "../classes/api";
 import { useAuth } from "../store/auth";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { useTranslations } from "../i18n/useTranslations";
 
 type UploadState = {
   type: "success" | "error" | "info" | null;
@@ -17,6 +18,7 @@ type UploadState = {
 
 export default function ModelsPage() {
   const { status } = useAuth();
+  const { t } = useTranslations();
 
   const [modelFile, setModelFile] = useState<File | null>(null);
   const [sendDialogOpen, setSendDialogOpen] = useState<boolean>(false);
@@ -40,7 +42,7 @@ export default function ModelsPage() {
     imageFile?: File
   ): Promise<boolean> {
     setUploading(true);
-    setUploadState({ type: "info", message: "Uploading model..." });
+    setUploadState({ type: "info", message: t("models.uploading") });
 
     const formData = new FormData();
     formData.append("file", modelFileToSend);
@@ -62,14 +64,14 @@ export default function ModelsPage() {
       setRefreshKey((key) => key + 1);
       setUploadState({
         type: "success",
-        message: "Model uploaded successfully. It may take a moment to become available.",
+        message: t("models.upload.success"),
       });
       return true;
     } catch (error) {
       console.error("Failed to upload model", error);
       setUploadState({
         type: "error",
-        message: "Model upload failed. Please verify fields and try again.",
+        message: t("models.upload.error"),
       });
       return false;
     } finally {
@@ -90,19 +92,19 @@ export default function ModelsPage() {
     <div className="pagebody personal-page">
       <div className="page-hero">
         <div>
-          <p className="eyebrow">Personal</p>
-          <h2>Models</h2>
-          <p className="muted">Upload new models and reuse existing ones.</p>
+          <p className="eyebrow">{t("personal.label")}</p>
+          <h2>{t("models.title")}</h2>
+          <p className="muted">{t("models.subtitle")}</p>
         </div>
         <button className="primary-button" onClick={() => setSendDialogOpen(true)}>
-          <FontAwesomeIcon icon={faPlus} /> New model
+          <FontAwesomeIcon icon={faPlus} /> {t("models.new")}
         </button>
       </div>
 
       <div className="section-card">
         <div className="filters-row">
           <span className="subtle">
-            <FontAwesomeIcon icon={faSliders} /> Filters
+            <FontAwesomeIcon icon={faSliders} /> {t("models.filters")}
           </span>
           <label>
             <input
@@ -110,7 +112,7 @@ export default function ModelsPage() {
               checked={filters.include_user}
               onChange={() => toggleFilter("include_user")}
             />
-            My models
+            {t("models.filter.mine")}
           </label>
           <label>
             <input
@@ -118,7 +120,7 @@ export default function ModelsPage() {
               checked={filters.include_default}
               onChange={() => toggleFilter("include_default")}
             />
-            Default models
+            {t("models.filter.default")}
           </label>
           <label>
             <input
@@ -126,11 +128,11 @@ export default function ModelsPage() {
               checked={filters.include_public}
               onChange={() => toggleFilter("include_public")}
             />
-            Public models
+            {t("models.filter.public")}
           </label>
         </div>
         <p className="subtle">
-          Public and default models remain available even if you do not upload anything yourself.
+          {t("models.hint")}
         </p>
       </div>
 

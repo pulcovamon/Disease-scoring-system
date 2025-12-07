@@ -8,6 +8,8 @@ import { Model } from "../classes/model";
 import FileUploader from "../components/FileUploader";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { useAuth } from "../store/auth";
+import { useTranslations } from "../i18n/useTranslations";
+import { useLanguage } from "../store/language";
 
 type UploadState = {
   type: "success" | "error" | "info" | null;
@@ -16,6 +18,8 @@ type UploadState = {
 
 export default function DatasetsPage() {
   const { status } = useAuth();
+  const { t } = useTranslations();
+  const { buildPath } = useLanguage();
   const [datasetFile, setDatasetFile] = useState<File | null>(null);
   const [models, setModels] = useState<Model[]>([]);
   const [selectedModelId, setSelectedModelId] = useState<string>("");
@@ -44,10 +48,10 @@ export default function DatasetsPage() {
       })
       .catch((err) => {
         console.error(err);
-        setModelsError("Unable to load models right now.");
+        setModelsError(t("datasets.models.error"));
       })
       .finally(() => setLoadingModels(false));
-  }, [status]);
+  }, [status, t]);
 
   const downloadTemplate = async (format: "csv" | "json") => {
     try {
@@ -60,18 +64,18 @@ export default function DatasetsPage() {
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error(error);
-      setUploadState({ type: "error", message: "Unable to download the template right now." });
+      setUploadState({ type: "error", message: t("datasets.templates.error") });
     }
   };
 
   const handleSubmit = async () => {
     if (!datasetFile || !selectedModelId) {
-      setUploadState({ type: "error", message: "Select a model and dataset before sending." });
+      setUploadState({ type: "error", message: t("datasets.submit.needSelection") });
       return;
     }
 
     setSubmitting(true);
-    setUploadState({ type: "info", message: "Submitting dataset for scoring..." });
+    setUploadState({ type: "info", message: t("datasets.submit.info") });
 
     const formData = new FormData();
     formData.append("dataset", datasetFile);
@@ -86,17 +90,17 @@ export default function DatasetsPage() {
       setUploadState({
         type: "success",
         message: taskId
-          ? `Dataset submitted. Task ID: ${taskId}.`
-          : "Dataset submitted. Track it in History.",
+          ? t("datasets.submit.successWithId").replace("{id}", taskId)
+          : t("datasets.submit.success"),
       });
       setDatasetFile(null);
 
       if (taskId) {
-        navigate(`/result?id=${taskId}`);
+        navigate(buildPath(`/result?id=${taskId}`));
       }
     } catch (error) {
       console.error(error);
-      setUploadState({ type: "error", message: "Dataset submission failed. Try again." });
+      setUploadState({ type: "error", message: t("datasets.submit.error") });
     } finally {
       setSubmitting(false);
     }
@@ -115,9 +119,9 @@ export default function DatasetsPage() {
     <div className="pagebody personal-page">
       <div className="page-hero">
         <div>
-          <p className="eyebrow">Personal</p>
-          <h2>Datasets</h2>
-          <p className="muted">Upload a dataset and queue a scoring task with your chosen model.</p>
+          <p className="eyebrow">{t("personal.label")}</p>
+          <h2>{t("datasets.title")}</h2>
+          <p className="muted">{t("datasets.subtitle")}</p>
         </div>
         <button
           className="primary-button"
@@ -125,7 +129,7 @@ export default function DatasetsPage() {
           disabled={!datasetFile || !selectedModelId || submitting}
         >
           <FontAwesomeIcon icon={faPaperPlane} />{" "}
-          {submitting ? "Sending..." : "Send to scoring"}
+          {submitting ? t("datasets.sending") : t("datasets.send")}
         </button>
       </div>
 
@@ -138,10 +142,10 @@ export default function DatasetsPage() {
       <div className="dataset-layout">
         <div className="section-card">
           <h3>
-            <FontAwesomeIcon icon={faDatabase} /> Dataset
+            <FontAwesomeIcon icon={faDatabase} /> {t("datasets.dataset")}
           </h3>
           <p className="muted">
-            Use the template to match the expected columns, then upload your CSV or JSON file.
+            {t("datasets.dataset.help")}
           </p>
           <FileUploader
             accept=".csv,.json"
@@ -149,21 +153,21 @@ export default function DatasetsPage() {
             unallowed={!datasetFile && uploadState.type === "error"}
           />
           {datasetFile && <div className="file-name">{datasetFile.name}</div>}
-          <p className="inline-help">We process datasets for scoring only and discard them afterwards.</p>
+          <p className="inline-help">{t("datasets.inlineHelp")}</p>
         </div>
 
         <div className="section-card">
-          <h3>Model selection</h3>
+          <h3>{t("datasets.modelSelection")}</h3>
           {loadingModels ? (
             <LoadingSpinner />
           ) : modelsError ? (
             <div className="status-banner error">{modelsError}</div>
           ) : models.length === 0 ? (
-            <div className="status-banner info">No models available yet.</div>
+            <div className="status-banner info">{t("datasets.models.none")}</div>
           ) : (
             <>
               <label className="filters-row" style={{ gap: "8px" }}>
-                <span className="subtle">Use this model:</span>
+                <span className="subtle">{t("datasets.model.use")}</span>
                 <select
                   value={selectedModelId}
                   onChange={(e) => setSelectedModelId(e.target.value)}
@@ -176,16 +180,16 @@ export default function DatasetsPage() {
                   ))}
                 </select>
               </label>
-              <p className="inline-help">Only models you have access to are listed here.</p>
+              <p className="inline-help">{t("datasets.model.inlineHelp")}</p>
             </>
           )}
 
           <div className="dataset-actions">
             <button className="ghost-button" type="button" onClick={() => downloadTemplate("csv")}>
-              <FontAwesomeIcon icon={faCloudArrowDown} /> Template (CSV)
+              <FontAwesomeIcon icon={faCloudArrowDown} /> {t("datasets.templateCsv")}
             </button>
             <button className="ghost-button" type="button" onClick={() => downloadTemplate("json")}>
-              <FontAwesomeIcon icon={faCloudArrowDown} /> Template (JSON)
+              <FontAwesomeIcon icon={faCloudArrowDown} /> {t("datasets.templateJson")}
             </button>
           </div>
         </div>

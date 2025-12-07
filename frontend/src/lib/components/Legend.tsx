@@ -1,8 +1,10 @@
 import { getCategoricalColor, getContinuousColor, fetchStats, StatMap } from "../utils/colorUtils";
 import { ColorMode } from "../utils/colorUtils";
 import { useEffect, useState } from "react";
+import { useTranslations } from "../i18n/useTranslations";
 
 export default function Legend({ mode, stats }: { mode: ColorMode; stats: StatMap | null }) {
+  const { t } = useTranslations();
 
   const renderColorBar = () => {
     if (mode === "specialty" || !stats || !stats[mode]) return null;
@@ -21,8 +23,8 @@ export default function Legend({ mode, stats }: { mode: ColorMode; stats: StatMa
           style={{ background: `linear-gradient(to right, ${gradientColors.join(", ")})` }}
         />
         <div className="legend-labels">
-          <span>Less significant</span>
-          <span>More significant</span>
+          <span>{t("codes.legend.frequency.low")}</span>
+          <span>{t("codes.legend.frequency.high")}</span>
         </div>
       </div>
     );
@@ -53,25 +55,25 @@ export default function Legend({ mode, stats }: { mode: ColorMode; stats: StatMa
 
       <div className="text-sm text-[var(--text-muted)] space-y-2">
         <p>
-          <strong>Specialty</strong>: Categorical coloring by medical specialty (e.g., clinical oncology). Some procedures are uncategorized and shown in white.
+          <strong>{t("codes.legend.specialty.label")}</strong>: {t("codes.legend.specialty")}
         </p>
         <p>
-          <strong>TF-IDF (active phase 0 / 1)</strong>: Importance of a code for the given label. Higher TF-IDF means the code is more specific to the label.
+          <strong>TF-IDF (active phase 0 / 1)</strong>: {t("codes.legend.tfidf")}
         </p>
         <p>
-          <strong>Frequency</strong>: Based on total occurrence of the code across all sequences. More frequent codes are darker.
+          <strong>{t("codes.legend.frequency.label")}</strong>: {t("codes.legend.frequency")}
         </p>
       </div>
 
       <div className="flex flex-wrap gap-4 text-sm text-[var(--text-color)]">
-        <LegendItem colorStyle={{ backgroundImage: specialtyStripeBackground }} label="Specialty" />
-        <LegendItem colorStyle={{ backgroundColor: getCategoricalColor(null) }} label="Uncategorized" />
+        <LegendItem colorStyle={{ backgroundImage: specialtyStripeBackground }} label={t("codes.legend.specialty.label")} />
+        <LegendItem colorStyle={{ backgroundColor: getCategoricalColor(null) }} label={t("codes.legend.uncategorized")} />
         {stats && stats.tfidf0 && (
           <LegendItem
             colorStyle={{
               backgroundColor: getContinuousColor(Math.expm1(stats.tfidf0.logMean + stats.tfidf0.logStd), stats.tfidf0, "tfidf0"),
             }}
-            label="TF-IDF (label 0)"
+            label={t("codes.legend.tfidf0")}
           />
         )}
         {stats && stats.tfidf1 && (
@@ -79,7 +81,7 @@ export default function Legend({ mode, stats }: { mode: ColorMode; stats: StatMa
             colorStyle={{
               backgroundColor: getContinuousColor(Math.expm1(stats.tfidf1.logMean + stats.tfidf1.logStd), stats.tfidf1, "tfidf1"),
             }}
-            label="TF-IDF (label 1)"
+            label={t("codes.legend.tfidf1")}
           />
         )}
         {stats && stats.frequency && (
@@ -87,14 +89,14 @@ export default function Legend({ mode, stats }: { mode: ColorMode; stats: StatMa
             colorStyle={{
               backgroundColor: getContinuousColor(Math.expm1(stats.frequency.logMean + stats.frequency.logStd), stats.frequency, "frequency"),
             }}
-            label="Frequency"
+            label={t("codes.legend.frequency.label")}
           />
         )}
         <LegendItem
           colorStyle={{
             backgroundImage: "repeating-linear-gradient(45deg, #ddd, #ddd 4px, #fff 4px, #fff 8px)",
           }}
-          label="Unknown"
+          label={t("codes.legend.unknown")}
         />
       </div>
     </div>

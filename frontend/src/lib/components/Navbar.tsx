@@ -11,68 +11,83 @@ import {
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useTheme } from "../store/theme";
 import { useMemo, useState } from "react";
 import { useLanguage } from "../store/language";
+import { useTranslations } from "../i18n/useTranslations";
 
 export default function Navbar() {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
-  const { language, toggleLanguage } = useLanguage();
+  const { language, toggleLanguage, buildPath } = useLanguage();
+  const { t } = useTranslations();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const isActive = (path: string) =>
-    path === "/" ? location.pathname === path : location.pathname.includes(path);
+  const normalizePath = (p: string) => (p.endsWith("/") && p !== "/" ? p.slice(0, -1) : p);
+  const isActive = (path: string) => {
+    const target = normalizePath(buildPath(path === "/" ? "/" : path));
+    const current = normalizePath(location.pathname);
+    if (path === "/") {
+      return current === target;
+    }
+    return current === target || current.startsWith(`${target}/`);
+  };
 
   const menuItems = useMemo(
     () => [
       {
         icon: faHouse,
         label: "Home",
+        labelKey: "navbar.home",
         link: "/",
         isActive: isActive("/"),
       },
       {
         icon: faRobot,
         label: "Formulář",
+        labelKey: "navbar.form",
         link: "/score",
         isActive: isActive("/score"),
       },
       {
         icon: faChartLine,
         label: "Historie predikcí",
+        labelKey: "navbar.history",
         link: "/result",
         isActive: isActive("/result"),
       },
       {
         icon: faAddressBook,
         label: "Trénovací data",
+        labelKey: "navbar.catalog",
         link: "/catalog",
         isActive: isActive("/catalog"),
       },
       {
         icon: faLayerGroup,
         label: "Modely",
+        labelKey: "navbar.models",
         link: "/models",
         isActive: isActive("/models"),
       },
       {
         icon: faDatabase,
         label: "Datasety",
+        labelKey: "navbar.datasets",
         link: "/datasets",
         isActive: isActive("/datasets"),
       },
     ],
-    [location.pathname]
+    [buildPath, isActive, location.pathname]
   );
 
   const navList = (
     <ul className="flex flex-col md:flex-row gap-2 md:gap-4 items-start md:items-center">
       {menuItems.map((item) => (
         <li key={item.label}>
-          <a
-            href={item.link}
+          <Link
+            to={buildPath(item.link)}
             className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-white ${
               item.isActive
                 ? "bg-white/25 shadow-sm"
@@ -80,8 +95,8 @@ export default function Navbar() {
             }`}
           >
             <FontAwesomeIcon icon={item.icon} className="drop-shadow-sm" />
-            <span className="text-sm md:text-base">{item.label}</span>
-          </a>
+            <span className="text-sm md:text-base">{t(item.labelKey || "", item.label)}</span>
+          </Link>
         </li>
       ))}
     </ul>
@@ -98,9 +113,9 @@ export default function Navbar() {
           >
             <FontAwesomeIcon icon={mobileOpen ? faXmark : faBars} />
           </button>
-          <a href="/" className="font-bold text-lg">
+          <Link to={buildPath("/")} className="font-bold text-lg">
             Scoring System
-          </a>
+          </Link>
         </div>
 
         <div className="hidden md:flex items-center gap-4">
@@ -158,13 +173,13 @@ export default function Navbar() {
               EN
             </span>
           </div>
-          <a
-            href="/account"
+          <Link
+            to={buildPath("/account")}
             className="w-10 h-10 inline-flex items-center justify-center rounded-full bg-[var(--secondary)] text-white hover:bg-[var(--secondary-hover)] shadow transition"
             aria-label="Account"
           >
             <FontAwesomeIcon icon={faAddressBook} />
-          </a>
+          </Link>
         </div>
       </div>
 

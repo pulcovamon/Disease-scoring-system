@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslations } from "../i18n/useTranslations";
 
 export default function HeatMapRow({
   categoryName,
@@ -9,6 +10,7 @@ export default function HeatMapRow({
   groundTruth: string[] | boolean[];
   prediction: string[] | boolean[];
 }) {
+  const { t } = useTranslations();
   return (
     <tr className="heatmap-row">
       <th className="category-name">{categoryName}</th>
@@ -16,12 +18,12 @@ export default function HeatMapRow({
         const match = code === prediction[index];
         const backgroundColor = match ? "var(--heatmap-match)" : "var(--heatmap-mismatch)";
         const displayGroundTruth =
-          typeof code === "boolean" ? (code ? "Yes" : "No") : code;
+          typeof code === "boolean" ? (code ? t("heatmap.yes") : t("heatmap.no")) : code;
         const displayPrediction =
           typeof prediction[index] === "boolean"
             ? prediction[index]
-              ? "Yes"
-              : "No"
+              ? t("heatmap.yes")
+              : t("heatmap.no")
             : prediction[index];
 
         return (
@@ -34,11 +36,15 @@ export default function HeatMapRow({
             data-gt={displayGroundTruth}
             data-pred={displayPrediction}
             className="heatmap-cell"
-            title={`GT: ${displayGroundTruth} | Pred: ${displayPrediction}`}
+            title={`${t("heatmap.gt")}: ${displayGroundTruth} | ${t("heatmap.pred")}: ${displayPrediction}`}
           >
             <div className="icd10 sr-only">
-              <div className="icd10-row">GT: {displayGroundTruth}</div>
-              <div className="icd10-row">Pred: {displayPrediction}</div>
+              <div className="icd10-row">
+                {t("heatmap.gt")}: {displayGroundTruth}
+              </div>
+              <div className="icd10-row">
+                {t("heatmap.pred")}: {displayPrediction}
+              </div>
             </div>
           </td>
         );

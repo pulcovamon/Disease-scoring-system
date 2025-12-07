@@ -6,8 +6,12 @@ import { Link, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShareFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { useCatalogCount, useCatalogPatients } from "../hooks/useCatalogData";
+import { useLanguage } from "../store/language";
+import { useTranslations } from "../i18n/useTranslations";
 
 export default function Catalog() {
+  const { buildPath } = useLanguage();
+  const { t } = useTranslations();
   const [patientId, setPatientId] = useState<number | undefined>(undefined);
   const [patientCode, setPatientCode] = useState<string | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -97,20 +101,18 @@ export default function Catalog() {
   ) : null;
   const emptyState =
     !loadingPatients && !patientsError && patients.length === 0 ? (
-      <p className="text-[var(--text-muted)]">No patients found.</p>
+      <p className="text-[var(--text-muted)]">{t("catalog.empty")}</p>
     ) : null;
 
   return (
     <div className="page-body space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-[var(--text-color)]">Training Data Catalog</h2>
-          <p className="text-[var(--text-muted)]">
-            Browse patients and their code sequences. Use filters to find specific entries.
-          </p>
+          <h2 className="text-2xl font-bold text-[var(--text-color)]">{t("catalog.title")}</h2>
+          <p className="text-[var(--text-muted)]">{t("catalog.subtitle")}</p>
         </div>
         <div className="flex items-center gap-3 text-sm text-[var(--text-muted)]">
-          <span>Total records:</span>
+          <span>{t("catalog.total")}</span>
           <span className="px-3 py-1 rounded-full bg-[var(--bg-surface)] border border-[var(--border-muted)] text-[var(--text-color)] font-semibold">
             {loadingTotal ? "…" : total || 0}
           </span>
@@ -122,22 +124,22 @@ export default function Catalog() {
 
       <div className="grid md:grid-cols-2 gap-4">
         <Filtering<number | undefined>
-          label="Patient ID"
+          label={t("catalog.filter.patientId")}
           value={patientId}
-          placeholder="e.g. 42"
+          placeholder={t("catalog.filter.patientId.placeholder")}
           handleSubmit={handlePatientId}
         />
         <Filtering<string | undefined>
-          label="Code"
+          label={t("catalog.filter.code")}
           value={patientCode}
-          placeholder="e.g. 89125"
+          placeholder={t("catalog.filter.code.placeholder")}
           handleSubmit={handlePatientCode}
         />
       </div>
 
       <div className="flex flex-wrap items-center gap-3 justify-between">
         <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
-          <span>Items per page</span>
+          <span>{t("catalog.itemsPerPage")}</span>
           <select
             value={pageSize}
             onChange={(e) => {
@@ -175,10 +177,10 @@ export default function Catalog() {
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-[var(--border-muted)] bg-[var(--bg-surface-muted)]">
-                <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">Patient ID</th>
-                <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">Codes</th>
-                <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">Predictions</th>
-                <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">Estimated accuracy</th>
+                <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">{t("catalog.table.patientId")}</th>
+                <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">{t("catalog.table.codes")}</th>
+                <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">{t("catalog.table.predictions")}</th>
+                <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">{t("catalog.table.accuracy")}</th>
                 <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]"></th>
               </tr>
             </thead>
@@ -213,6 +215,8 @@ function PatientRow({
   patient: Patient;
   highlightCode?: string;
 }) {
+  const { buildPath } = useLanguage();
+  const { t } = useTranslations();
   const codes = patient.codes.slice(0, 5);
   const hasMore = patient.codes.length > codes.length;
   const predictionsCount = patient.active_phase?.prediction?.length ?? patient.codes.length;
@@ -263,11 +267,11 @@ function PatientRow({
       <td className="px-4 py-3 text-right">
         <Link
           className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--bg-surface-muted)] text-[var(--text-color)] hover:bg-[var(--border-muted)] transition text-sm font-semibold"
-          to={`/catalog/${patient._id}${highlightCode ? `?code=${highlightCode}` : ""}`}
+          to={buildPath(`/catalog/${patient._id}${highlightCode ? `?code=${highlightCode}` : ""}`)}
           target="_blank"
         >
           <FontAwesomeIcon icon={faShareFromSquare} />
-          Detail
+          {t("catalog.detail")}
         </Link>
       </td>
     </tr>

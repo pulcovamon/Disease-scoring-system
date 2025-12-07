@@ -5,21 +5,23 @@ import {
   faPaperPlane,
   faCheck,
 } from "@fortawesome/free-solid-svg-icons";
+import { useTranslations } from "../i18n/useTranslations";
 
-const steps = [
-  { icon: faHexagonNodes, label: "Model" },
-  { icon: faDatabase, label: "Data" },
-  { icon: faPaperPlane, label: "Send" },
+const stepsKeys = [
+  { icon: faHexagonNodes, key: "form.step.model", fallback: "Model" },
+  { icon: faDatabase, key: "form.step.data", fallback: "Data" },
+  { icon: faPaperPlane, key: "form.step.send", fallback: "Send" },
 ];
 
 export default function Steps({ currentIndex }: { currentIndex: number }) {
+  const { t } = useTranslations();
   return (
     <div className="flex items-center gap-3">
-      {steps.map((step, idx) => {
+      {stepsKeys.map((step, idx) => {
         const isActive = currentIndex === idx;
         const isCompleted = currentIndex > idx;
         return (
-          <div key={step.label} className="flex items-center gap-2">
+          <div key={step.key} className="flex items-center gap-2">
             <div
               className={`relative flex items-center justify-center w-12 h-12 rounded-full border transition ${
                 isActive
@@ -36,9 +38,9 @@ export default function Steps({ currentIndex }: { currentIndex: number }) {
                 isActive || isCompleted ? "text-[var(--text-color)]" : "text-[var(--text-muted)]"
               }`}
             >
-              {step.label}
+              {t(step.key, step.fallback)}
             </span>
-            {idx < steps.length - 1 && (
+            {idx < stepsKeys.length - 1 && (
               <div className="w-10 h-[2px] bg-[var(--border-muted)]" />
             )}
           </div>

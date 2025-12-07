@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./loginPage.css";
 import { useAuth } from "../store/auth";
+import { useLanguage } from "../store/language";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -11,11 +12,12 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, status } = useAuth();
+  const { buildPath } = useLanguage();
 
   const redirectTo = useMemo(() => {
     const from = (location.state as { from?: string } | undefined)?.from;
-    return from && from !== "/login" ? from : "/models";
-  }, [location.state]);
+    return from && from !== "/login" ? from : buildPath("/models");
+  }, [buildPath, location.state]);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -58,7 +60,7 @@ export default function Login() {
 
         <p className="register-link">
           Don’t have an account?{" "}
-          <Link to="/register">Create one here</Link>.
+          <Link to={buildPath("/register")}>Create one here</Link>.
         </p>
       </form>
     </div>

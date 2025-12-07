@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useEffect, FormEvent } from "react";
 import { Patient } from "../classes/patient";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { useTranslations } from "../i18n/useTranslations";
 
 interface NewPatientData {
   patient: Patient;
@@ -13,6 +14,7 @@ export function NewPatient({ patient, handlePatientChange, unallowed }: NewPatie
   const [name, setName] = useState<string>(patient.name);
   const [surname, setSurname] = useState<string>(patient.surname);
   const [patients, setPatients] = useState<Patient[]>([]);
+  const { t } = useTranslations();
 
   useEffect(() => {
     const allPatients = [
@@ -66,11 +68,11 @@ export function NewPatient({ patient, handlePatientChange, unallowed }: NewPatie
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2 text-[var(--text-color)]">
         <FontAwesomeIcon icon={faUser} className="text-[var(--primary)]" />
-        <h4 className="text-lg font-semibold m-0">Patient</h4>
+        <h4 className="text-lg font-semibold m-0">{t("form.patient.title", "Patient")}</h4>
       </div>
 
       <div className="space-y-3">
-        <label className="text-sm text-[var(--text-muted)] font-medium">Select patient</label>
+        <label className="text-sm text-[var(--text-muted)] font-medium">{t("form.patient.select", "Select patient")}</label>
         <select
           className="w-full rounded-xl border border-[var(--border-muted)] bg-[var(--bg-surface)] px-3 py-3 text-[var(--text-color)] placeholder:text-[var(--text-muted)]/70 focus:border-[var(--primary)] focus:outline-none transition"
           onChange={(e) => handleCurrentPatientChange(e)}
@@ -79,7 +81,7 @@ export function NewPatient({ patient, handlePatientChange, unallowed }: NewPatie
           {patients.map((currentPatient) => {
             const value = currentPatient.id
               ? `${currentPatient.name} ${currentPatient.surname}`
-              : "New patient";
+              : t("form.patient.new", "New patient");
             return (
               <option
                 key={currentPatient.id}
@@ -94,7 +96,7 @@ export function NewPatient({ patient, handlePatientChange, unallowed }: NewPatie
 
       <div className="grid md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <label className="text-sm text-[var(--text-muted)] font-medium">Name *</label>
+          <label className="text-sm text-[var(--text-muted)] font-medium">{t("form.patient.name", "Name *")}</label>
           <input
             className={`w-full rounded-xl border px-3 py-3 bg-[var(--bg-surface)] text-[var(--text-color)] placeholder:text-[var(--text-muted)]/70 focus:border-[var(--primary)] focus:outline-none transition ${
               unallowed && name === "" ? "border-red-400" : "border-[var(--border-muted)]"
@@ -107,7 +109,7 @@ export function NewPatient({ patient, handlePatientChange, unallowed }: NewPatie
           />
         </div>
         <div className="space-y-2">
-          <label className="text-sm text-[var(--text-muted)] font-medium">Surname</label>
+          <label className="text-sm text-[var(--text-muted)] font-medium">{t("form.patient.surname", "Surname")}</label>
           <input
             className="w-full rounded-xl border border-[var(--border-muted)] px-3 py-3 bg-[var(--bg-surface)] text-[var(--text-color)] placeholder:text-[var(--text-muted)]/70 focus:border-[var(--primary)] focus:outline-none transition"
             type="text"

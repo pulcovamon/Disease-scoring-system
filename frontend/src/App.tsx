@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React, { useEffect } from "react";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate, Navigate } from "react-router-dom";
 import Layout from "./lib/pages/Layout";
 import Home from "./lib/pages/Home";
 import ScoringSystem from "./lib/pages/ScoringSystem";
@@ -14,36 +15,58 @@ import Register from "./lib/pages/RegisterPage";
 import ProtectedRoute from "./lib/components/ProtectedRoute";
 import { AuthProvider } from "./lib/store/auth";
 import { ThemeProvider } from "./lib/store/theme";
-import { LanguageProvider } from "./lib/store/language";
+import { LanguageProvider, getDefaultLanguage } from "./lib/store/language";
 
 export default function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
-        <LanguageProvider>
-          <AuthProvider>
-            <Routes>
-              <Route path="/" element={<Layout />}>
-                <Route index element={<Home />} />
-                <Route path="score" element={<ScoringSystem />} />
-                <Route path="catalog" element={<Catalog />} />
-                <Route path="result/:id" element={<ResultPage />} />
-                <Route path="catalog/:id" element={<PatientDetailPage />} />
-                <Route path="result" element={<History />} />
-
-                <Route element={<ProtectedRoute />}>
-                  <Route path="account" element={<AccountPage />} />
-                  <Route path="models" element={<ModelsPage />} />
-                  <Route path="datasets" element={<DatasetsPage />} />
-                </Route>
-
-                <Route path="login" element={<Login />} />
-                <Route path="register" element={<Register />} />
-              </Route>
-            </Routes>
-          </AuthProvider>
-        </LanguageProvider>
+        <Routes>
+          <Route path="/" element={<RedirectToPreferredLanguage />} />
+          <Route path="/:lang/*" element={<LanguageScopedApp />} />
+          <Route path="*" element={<RedirectToPreferredLanguage />} />
+        </Routes>
       </ThemeProvider>
     </BrowserRouter>
   );
+}
+
+function LanguageScopedApp() {
+  return (
+    <LanguageProvider>
+      <AuthProvider>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="score" element={<ScoringSystem />} />
+            <Route path="catalog" element={<Catalog />} />
+            <Route path="result/:id" element={<ResultPage />} />
+            <Route path="catalog/:id" element={<PatientDetailPage />} />
+            <Route path="result" element={<History />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="account" element={<AccountPage />} />
+              <Route path="models" element={<ModelsPage />} />
+              <Route path="datasets" element={<DatasetsPage />} />
+            </Route>
+            <Route path="login" element={<Login />} />
+            <Route path="register" element={<Register />} />
+            <Route path="*" element={<Navigate to="." replace />} />
+          </Route>
+        </Routes>
+      </AuthProvider>
+    </LanguageProvider>
+  );
+}
+
+function RedirectToPreferredLanguage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const preferred = getDefaultLanguage();
+
+  useEffect(() => {
+    const path = location.pathname === "/" ? "" : location.pathname;
+    navigate(`/${preferred}${path}${location.search}${location.hash}`, { replace: true });
+  }, [location.hash, location.pathname, location.search, navigate, preferred]);
+
+  return null;
 }

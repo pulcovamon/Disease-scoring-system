@@ -4,6 +4,7 @@ import "./registerPage.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faE, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { baseURL } from "../classes/api";
+import { useLanguage } from "../store/language";
 
 export default function Register() {
   const [firstName, setFirstName] = useState("");
@@ -16,6 +17,7 @@ export default function Register() {
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const navigate = useNavigate();
+  const { buildPath } = useLanguage();
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
@@ -46,7 +48,7 @@ export default function Register() {
 
       if (res.status === 201) {
         setSuccess(true);
-        setTimeout(() => navigate("/login"), 2000);
+        setTimeout(() => navigate(buildPath("/login")), 2000);
       } else if (res.status === 403) {
         setError("User with this email already exists.");
       } else {
@@ -131,7 +133,7 @@ export default function Register() {
 
         <p className="login-link">
           Already have an account?{" "}
-          <Link to="/login">Log in here</Link>.
+          <Link to={buildPath("/login")}>Log in here</Link>.
         </p>
       </form>
     </div>

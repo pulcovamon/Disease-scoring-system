@@ -4,7 +4,6 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import { Link, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faShareFromSquare,
   faXmark,
   faRotateRight,
   faTriangleExclamation,
@@ -12,14 +11,17 @@ import {
   faClock,
   faArrowUpRightFromSquare,
 } from "@fortawesome/free-solid-svg-icons";
+import { useTranslations } from "../i18n/useTranslations";
+import { useLanguage } from "../store/language";
 
 export default function History() {
+  const { t } = useTranslations();
+  const { buildPath } = useLanguage();
   const [tasks, setTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
-  const [taskId, setTaskId] = useState<string|null>(searchParams.get("id"));
-  const [rerunId, setRerunId] = useState<string | null>(null);
+  const [taskId, setTaskId] = useState<string | null>(searchParams.get("id"));
   const [rerunMessage, setRerunMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -35,14 +37,14 @@ export default function History() {
         }
       } catch (err) {
         console.error(err);
-        setError("An error occurred while fetching results.");
+        setError(t("history.error"));
       } finally {
         setLoading(false);
       }
     };
 
     fetchResults();
-  }, []);
+  }, [t]);
 
   return (
     <div className="page-body">
@@ -54,14 +56,14 @@ export default function History() {
         </div>
       ) : tasks.length === 0 ? (
         <div className="box">
-          <p className="text-[var(--text-muted)]">No tasks found.</p>
+          <p className="text-[var(--text-muted)]">{t("history.empty")}</p>
         </div>
       ) : (
         <div className="space-y-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
-              <h2 className="text-2xl font-bold text-[var(--text-color)]">Prediction History</h2>
-              <p className="text-[var(--text-muted)]">Recent tasks with status, result and quick actions.</p>
+              <h2 className="text-2xl font-bold text-[var(--text-color)]">{t("history.title")}</h2>
+              <p className="text-[var(--text-muted)]">{t("history.subtitle")}</p>
             </div>
             {rerunMessage && (
               <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[var(--bg-surface-muted)] border border-[var(--border-muted)] text-[var(--text-color)]">
@@ -70,7 +72,7 @@ export default function History() {
                 <button
                   className="ml-auto text-[var(--text-muted)] hover:text-[var(--text-color)]"
                   onClick={() => setRerunMessage(null)}
-                  aria-label="Close rerun message"
+                  aria-label={t("history.banner.close")}
                 >
                   <FontAwesomeIcon icon={faXmark} />
                 </button>
@@ -81,12 +83,12 @@ export default function History() {
           {taskId && (
             <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[var(--primary)]/10 border border-[var(--primary)] text-[var(--text-color)]">
               <span>
-                You just sent task <b>{taskId}</b>. It is processing—refresh to check status.
+                {t("history.banner.justSent").replace("{id}", taskId)}
               </span>
               <button
                 onClick={() => setTaskId(null)}
                 className="ml-auto text-[var(--text-muted)] hover:text-[var(--text-color)]"
-                aria-label="Dismiss banner"
+                aria-label={t("history.dismiss")}
               >
                 <FontAwesomeIcon icon={faXmark} />
               </button>
@@ -99,7 +101,11 @@ export default function History() {
                 key={task.task_id}
                 task={task}
                 highlight={taskId === task.task_id}
-                onRerun={() => setRerunMessage(`Task ${task.task_id} rerun requested (mock action).`)}
+                onRerun={() =>
+                  setRerunMessage(
+                    t("result.info.rerun").replace("{id}", task.task_id ?? "")
+                  )
+                }
               />
             ))}
           </div>
@@ -118,6 +124,8 @@ function HistoryCard({
   highlight: boolean;
   onRerun: () => void;
 }) {
+  const { t } = useTranslations();
+  const { buildPath } = useLanguage();
   const isSuccess = task.status === "SUCCESS";
   const isFail = task.status === "FAILURE";
   const isRunning = !isSuccess && !isFail;
@@ -126,23 +134,23 @@ function HistoryCard({
     if (isSuccess) {
       return (
         <span className="flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-100">
-          <FontAwesomeIcon icon={faCheckCircle} /> Success
+          <FontAwesomeIcon icon={faCheckCircle} /> {t("history.status.success")}
         </span>
       );
     }
     if (isFail) {
       return (
         <span className="flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold bg-red-600 text-white dark:bg-red-500 dark:text-white">
-          <FontAwesomeIcon icon={faTriangleExclamation} /> Failed
+          <FontAwesomeIcon icon={faTriangleExclamation} /> {t("history.status.failed")}
         </span>
       );
     }
     return (
       <span className="flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-100">
-        <FontAwesomeIcon icon={faClock} /> In progress
+        <FontAwesomeIcon icon={faClock} /> {t("history.status.inProgress")}
       </span>
     );
-  }, [isFail, isRunning, isSuccess]);
+  }, [isFail, isRunning, isSuccess, t]);
 
   return (
     <div
@@ -152,26 +160,28 @@ function HistoryCard({
     >
       <div className="flex items-start justify-between gap-2">
         <div className="space-y-1">
-          <p className="text-xs uppercase tracking-wide text-[var(--text-muted)]">Task ID</p>
+          <p className="text-xs uppercase tracking-wide text-[var(--text-muted)]">{t("history.taskId")}</p>
           <p className="text-base font-semibold text-[var(--text-color)] break-all">{task.task_id}</p>
-          <p className="text-sm text-[var(--text-muted)]">Disease: {task.disease || "N/A"}</p>
+          <p className="text-sm text-[var(--text-muted)]">
+            {t("history.disease")}: {task.disease || "N/A"}
+          </p>
         </div>
         {statusChip}
       </div>
 
       <div className="grid grid-cols-2 gap-3 text-sm">
         <div className="rounded-xl border border-[var(--border-muted)] bg-[var(--bg-surface-muted)] p-3">
-          <p className="text-[var(--text-muted)] text-xs">Result</p>
+          <p className="text-[var(--text-muted)] text-xs">{t("history.result")}</p>
           <p className="text-[var(--text-color)] font-semibold">
             {isSuccess && task.result != null
               ? `${(task.result * 100).toFixed(1)} %`
               : isFail
-              ? "Error"
-              : "Processing"}
+              ? t("history.result.error")
+              : t("history.result.processing")}
           </p>
         </div>
         <div className="rounded-xl border border-[var(--border-muted)] bg-[var(--bg-surface-muted)] p-3">
-          <p className="text-[var(--text-muted)] text-xs">Created</p>
+          <p className="text-[var(--text-muted)] text-xs">{t("history.created")}</p>
           <p className="text-[var(--text-color)] font-semibold">
             {task.created_at ? new Date(task.created_at).toLocaleString() : "N/A"}
           </p>
@@ -180,19 +190,19 @@ function HistoryCard({
 
       {isFail && (
         <div className="rounded-xl border border-[var(--border-muted)] bg-red-50 dark:bg-red-900/30 p-3 text-sm text-[var(--text-color)]">
-          <p className="text-[var(--text-muted)] text-xs mb-1">Failure reason</p>
-          <p>{task.error || "No details provided."}</p>
+          <p className="text-[var(--text-muted)] text-xs mb-1">{t("history.failureReason")}</p>
+          <p>{task.error || t("history.noDetails")}</p>
         </div>
       )}
 
       <div className="flex items-center gap-2 justify-end pt-2 border-t border-[var(--border-muted)]">
         <Link
-          to={`/result/${task.task_id}`}
+          to={buildPath(`/result/${task.task_id}`)}
           target="_blank"
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--bg-surface-muted)] text-[var(--text-color)] hover:bg-[var(--border-muted)] transition text-sm font-semibold"
         >
           <FontAwesomeIcon icon={faArrowUpRightFromSquare} />
-          Detail
+          {t("history.detail")}
         </Link>
         {isFail && (
           <button
@@ -200,7 +210,7 @@ function HistoryCard({
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] transition text-sm font-semibold shadow"
           >
             <FontAwesomeIcon icon={faRotateRight} />
-            Rerun
+            {t("history.rerun")}
           </button>
         )}
         {isRunning && (
@@ -208,7 +218,7 @@ function HistoryCard({
             onClick={onRerun}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] transition text-sm font-semibold shadow"
           >
-            Refresh
+            {t("history.refresh")}
           </button>
         )}
       </div>
