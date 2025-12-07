@@ -1,45 +1,41 @@
-import React, { useMemo, MouseEvent, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Patient } from "../classes/catalogData";
-import Heatmap from "../components/Heatmap";
 import Filtering from "../components/Filtering";
 import Pagination from "../components/Pagination";
-import "./catalog.css";
 import { Link, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShareFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { useCatalogCount, useCatalogPatients } from "../hooks/useCatalogData";
 
 export default function Catalog() {
-  const [position, setPosition] = useState("down");
   const [patientId, setPatientId] = useState<number | undefined>(undefined);
   const [patientCode, setPatientCode] = useState<string | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(20);
   const [searchParams, setSearchParams] = useSearchParams();
 
   React.useEffect(() => {
     const id = searchParams.get("id");
     const code = searchParams.get("code");
     const page = searchParams.get("page");
+    const size = searchParams.get("size");
 
     setPatientId(id ? Number(id) : undefined);
     setPatientCode(code || undefined);
     setCurrentPage(page ? Number(page) : 1);
+    setPageSize(size ? Number(size) : 20);
   }, [searchParams]);
-
-  const limit = useMemo(() => {
-    return 25;
-  }, []);
 
   const patientQuery = useMemo(() => {
     if (patientId !== undefined) {
       return { id: patientId };
     }
     return {
-      skip: currentPage * limit - limit,
-      limit,
+      skip: currentPage * pageSize - pageSize,
+      limit: pageSize,
       code: patientCode,
     };
-  }, [currentPage, limit, patientCode, patientId]);
+  }, [currentPage, pageSize, patientCode, patientId]);
 
   const {
     patients,
@@ -52,8 +48,8 @@ export default function Catalog() {
   const totalPages = useMemo(() => {
     if (patientId) return 1;
     if (!total || total === 0) return 0;
-    return Math.max(1, Math.ceil(total / limit));
-  }, [limit, patientId, total]);
+    return Math.max(1, Math.ceil(total / pageSize));
+  }, [pageSize, patientId, total]);
 
   const handlePatientId = (value: number | undefined) => {
     setPatientId(value);
@@ -90,113 +86,190 @@ export default function Catalog() {
     } else {
       params.delete("page");
     }
+    params.set("size", pageSize.toString());
   
     setSearchParams(params);
   };
 
 
-  const handleMouseEnter = (event: MouseEvent) => {
-    if (event.clientY > window.innerHeight / 2) {
-      setPosition("up");
-    } else {
-      setPosition("down");
-    }
-  };
-
-  const patientTable = patients.map((patient) => {
-    let highlightCode = patientCode !== undefined;
-    return (
-      <tr key={patient._id}>
-        <td>
-          <div className="detail" onMouseEnter={(e) => handleMouseEnter(e)}>
-            <span className="patient-id">{patient._id}</span>
-            <div
-            className={`catalog-preview ${position === "up" ? "up" : "down"}`}
-          >
-            <Heatmap patient={patient} titleVisible={false} />
-          </div>
-          </div>
-        </td>
-        <td>
-          {patient.codes
-            .slice(0, Math.min(patient.codes.length, 5))
-            .map((code) => {
-              let cssClass = "code-table";
-              if (code === patientCode) {
-                console.log(code);
-                cssClass += " highlight-code";
-                highlightCode = false;
-              }
-              return (
-                <span key={code} className={cssClass}>
-                  {code}
-                </span>
-              );
-            })}
-          <span className={highlightCode ? "highlight-code" : ""}>
-            {patient.codes.length > 5 ? "..." : ""}
-          </span>
-        </td>
-        <td className="detail-link-box">
-          <Link
-            className="detail-link"
-            to={`/catalog/${patient._id}${
-              patientCode ? `?code=${patientCode}` : ""
-            }`}
-            target="_blank"
-          >
-            <FontAwesomeIcon icon={faShareFromSquare} />
-          </Link>
-        </td>
-      </tr>
-    );
-  });
-
   const message = patientsError || totalError ? (
-    <p className="error">{patientsError || totalError}</p>
+    <p className="text-[var(--text-color)] font-semibold">{patientsError || totalError}</p>
   ) : null;
   const emptyState =
     !loadingPatients && !patientsError && patients.length === 0 ? (
-      <p className="error">No patients found.</p>
+      <p className="text-[var(--text-muted)]">No patients found.</p>
     ) : null;
 
   return (
-    <div className="catalog-pagebody page-content">
-      {message}
-      {emptyState}
-      <div className="filtering">
+    <div className="page-body space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <h2 className="text-2xl font-bold text-[var(--text-color)]">Training Data Catalog</h2>
+          <p className="text-[var(--text-muted)]">
+            Browse patients and their code sequences. Use filters to find specific entries.
+          </p>
+        </div>
+        <div className="flex items-center gap-3 text-sm text-[var(--text-muted)]">
+          <span>Total records:</span>
+          <span className="px-3 py-1 rounded-full bg-[var(--bg-surface)] border border-[var(--border-muted)] text-[var(--text-color)] font-semibold">
+            {loadingTotal ? "…" : total || 0}
+          </span>
+        </div>
+      </div>
+
+      {message && <div className="box">{message}</div>}
+      {emptyState && <div className="box">{emptyState}</div>}
+
+      <div className="grid md:grid-cols-2 gap-4">
         <Filtering<number | undefined>
           label="Patient ID"
           value={patientId}
+          placeholder="e.g. 42"
           handleSubmit={handlePatientId}
         />
         <Filtering<string | undefined>
           label="Code"
           value={patientCode}
+          placeholder="e.g. 89125"
           handleSubmit={handlePatientCode}
         />
       </div>
-      {(loadingPatients || loadingTotal) && <p>Loading catalog...</p>}
-      <Pagination
-        currentPage={currentPage}
-        handlePageChange={handlePageChange}
-        totalPages={patientId ? 1 : totalPages}
-      />
-      <table className="catalog-table">
-        <thead>
-          <tr>
-            <th>Patient ID</th>
-            <th>Codes</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>{patientTable}</tbody>
-      </table>
-      <Pagination
-        currentPage={currentPage}
-        handlePageChange={handlePageChange}
-        totalPages={patientId ? 1 : totalPages}
-      />
+
+      <div className="flex flex-wrap items-center gap-3 justify-between">
+        <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+          <span>Items per page</span>
+          <select
+            value={pageSize}
+            onChange={(e) => {
+              const next = Number(e.target.value);
+              setPageSize(next);
+              setCurrentPage(1);
+              const params = new URLSearchParams(searchParams);
+              params.set("size", next.toString());
+              params.delete("page");
+              setSearchParams(params);
+            }}
+            className="rounded-lg border border-[var(--border-muted)] bg-[var(--bg-surface)] px-3 py-2 text-[var(--text-color)] focus:border-[var(--primary)] focus:outline-none"
+          >
+            {[10, 20, 50, 100].map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
+        </div>
+        <Pagination
+          currentPage={currentPage}
+          handlePageChange={handlePageChange}
+          totalPages={patientId ? 1 : totalPages}
+        />
+      </div>
+
+      <div className="rounded-2xl border border-[var(--border-muted)] bg-[var(--bg-surface)]">
+        <div className="relative">
+          {loadingPatients && (
+            <div className="absolute inset-0 flex items-center justify-center bg-[var(--bg-surface)]/85 backdrop-blur-sm rounded-2xl z-10">
+              <span className="w-10 h-10 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin" aria-label="Loading" />
+            </div>
+          )}
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-[var(--border-muted)] bg-[var(--bg-surface-muted)]">
+                <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">Patient ID</th>
+                <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">Codes</th>
+                <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">Predictions</th>
+                <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">Estimated accuracy</th>
+                <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]"></th>
+              </tr>
+            </thead>
+            <tbody>
+            {patients.map((patient) => (
+              <PatientRow
+                key={patient._id}
+                patient={patient}
+                highlightCode={patientCode}
+              />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3 justify-between">
+        <Pagination
+          currentPage={currentPage}
+          handlePageChange={handlePageChange}
+          totalPages={patientId ? 1 : totalPages}
+        />
+      </div>
     </div>
+  );
+}
+
+function PatientRow({
+  patient,
+  highlightCode,
+}: {
+  patient: Patient;
+  highlightCode?: string;
+}) {
+  const codes = patient.codes.slice(0, 5);
+  const hasMore = patient.codes.length > codes.length;
+  const predictionsCount = patient.active_phase?.prediction?.length ?? patient.codes.length;
+
+  const accuracy = useMemo(() => {
+    const compute = (gt?: boolean[], pred?: boolean[]) => {
+      if (!gt || !pred || gt.length === 0 || gt.length !== pred.length) return null;
+      const correct = gt.filter((val, idx) => val === pred[idx]).length;
+      return Math.round((correct / gt.length) * 100);
+    };
+    return (
+      compute(patient.active_phase?.ground_truth, patient.active_phase?.prediction) ??
+      compute(patient.icd10_binary?.ground_truth as any, patient.icd10_binary?.prediction as any)
+    );
+  }, [patient.active_phase, patient.icd10_binary]);
+
+  return (
+    <tr className="border-b border-[var(--border-muted)] hover:bg-[var(--bg-surface-muted)]/70 transition">
+      <td className="px-4 py-3 font-semibold text-[var(--text-color)] whitespace-nowrap">{patient._id}</td>
+      <td className="px-4 py-3">
+        <div className="flex flex-wrap gap-2">
+          {codes.map((code) => {
+            const isHighlight = code === highlightCode;
+            return (
+              <span
+                key={code}
+                className={`px-3 py-1 rounded-full text-xs font-semibold border ${
+                  isHighlight
+                    ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--text-color)]"
+                    : "border-[var(--border-muted)] bg-[var(--bg-surface-muted)] text-[var(--text-color)]"
+                }`}
+              >
+                {code}
+              </span>
+            );
+          })}
+          {hasMore && (
+            <span className="px-2 py-1 rounded-full text-xs bg-[var(--bg-surface-muted)] border border-[var(--border-muted)] text-[var(--text-muted)]">
+              +{patient.codes.length - codes.length}
+            </span>
+          )}
+        </div>
+      </td>
+      <td className="px-4 py-3 text-[var(--text-color)] text-sm">{predictionsCount}</td>
+      <td className="px-4 py-3 text-[var(--text-color)] text-sm">
+        {accuracy === null ? "N/A" : `${accuracy}%`}
+      </td>
+      <td className="px-4 py-3 text-right">
+        <Link
+          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--bg-surface-muted)] text-[var(--text-color)] hover:bg-[var(--border-muted)] transition text-sm font-semibold"
+          to={`/catalog/${patient._id}${highlightCode ? `?code=${highlightCode}` : ""}`}
+          target="_blank"
+        >
+          <FontAwesomeIcon icon={faShareFromSquare} />
+          Detail
+        </Link>
+      </td>
+    </tr>
   );
 }

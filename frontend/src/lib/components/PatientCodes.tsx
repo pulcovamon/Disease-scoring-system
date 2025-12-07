@@ -9,7 +9,10 @@ import {
   getCategoricalColor,
   fetchStats,
   StatMap,
+  getPalette,
+  ThemeMode,
 } from "../utils/colorUtils";
+import { useTheme } from "../store/theme";
 
 codeCache.init();
 
@@ -26,6 +29,7 @@ export default function PatientCodes({
   colorMode: "specialty" | "tfidf0" | "tfidf1" | "frequency";
   onColorModeChange: (mode: "specialty" | "tfidf0" | "tfidf1" | "frequency") => void;
 }) {
+  const { theme } = useTheme();
   const [codeDetails, setCodeDetails] = useState<Record<string, CodeInfo | null>>(() => {
     const fromCache: Record<string, CodeInfo | null> = {};
     for (const code of patient.codes) {
@@ -69,23 +73,29 @@ export default function PatientCodes({
 
   const getColorStyle = (info: CodeInfo | null | undefined): React.CSSProperties => {
     if (info === null) {
+      const palette = getPalette(theme as ThemeMode);
+      const isDark = (theme as ThemeMode) === "dark";
       return {
-        backgroundImage: "repeating-linear-gradient(45deg, #ddd, #ddd 4px, #fff 4px, #fff 8px)",
-        color: "#888",
+        backgroundColor: palette.unknown,
+        color: palette.textOnNeutral,
+        backgroundImage: isDark
+          ? "repeating-linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 4px, rgba(255,255,255,0.04) 4px, rgba(255,255,255,0.04) 8px)"
+          : "repeating-linear-gradient(45deg, #ddd, #ddd 4px, #fff 4px, #fff 8px)",
       };
     }
 
     if (info === undefined) {
+      const palette = getPalette(theme as ThemeMode);
       return {
-        backgroundColor: "#f0f0f0",
-        color: "#bbb",
+        backgroundColor: palette.unknown,
+        color: palette.textOnNeutral,
       };
     }
 
     if (colorMode === "specialty") {
       return {
-        backgroundColor: getCategoricalColor(info.specialty),
-        color: "#000",
+        backgroundColor: getCategoricalColor(info.specialty, theme as ThemeMode),
+        color: getPalette(theme as ThemeMode).textOnColor,
       };
     }
 
@@ -98,7 +108,7 @@ export default function PatientCodes({
 
     if (!stats) return {};
 
-    return getColorStyleFromValue(value, stats[colorMode], colorMode);
+    return getColorStyleFromValue(value, stats[colorMode], colorMode, theme as ThemeMode);
   };
 
   const codes = patient.codes.map((code, index) => {
@@ -110,8 +120,13 @@ export default function PatientCodes({
     return (
       <li
         key={index}
-        className={`code ${code === currentCode ? "current-code" : ""} ${isUnknown ? "code-unknown" : ""}`}
-        style={style}
+        className={`px-3 py-2 rounded-xl text-sm font-semibold border ${
+          code === currentCode ? "ring-2 ring-[var(--primary)] ring-offset-1" : ""
+        } ${isUnknown ? "code-unknown" : ""}`}
+        style={{
+          ...style,
+          borderColor: code === currentCode ? "var(--primary)" : "var(--border-muted)",
+        }}
         title={
           info
             ? `${info.name}${info.specialty ? ` (${info.specialty})` : ""}`
@@ -126,25 +141,36 @@ export default function PatientCodes({
   });
 
   return (
-    <div className="box page-content">
-      {titleVisible && <h1 className="title">Codes</h1>}
-      <div className="color-mode-select">
-        <label htmlFor="color-mode">Colormap: </label>
-        <select
-          id="color-mode"
-          value={colorMode}
-          onChange={(e) =>
-            onColorModeChange(e.target.value as typeof colorMode)
-          }
-        >
-          <option value="specialty">Speciality (Odbornost)</option>
-          <option value="tfidf0">TF-IDF (active phase 0)</option>
-          <option value="tfidf1">TF-IDF (active phase 1)</option>
-          <option value="frequency">Frequency</option>
-        </select>
-        <Legend mode={colorMode} stats={stats} />
+    <div className="space-y-4">
+      {titleVisible && <h1 className="text-xl font-semibold text-[var(--text-color)]">Codes</h1>}
+      <div className="space-y-3">
+        <div className="flex flex-wrap gap-2">
+          {[
+            { key: "specialty", label: "Specialty" },
+            { key: "tfidf0", label: "TF-IDF (0)" },
+            { key: "tfidf1", label: "TF-IDF (1)" },
+            { key: "frequency", label: "Frequency" },
+          ].map((item) => (
+            <button
+              type="button"
+              key={item.key}
+              className="px-3 py-2 rounded-lg text-sm font-semibold border transition focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+              style={{
+                backgroundColor:
+                  colorMode === item.key ? "var(--primary)" : "var(--bg-surface-muted)",
+                color: colorMode === item.key ? "#fff" : "var(--text-color)",
+                borderColor:
+                  colorMode === item.key ? "var(--primary)" : "var(--border-muted)",
+              }}
+              onClick={() => onColorModeChange(item.key as typeof colorMode)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+        <Legend mode={colorMode as any} stats={stats} />
       </div>
-      <ul className="code-list">{codes}</ul>
+      <ul className="flex flex-wrap gap-2">{codes}</ul>
     </div>
   );
 }

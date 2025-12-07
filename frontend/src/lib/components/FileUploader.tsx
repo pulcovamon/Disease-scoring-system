@@ -42,12 +42,12 @@ function FileUploader({
 
   function setBorder() {
     if (isDragging) {
-      return "2px dashed #4caf50"
+      return `2px dashed var(--primary)`
     } 
     if (unallowed) {
       return "2px solid red"
     } 
-    return "2px dashed #ccc"
+    return "2px dashed var(--border-muted)"
   }
 
   return (
@@ -59,7 +59,8 @@ function FileUploader({
         className={`drag-box ${unallowed ? "unallowed" : ""}`}
         style={{
           border: setBorder(),
-          backgroundColor: isDragging ? "#f5f5f5" : "#fff",
+          backgroundColor: isDragging ? "var(--bg-surface-muted)" : "var(--bg-surface)",
+          color: "var(--text-color)",
         }}
       >
         <p style={{ margin: 0 }}>

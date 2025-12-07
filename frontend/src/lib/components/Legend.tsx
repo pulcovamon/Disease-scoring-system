@@ -48,56 +48,64 @@ export default function Legend({ mode, stats }: { mode: ColorMode; stats: StatMa
   })();
 
   return (
-    <div className="legend-container">
+    <div className="space-y-4">
       {renderColorBar()}
 
-      <div className="legend-explanation">
+      <div className="text-sm text-[var(--text-muted)] space-y-2">
         <p>
           <strong>Specialty</strong>: Categorical coloring by medical specialty (e.g., clinical oncology). Some procedures are uncategorized and shown in white.
         </p>
         <p>
-          <strong>TF-IDF (active phase 0 / 1)</strong>: Shows the importance of a code for label 0 (inactive) or label 1 (active). Higher TF-IDF means the code is more specific to the label.
+          <strong>TF-IDF (active phase 0 / 1)</strong>: Importance of a code for the given label. Higher TF-IDF means the code is more specific to the label.
         </p>
         <p>
           <strong>Frequency</strong>: Based on total occurrence of the code across all sequences. More frequent codes are darker.
         </p>
       </div>
 
-      <div className="legend-squares">
-        <div className="legend-item">
-          <span className="square" style={{ backgroundImage: specialtyStripeBackground }} /> <span>Specialty</span>
-        </div>
-        <div className="legend-item">
-          <span className="square" style={{ backgroundColor: getCategoricalColor(null) }} /> <span>Uncategorized</span>
-        </div>
+      <div className="flex flex-wrap gap-4 text-sm text-[var(--text-color)]">
+        <LegendItem colorStyle={{ backgroundImage: specialtyStripeBackground }} label="Specialty" />
+        <LegendItem colorStyle={{ backgroundColor: getCategoricalColor(null) }} label="Uncategorized" />
         {stats && stats.tfidf0 && (
-          <div className="legend-item">
-            <span
-              className="square"
-              style={{ backgroundColor: getContinuousColor(Math.expm1(stats.tfidf0.logMean + stats.tfidf0.logStd), stats.tfidf0, "tfidf0") }}
-            /> <span>TF-IDF (label 0)</span>
-          </div>
+          <LegendItem
+            colorStyle={{
+              backgroundColor: getContinuousColor(Math.expm1(stats.tfidf0.logMean + stats.tfidf0.logStd), stats.tfidf0, "tfidf0"),
+            }}
+            label="TF-IDF (label 0)"
+          />
         )}
         {stats && stats.tfidf1 && (
-          <div className="legend-item">
-            <span
-              className="square"
-              style={{ backgroundColor: getContinuousColor(Math.expm1(stats.tfidf1.logMean + stats.tfidf1.logStd), stats.tfidf1, "tfidf1") }}
-            /> <span>TF-IDF (label 1)</span>
-          </div>
+          <LegendItem
+            colorStyle={{
+              backgroundColor: getContinuousColor(Math.expm1(stats.tfidf1.logMean + stats.tfidf1.logStd), stats.tfidf1, "tfidf1"),
+            }}
+            label="TF-IDF (label 1)"
+          />
         )}
         {stats && stats.frequency && (
-          <div className="legend-item">
-            <span
-              className="square"
-              style={{ backgroundColor: getContinuousColor(Math.expm1(stats.frequency.logMean + stats.frequency.logStd), stats.frequency, "frequency") }}
-            /> <span>Frequency</span>
-          </div>
+          <LegendItem
+            colorStyle={{
+              backgroundColor: getContinuousColor(Math.expm1(stats.frequency.logMean + stats.frequency.logStd), stats.frequency, "frequency"),
+            }}
+            label="Frequency"
+          />
         )}
-        <div className="legend-item">
-          <span className="square code-unknown"/> <span>Unknown</span>
-        </div>
+        <LegendItem
+          colorStyle={{
+            backgroundImage: "repeating-linear-gradient(45deg, #ddd, #ddd 4px, #fff 4px, #fff 8px)",
+          }}
+          label="Unknown"
+        />
       </div>
+    </div>
+  );
+}
+
+function LegendItem({ colorStyle, label }: { colorStyle: React.CSSProperties; label: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="w-4 h-4 rounded-sm inline-block border border-[var(--border-muted)]" style={colorStyle} />
+      <span>{label}</span>
     </div>
   );
 }

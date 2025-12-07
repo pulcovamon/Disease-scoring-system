@@ -121,8 +121,8 @@ export function ScoringWizardProvider({ children }: { children: ReactNode }) {
 
     getMethod<Model[]>("/model", {
       include_default: true,
-      include_user: false,
-      include_public: false,
+      include_user: true,
+      include_public: true,
     })
       .then((models) => {
         setState((prev) => {

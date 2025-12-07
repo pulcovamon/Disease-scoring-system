@@ -1,119 +1,176 @@
 import {
   faAddressBook,
-  faAnglesLeft,
-  faAnglesRight,
+  faBars,
+  faDatabase,
+  faLayerGroup,
+  faChartLine,
   faHouse,
+  faMoon,
   faRobot,
-  faUser,
+  faSun,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import "./navbar.css";
 import { useLocation } from "react-router-dom";
-import { useNavbarStore } from "../store/navbar";
+import { useTheme } from "../store/theme";
+import { useMemo, useState } from "react";
+import { useLanguage } from "../store/language";
 
 export default function Navbar() {
   const location = useLocation();
-  const { collapsed, toggleCollapse, toggleMenu, openMenus } = useNavbarStore();
+  const { theme, toggleTheme } = useTheme();
+  const { language, toggleLanguage } = useLanguage();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  function isActive(path: string) {
-    if (path === "/") {
-      return location.pathname === path;
-    }
-    return location.pathname.includes(path);
-  }
+  const isActive = (path: string) =>
+    path === "/" ? location.pathname === path : location.pathname.includes(path);
 
-  return (
-    <div className="navbar">
-      <div className="collapse-button-box">
-        <button
-          className="collapse-button"
-          onClick={() => toggleCollapse()}
-        >
-          <FontAwesomeIcon icon={collapsed ? faAnglesRight : faAnglesLeft} />
-        </button>
-      </div>
-      <ul className="outer-list">
-        <li className={isActive("/") ? "active" : undefined}>
-          <a href="/">
-            <FontAwesomeIcon icon={faHouse} />
-            {collapsed ? <></> : <span>Home</span>}
+  const menuItems = useMemo(
+    () => [
+      {
+        icon: faHouse,
+        label: "Home",
+        link: "/",
+        isActive: isActive("/"),
+      },
+      {
+        icon: faRobot,
+        label: "Formulář",
+        link: "/score",
+        isActive: isActive("/score"),
+      },
+      {
+        icon: faChartLine,
+        label: "Historie predikcí",
+        link: "/result",
+        isActive: isActive("/result"),
+      },
+      {
+        icon: faAddressBook,
+        label: "Trénovací data",
+        link: "/catalog",
+        isActive: isActive("/catalog"),
+      },
+      {
+        icon: faLayerGroup,
+        label: "Modely",
+        link: "/models",
+        isActive: isActive("/models"),
+      },
+      {
+        icon: faDatabase,
+        label: "Datasety",
+        link: "/datasets",
+        isActive: isActive("/datasets"),
+      },
+    ],
+    [location.pathname]
+  );
+
+  const navList = (
+    <ul className="flex flex-col md:flex-row gap-2 md:gap-4 items-start md:items-center">
+      {menuItems.map((item) => (
+        <li key={item.label}>
+          <a
+            href={item.link}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-white ${
+              item.isActive
+                ? "bg-white/25 shadow-sm"
+                : "text-white/95 hover:bg-white/12"
+            }`}
+          >
+            <FontAwesomeIcon icon={item.icon} className="drop-shadow-sm" />
+            <span className="text-sm md:text-base">{item.label}</span>
           </a>
         </li>
+      ))}
+    </ul>
+  );
 
-        <li
-          className={
-            (isActive("/score") || isActive("/result")) &&
-            !openMenus["scoring-system"]
-              ? "active"
-              : "passive"
-          }
-        >
-          <div
-            className="menu-button"
-            onClick={() => toggleMenu("scoring-system")}
+  return (
+    <nav className="bg-gradient-to-r from-[#2b1f7a] via-[var(--primary)] to-[#0f86c9] text-white shadow-md sticky top-0 z-50 w-full border-b border-white/10 backdrop-blur-sm">
+      <div className="flex items-center justify-between px-4 py-3">
+        <div className="flex items-center gap-3">
+          <button
+            className="text-2xl md:hidden"
+            onClick={() => setMobileOpen((o) => !o)}
+            aria-label="Toggle navigation"
           >
-            <FontAwesomeIcon icon={faRobot} />
-            {collapsed ? <></> : <span>Scoring system</span>}
+            <FontAwesomeIcon icon={mobileOpen ? faXmark : faBars} />
+          </button>
+          <a href="/" className="font-bold text-lg">
+            Scoring System
+          </a>
+        </div>
+
+        <div className="hidden md:flex items-center gap-4">
+          {navList}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 px-1 py-1 rounded-full">
+            <FontAwesomeIcon
+              icon={faSun}
+              className={`text-xs ${theme === "light" ? "text-yellow-200" : "text-white/50"}`}
+            />
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              className={`relative w-12 h-6 rounded-full transition-colors ${
+                theme === "dark" ? "bg-white/30" : "bg-white"
+              }`}
+            >
+              <span
+                className={`absolute top-1 left-1 w-4 h-4 rounded-full transition-transform ${
+                  theme === "dark"
+                    ? "translate-x-6 bg-indigo-500"
+                    : "translate-x-0 bg-[var(--secondary)]"
+                }`}
+              />
+            </button>
+            <FontAwesomeIcon
+              icon={faMoon}
+              className={`text-xs ${theme === "dark" ? "text-indigo-100" : "text-white/50"}`}
+            />
           </div>
-          {openMenus["scoring-system"] && (
-            <ul className="submenu">
-              <li className={isActive("/score") ? "active" : "passive"}>
-                <a href="/score">Import data</a>
-              </li>
-              <li className={isActive("/result") ? "active" : "passive"}>
-                <a href="/result">History</a>
-              </li>
-            </ul>
-          )}
-        </li>
-
-        <li
-          className={
-            isActive("/catalog") &&
-            !openMenus["catalog"]
-              ? "active"
-              : "passive"
-          }
+          <div className="flex items-center gap-2 px-1 py-1 rounded-full">
+            <span className={`text-xs font-semibold ${language === "cs" ? "text-white" : "text-white/60"}`}>
+              CS
+            </span>
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              aria-label="Toggle language"
+              className={`relative w-12 h-6 rounded-full transition-colors ${
+                language === "en" ? "bg-white/30" : "bg-white"
+              }`}
+            >
+              <span
+                className={`absolute top-1 left-1 w-4 h-4 rounded-full transition-transform ${
+                  language === "en"
+                    ? "translate-x-6 bg-indigo-500"
+                    : "translate-x-0 bg-[var(--secondary)]"
+                }`}
+              />
+            </button>
+            <span className={`text-xs font-semibold ${language === "en" ? "text-white" : "text-white/60"}`}>
+              EN
+            </span>
+          </div>
+          <a
+            href="/account"
+            className="w-10 h-10 inline-flex items-center justify-center rounded-full bg-[var(--secondary)] text-white hover:bg-[var(--secondary-hover)] shadow transition"
+            aria-label="Account"
           >
-          <div className="menu-button" onClick={() => toggleMenu("catalog")}>
             <FontAwesomeIcon icon={faAddressBook} />
-            {collapsed ? <></> : <span>Training data</span>}
-          </div>
-          {openMenus["catalog"] && (
-            <ul className="submenu">
-              <li className={isActive("/catalog") ? "active" : "passive"}>
-                <a href="/catalog">Lung cancer</a>
-              </li>
-            </ul>
-          )}
-        </li>
-        <li
-          className={
-            (isActive("/account") || isActive("/models") || isActive("/datasets")) &&
-            !openMenus["personal"]
-              ? "active"
-              : "passive"
-          }
-          >
-          <div className="menu-button" onClick={() => toggleMenu("personal")}>
-            <FontAwesomeIcon icon={faUser} />
-            {collapsed ? <></> : <span>Personal</span>}
-          </div>
-          {openMenus["personal"] && (
-            <ul className="submenu">
-              <li className={isActive("/account") ? "active" : "passive"}>
-                <a href="/account">Account</a>
-              </li>
-              <li className={isActive("/models") ? "active" : "passive"}>
-                <a href="/models">Models</a>
-              </li>
-              <li className={isActive("/datasets") ? "active" : "passive"}>
-                <a href="/datasets">Datasets</a>
-              </li>
-            </ul>
-          )}
-        </li>
-      </ul>
-    </div>
+          </a>
+        </div>
+      </div>
+
+      <div className={`${mobileOpen ? "block" : "hidden"} md:hidden px-4 pb-4`}>
+        {navList}
+      </div>
+    </nav>
   );
 }

@@ -12,15 +12,9 @@ export default function HeatMapRow({
   return (
     <tr className="heatmap-row">
       <th className="category-name">{categoryName}</th>
-      <td>
-        <div className="icd10-legend">
-          <div className="icd10-row">Ground-truth</div>
-          <div className="icd10-row">Prediction</div>
-        </div>
-      </td>
       {groundTruth.map((code: string | boolean, index) => {
         const match = code === prediction[index];
-        const backgroundColor = match ? "lightgreen" : "lightcoral";
+        const backgroundColor = match ? "var(--heatmap-match)" : "var(--heatmap-mismatch)";
         const displayGroundTruth =
           typeof code === "boolean" ? (code ? "Yes" : "No") : code;
         const displayPrediction =
@@ -31,10 +25,20 @@ export default function HeatMapRow({
             : prediction[index];
 
         return (
-          <td key={index} style={{ backgroundColor }}>
-            <div className="icd10">
-              <div className="icd10-row">{displayGroundTruth}</div>
-              <div className="icd10-row">{displayPrediction}</div>
+          <td
+            key={index}
+            style={{
+              backgroundColor,
+              boxShadow: `inset 0 0 0 1px ${match ? "var(--heatmap-match-soft)" : "var(--heatmap-mismatch-soft)"}`,
+            }}
+            data-gt={displayGroundTruth}
+            data-pred={displayPrediction}
+            className="heatmap-cell"
+            title={`GT: ${displayGroundTruth} | Pred: ${displayPrediction}`}
+          >
+            <div className="icd10 sr-only">
+              <div className="icd10-row">GT: {displayGroundTruth}</div>
+              <div className="icd10-row">Pred: {displayPrediction}</div>
             </div>
           </td>
         );

@@ -63,14 +63,16 @@ export function NewPatient({ patient, handlePatientChange, unallowed }: NewPatie
   }
 
   return (
-    <div className="form-container">
-      <h4>
-        Patient{" "}
-        <FontAwesomeIcon icon={faUser} />
-      </h4>
-      <div className="patient-form">
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-2 text-[var(--text-color)]">
+        <FontAwesomeIcon icon={faUser} className="text-[var(--primary)]" />
+        <h4 className="text-lg font-semibold m-0">Patient</h4>
+      </div>
+
+      <div className="space-y-3">
+        <label className="text-sm text-[var(--text-muted)] font-medium">Select patient</label>
         <select
-          className="patient-select"
+          className="w-full rounded-xl border border-[var(--border-muted)] bg-[var(--bg-surface)] px-3 py-3 text-[var(--text-color)] placeholder:text-[var(--text-muted)]/70 focus:border-[var(--primary)] focus:outline-none transition"
           onChange={(e) => handleCurrentPatientChange(e)}
           value={patient.id === null ? "new" : patient.id}
         >
@@ -80,7 +82,7 @@ export function NewPatient({ patient, handlePatientChange, unallowed }: NewPatie
               : "New patient";
             return (
               <option
-              key={currentPatient.id}
+                key={currentPatient.id}
                 value={currentPatient.id === null ? "new" : currentPatient.id}
               >
                 {value}
@@ -88,22 +90,33 @@ export function NewPatient({ patient, handlePatientChange, unallowed }: NewPatie
             );
           })}
         </select>
-        <label>Name *</label>
-        <input
-          className={`code-input ${unallowed && name === "" ? "unallowed" : ""}`}
-          type="text"
-          value={name}
-          onChange={(e) => handleNameChange(e)}
-          disabled={patient.id !== null}
-        />
-        <label>Surname</label>
-        <input
-          className="code-input"
-          type="text"
-          value={surname}
-          onChange={(e) => handleSurnameChange(e)}
-          disabled={patient.id !== null}
-        />
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <label className="text-sm text-[var(--text-muted)] font-medium">Name *</label>
+          <input
+            className={`w-full rounded-xl border px-3 py-3 bg-[var(--bg-surface)] text-[var(--text-color)] placeholder:text-[var(--text-muted)]/70 focus:border-[var(--primary)] focus:outline-none transition ${
+              unallowed && name === "" ? "border-red-400" : "border-[var(--border-muted)]"
+            }`}
+            type="text"
+            value={name}
+            placeholder="Enter name"
+            onChange={(e) => handleNameChange(e)}
+            disabled={patient.id !== null}
+          />
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm text-[var(--text-muted)] font-medium">Surname</label>
+          <input
+            className="w-full rounded-xl border border-[var(--border-muted)] px-3 py-3 bg-[var(--bg-surface)] text-[var(--text-color)] placeholder:text-[var(--text-muted)]/70 focus:border-[var(--primary)] focus:outline-none transition"
+            type="text"
+            value={surname}
+            placeholder="Enter surname"
+            onChange={(e) => handleSurnameChange(e)}
+            disabled={patient.id !== null}
+          />
+        </div>
       </div>
     </div>
   );

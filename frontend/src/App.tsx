@@ -13,31 +13,37 @@ import Login from "./lib/pages/LoginPage";
 import Register from "./lib/pages/RegisterPage";
 import ProtectedRoute from "./lib/components/ProtectedRoute";
 import { AuthProvider } from "./lib/store/auth";
+import { ThemeProvider } from "./lib/store/theme";
+import { LanguageProvider } from "./lib/store/language";
 
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Home />} />
-            <Route path="score" element={<ScoringSystem />} />
-            <Route path="catalog" element={<Catalog />} />
-            <Route path="result/:id" element={<ResultPage />} />
-            <Route path="catalog/:id" element={<PatientDetailPage />} />
-            <Route path="result" element={<History />} />
+      <ThemeProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Layout />}>
+                <Route index element={<Home />} />
+                <Route path="score" element={<ScoringSystem />} />
+                <Route path="catalog" element={<Catalog />} />
+                <Route path="result/:id" element={<ResultPage />} />
+                <Route path="catalog/:id" element={<PatientDetailPage />} />
+                <Route path="result" element={<History />} />
 
-            <Route element={<ProtectedRoute />}>
-              <Route path="account" element={<AccountPage />} />
-              <Route path="models" element={<ModelsPage />} />
-              <Route path="datasets" element={<DatasetsPage />} />
-            </Route>
+                <Route element={<ProtectedRoute />}>
+                  <Route path="account" element={<AccountPage />} />
+                  <Route path="models" element={<ModelsPage />} />
+                  <Route path="datasets" element={<DatasetsPage />} />
+                </Route>
 
-            <Route path="login" element={<Login />} />
-            <Route path="register" element={<Register />} />
-          </Route>
-        </Routes>
-      </AuthProvider>
+                <Route path="login" element={<Login />} />
+                <Route path="register" element={<Register />} />
+              </Route>
+            </Routes>
+          </AuthProvider>
+        </LanguageProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }
