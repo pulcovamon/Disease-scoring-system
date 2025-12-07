@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.auth import models
 from api.auth.sql_database import get_session
 from api.logger import Logger
+from api.auth.roles import Role
 
 logger = Logger()
 
@@ -54,6 +55,8 @@ def create_access_token(user: models.User, expiration: datetime) -> str | None:
     to_encode = user.model_dump()
     to_encode.update({"exp": expiration})
     to_encode["id"] = str(to_encode["id"])
+    if "role" in to_encode and isinstance(to_encode["role"], Role):
+        to_encode["role"] = to_encode["role"].value
     logger.debug(to_encode["id"])
     if "salt" in to_encode:
         to_encode.pop("salt")
@@ -108,4 +111,3 @@ def verify_jwt(token: str):
         logger.error(e)
         return
     return user
-

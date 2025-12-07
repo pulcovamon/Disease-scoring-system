@@ -2,6 +2,7 @@ import uuid
 from sqlmodel import SQLModel, Field, Relationship
 from typing import Optional
 from pydantic import EmailStr
+from api.auth.roles import Role, DEFAULT_ROLE
 
 
 class UserBase(SQLModel):
@@ -16,7 +17,7 @@ class User(UserBase ,table=True):
     __tablename__ = "users"
     id: uuid.UUID = Field(default_factory=lambda: uuid.uuid4(), primary_key=True, index=True)
     is_approved: bool
-    role: str
+    role: str = Field(default=DEFAULT_ROLE.value)
     
 class Auth(SQLModel, table=True):
     __tablename__ = "auth"

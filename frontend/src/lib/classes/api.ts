@@ -12,6 +12,7 @@ const envApiUrl =
       : "";
 
 export const baseURL = envApiUrl ?? "";
+const API_PREFIX = "/api/v1";
 
 type TokenGetter = () => string | null;
 type UnauthorizedHandler = () => void;
@@ -27,8 +28,15 @@ export function registerUnauthorizedHandler(handler: UnauthorizedHandler | null)
   unauthorizedHandler = handler;
 }
 
-function getUrl(path: string, queryParams?: {[key: string]: any}): string {
-  const url = baseURL + path;
+export function normalizePath(path: string): string {
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  const cleaned = path.startsWith("/") ? path : `/${path}`;
+  if (cleaned.startsWith("/api/")) return cleaned;
+  return `${API_PREFIX}${cleaned}`;
+}
+
+export function buildApiUrl(path: string, queryParams?: {[key: string]: any}): string {
+  const url = baseURL + normalizePath(path);
   if (!queryParams || Object.keys(queryParams).length === 0) {
     return url;
   }
@@ -61,7 +69,7 @@ export async function getMethod<Type>(
     requestOptions.headers.Authorization = `Bearer ${token}`;
   }
   
-  const response = await fetch(getUrl(path, queryParams), requestOptions);
+  const response = await fetch(buildApiUrl(path, queryParams), requestOptions);
   if (!response.ok) {
     if (response.status === 401 && handleUnauthorized && unauthorizedHandler) unauthorizedHandler();
     throw new HTTPError({ code: response.status as HttpErrorCode });
@@ -89,7 +97,7 @@ export async function postMethod<Type>(
     request.headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(getUrl(path, options?.queryParams), request);
+  const response = await fetch(buildApiUrl(path, options?.queryParams), request);
   if (!response.ok) {
     if (response.status === 401 && handleUnauthorized && unauthorizedHandler) unauthorizedHandler();
     throw new HTTPError({ code: response.status as HttpErrorCode });
@@ -141,7 +149,7 @@ export async function getBlob(path: string, queryParams?: { [key: string]: strin
       accept: "*/*",
     },
   };
-  const response = await fetch(getUrl(path, queryParams), options);
+  const response = await fetch(buildApiUrl(path, queryParams), options);
   if (!response.ok) {
     throw new HTTPError({ code: response.status as HttpErrorCode });
   }
