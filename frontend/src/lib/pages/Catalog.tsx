@@ -8,6 +8,8 @@ import { faShareFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { useCatalogCount, useCatalogPatients } from "../hooks/useCatalogData";
 import { useLanguage } from "../store/language";
 import { useTranslations } from "../i18n/useTranslations";
+import CodeSearchFilter from "../components/CodeSearchFilter";
+import { CodeBadge } from "../components/CodeBadge";
 
 export default function Catalog() {
   const { buildPath } = useLanguage();
@@ -129,7 +131,7 @@ export default function Catalog() {
           placeholder={t("catalog.filter.patientId.placeholder")}
           handleSubmit={handlePatientId}
         />
-        <Filtering<string | undefined>
+        <CodeSearchFilter
           label={t("catalog.filter.code")}
           value={patientCode}
           placeholder={t("catalog.filter.code.placeholder")}
@@ -241,16 +243,15 @@ function PatientRow({
           {codes.map((code) => {
             const isHighlight = code === highlightCode;
             return (
-              <span
+              <CodeBadge
                 key={code}
-                className={`px-3 py-1 rounded-full text-xs font-semibold border ${
+                code={code}
+                pillClassName={
                   isHighlight
                     ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--text-color)]"
                     : "border-[var(--border-muted)] bg-[var(--bg-surface-muted)] text-[var(--text-color)]"
-                }`}
-              >
-                {code}
-              </span>
+                }
+              />
             );
           })}
           {hasMore && (

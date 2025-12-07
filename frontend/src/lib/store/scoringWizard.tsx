@@ -50,6 +50,7 @@ type ScoringWizardContextValue = WizardState & {
   selectModel: (modelId: string) => void;
   addCode: (code: string) => void;
   updateCode: (index: number, newCode: string) => void;
+  removeCode: (index: number) => void;
   setPatient: (patient: Patient) => void;
   setUploadedFile: (file: File | null) => void;
   nextStep: () => Promise<SubmitResult>;
@@ -183,6 +184,13 @@ export function ScoringWizardProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const removeCode = useCallback((index: number) => {
+    setState((prev) => {
+      const updated = prev.codes.filter((_, idx) => idx !== index);
+      return { ...prev, codes: updated, unallowed: false };
+    });
+  }, []);
+
   const setPatient = useCallback((patient: Patient) => {
     setState((prev) => ({ ...prev, patient, unallowed: false }));
   }, []);
@@ -268,6 +276,7 @@ export function ScoringWizardProvider({ children }: { children: ReactNode }) {
     selectModel,
     addCode,
     updateCode,
+    removeCode,
     setPatient,
     setUploadedFile,
     nextStep,

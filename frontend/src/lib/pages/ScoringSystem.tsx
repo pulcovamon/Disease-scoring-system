@@ -49,6 +49,7 @@ function ScoringSystemView() {
     codes,
     addCode,
     updateCode,
+    removeCode,
     patient,
     setPatient,
     uploadedFile,
@@ -113,6 +114,7 @@ function ScoringSystemView() {
                 codes={codes}
                 handleAddCode={addCode}
                 handleUpdateCode={updateCode}
+                handleRemoveCode={removeCode}
                 unallowed={unallowed}
               />
             </div>
@@ -173,10 +175,8 @@ function ScoringSystemView() {
                 <button
                   key={tab.key}
                   role="tab"
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                    inputMethod === tab.key
-                      ? "bg-[var(--bg-surface)] text-[var(--text-color)] shadow-sm border border-[var(--primary)]"
-                      : "text-[var(--text-muted)] border border-transparent hover:border-[var(--border-muted)]"
+                  className={`btn text-sm ${
+                    inputMethod === tab.key ? "btn-primary shadow-sm" : "btn-secondary"
                   }`}
                   onClick={() => setInputMethod(tab.key)}
                 >

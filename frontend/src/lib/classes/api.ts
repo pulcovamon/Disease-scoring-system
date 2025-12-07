@@ -28,15 +28,19 @@ export function registerUnauthorizedHandler(handler: UnauthorizedHandler | null)
 }
 
 function getUrl(path: string, queryParams?: {[key: string]: any}): string {
-  let url = baseURL + path;
-  if (queryParams) {
-    url += "?"
-    Object.keys(queryParams).forEach((key, index) => {
-      url += [key, queryParams[key]].join("=");
-      url += "&";
-    });
+  const url = baseURL + path;
+  if (!queryParams || Object.keys(queryParams).length === 0) {
+    return url;
   }
-  return url;
+
+  const params = new URLSearchParams();
+  Object.entries(queryParams).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+    params.append(key, String(value));
+  });
+
+  const queryString = params.toString();
+  return queryString ? `${url}?${queryString}` : url;
 }
 
 export async function getMethod<Type>(

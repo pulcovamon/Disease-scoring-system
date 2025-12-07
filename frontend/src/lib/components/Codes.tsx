@@ -1,5 +1,6 @@
 import React, { useState, ChangeEvent } from "react";
 import { Code } from "../classes/disease";
+import { CodeBadge } from "./CodeBadge";
 
 export default function Codes({
   codes,
@@ -17,7 +18,9 @@ export default function Codes({
   const rows = codes.map((code) => (
     <tr className="table-row">
       <th>{code.name}</th>
-      <th>{code.value}</th>
+      <th>
+        <CodeBadge code={code.value} pillClassName="bg-transparent border-0 px-0 py-0 text-sm font-semibold" />
+      </th>
       <th>
         <button
           className="codes-button"

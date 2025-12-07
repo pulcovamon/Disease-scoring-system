@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Patient } from "../classes/patient";
 import { faDatabase } from "@fortawesome/free-solid-svg-icons";
+import { CodeBadge } from "./CodeBadge";
 
 export default function PatientPreview({
   patient,
@@ -23,7 +24,14 @@ export default function PatientPreview({
         </span></span>
       <div className="codes-preview">
         {codes.map((code, index) => {
-          return <span key={index} className="code-list">{code}</span>;
+          return (
+            <CodeBadge
+              key={index}
+              code={code}
+              className="code-list"
+              pillClassName="px-2 py-1 text-xs"
+            />
+          );
         })}
       </div>
       </div>

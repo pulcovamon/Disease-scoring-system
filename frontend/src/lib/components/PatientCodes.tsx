@@ -14,6 +14,7 @@ import {
 } from "../utils/colorUtils";
 import { useTheme } from "../store/theme";
 import { useTranslations } from "../i18n/useTranslations";
+import { CodeBadge } from "./CodeBadge";
 
 codeCache.init();
 
@@ -120,24 +121,18 @@ export default function PatientCodes({
     const isUnknown = info === null;
 
     return (
-      <li
-        key={index}
-        className={`px-3 py-2 rounded-xl text-sm font-semibold border ${
-          code === currentCode ? "ring-2 ring-[var(--primary)] ring-offset-1" : ""
-        } ${isUnknown ? "code-unknown" : ""}`}
-        style={{
-          ...style,
-          borderColor: code === currentCode ? "var(--primary)" : "var(--border-muted)",
-        }}
-        title={
-          info
-            ? `${info.name}${info.specialty ? ` (${info.specialty})` : ""}`
-            : info === null
-            ? t("codes.status.unknown")
-            : t("codes.status.loading")
-        }
-      >
-        {code}
+      <li key={index}>
+        <CodeBadge
+          code={code}
+          infoOverride={info ?? undefined}
+          pillClassName={`rounded-xl text-sm font-semibold border ${
+            code === currentCode ? "ring-2 ring-[var(--primary)] ring-offset-1" : ""
+          } ${isUnknown ? "code-unknown" : ""}`}
+          pillStyle={{
+            ...style,
+            borderColor: code === currentCode ? "var(--primary)" : "var(--border-muted)",
+          }}
+        />
       </li>
     );
   });

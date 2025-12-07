@@ -2,7 +2,6 @@ import os
 import math
 from fastapi import APIRouter, HTTPException, Query
 from elasticsearch import Elasticsearch
-from typing import List, Optional
 
 from api.logger import Logger
 
@@ -58,21 +57,46 @@ async def get_total_codes():
 
 
 @router.get("/search")
-async def search_codes(query: str = Query(default=..., description="Search query")):
-    logger.debug("test logger here")
-    query = {
-        "multi_match": {
-            "query": query,
-            "fields": ["name^2", "specialty"], # name is more important
-            "fuzziness": "AUTO"
+async def search_codes(
+    query: str = Query(default=..., min_length=1, description="Search query"),
+    limit: int = Query(default=25, ge=1, le=200),
+    skip: int = Query(default=0, ge=0),
+):
+    term = query.strip()
+    if not term:
+        raise HTTPException(status_code=400, detail="Query cannot be empty")
+
+    logger.debug(f"Searching codes for '{term}' (limit={limit}, skip={skip})")
+
+    should_clauses = [
+        {"term": {"code": {"value": term, "boost": 6}}},
+        {"match_phrase_prefix": {"name": {"query": term, "boost": 4}}},
+        {"match": {"name": {"query": term, "fuzziness": "AUTO", "boost": 3}}},
+        {"match": {"specialty": {"query": term, "fuzziness": "AUTO", "boost": 1}}},
+    ]
+
+    if term.isalnum():
+        should_clauses.insert(1, {"wildcard": {"code": {"value": f"*{term}*", "boost": 2}}})
+
+    search_query = {
+        "bool": {
+            "should": should_clauses,
+            "minimum_should_match": 1,
         }
     }
+
     try:
-        result = es.search(index=INDEX_NAME, query=query, request_timeout=60)
+        result = es.search(
+            index=INDEX_NAME,
+            query=search_query,
+            size=limit,
+            from_=skip,
+            request_timeout=60,
+        )
         hits = result.get("hits", {}).get("hits", [])
         return [hit["_source"] for hit in hits]
     except Exception as e:
-        logger.error(f"An error occured: {e}")
+        logger.error(f"Code search failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -135,4 +159,3 @@ async def get_code_by_id(code: str):
     except Exception as e:
         logger.error(e)
         raise HTTPException(status_code=500, detail=str(e))
-
