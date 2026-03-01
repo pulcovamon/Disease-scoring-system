@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Patient } from "../classes/catalogData";
 import Filtering from "../components/Filtering";
 import Pagination from "../components/Pagination";
@@ -10,6 +10,7 @@ import { useLanguage } from "../store/language";
 import { useTranslations } from "../i18n/useTranslations";
 import CodeSearchFilter from "../components/CodeSearchFilter";
 import { CodeBadge } from "../components/CodeBadge";
+import Heatmap from "../components/Heatmap";
 
 export default function Catalog() {
   const { buildPath } = useLanguage();
@@ -47,7 +48,14 @@ export default function Catalog() {
     patients,
     loading: loadingPatients,
     error: patientsError,
+    calculateSummary,
   } = useCatalogPatients(patientQuery);
+
+  useEffect(() => {
+    if (!loadingPatients && patients.length > 0) {
+      calculateSummary();
+    }
+  }, [loadingPatients])
 
   const { total, loading: loadingTotal, error: totalError } = useCatalogCount(patientCode);
 
@@ -108,14 +116,14 @@ export default function Catalog() {
 
   return (
     <div className="page-body space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-[var(--text-color)]">{t("catalog.title")}</h2>
           <p className="text-[var(--text-muted)]">{t("catalog.subtitle")}</p>
         </div>
-        <div className="flex items-center gap-3 text-sm text-[var(--text-muted)]">
-          <span>{t("catalog.total")}</span>
-          <span className="px-3 py-1 rounded-full bg-[var(--bg-surface)] border border-[var(--border-muted)] text-[var(--text-color)] font-semibold">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-[var(--text-muted)]">{t("catalog.total")}</span>
+          <span className="px-3 py-1 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] font-semibold text-sm">
             {loadingTotal ? "…" : total || 0}
           </span>
         </div>
@@ -134,14 +142,14 @@ export default function Catalog() {
         <CodeSearchFilter
           label={t("catalog.filter.code")}
           value={patientCode}
-          placeholder={t("catalog.filter.code.placeholder")}
+          placeholder={t("catalog.filter.code.placeholder") || "Enter code or patient ID"}
           handleSubmit={handlePatientCode}
         />
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 justify-between">
-        <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
-          <span>{t("catalog.itemsPerPage")}</span>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mt-6">
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-[var(--text-muted)]">{t("catalog.itemsPerPage")}</span>
           <select
             value={pageSize}
             onChange={(e) => {
@@ -153,7 +161,7 @@ export default function Catalog() {
               params.delete("page");
               setSearchParams(params);
             }}
-            className="rounded-lg border border-[var(--border-muted)] bg-[var(--bg-surface)] px-3 py-2 text-[var(--text-color)] focus:border-[var(--primary)] focus:outline-none"
+            className="rounded-lg border border-[var(--border-muted)] bg-[var(--bg-surface)] px-3 py-2 text-[var(--text-color)] focus:border-[var(--primary)] focus:outline-none text-sm"
           >
             {[10, 20, 50, 100].map((size) => (
               <option key={size} value={size}>
@@ -176,7 +184,19 @@ export default function Catalog() {
               <span className="w-10 h-10 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin" aria-label="Loading" />
             </div>
           )}
-          <table className="w-full text-left">
+
+          {patients.length > 0 && (
+            <div className="heatmap-wrapper mb-6">
+              <Heatmap 
+                patients={patients} 
+                mode="summary" 
+                titleVisible={false}
+              />
+            </div>
+          )}
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
             <thead>
               <tr className="border-b border-[var(--border-muted)] bg-[var(--bg-surface-muted)]">
                 <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">{t("catalog.table.patientId")}</th>
@@ -197,6 +217,7 @@ export default function Catalog() {
             </tbody>
           </table>
         </div>
+      </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-3 justify-between">
@@ -224,14 +245,14 @@ function PatientRow({
   const predictionsCount = patient.active_phase?.prediction?.length ?? patient.codes.length;
 
   const accuracy = useMemo(() => {
-    const compute = (gt?: boolean[], pred?: boolean[]) => {
+    const compute = (gt?: (string | number | boolean)[], pred?: (string | number | boolean)[]) => {
       if (!gt || !pred || gt.length === 0 || gt.length !== pred.length) return null;
-      const correct = gt.filter((val, idx) => val === pred[idx]).length;
+      const correct = gt.filter((val, idx) => String(val) === String(pred[idx])).length;
       return Math.round((correct / gt.length) * 100);
     };
     return (
       compute(patient.active_phase?.ground_truth, patient.active_phase?.prediction) ??
-      compute(patient.icd10_binary?.ground_truth as any, patient.icd10_binary?.prediction as any)
+      compute(patient.icd10_binary?.ground_truth, patient.icd10_binary?.prediction)
     );
   }, [patient.active_phase, patient.icd10_binary]);
 
@@ -240,11 +261,11 @@ function PatientRow({
       <td className="px-4 py-3 font-semibold text-[var(--text-color)] whitespace-nowrap">{patient._id}</td>
       <td className="px-4 py-3">
         <div className="flex flex-wrap gap-2">
-          {codes.map((code) => {
+          {codes.map((code, index) => {
             const isHighlight = code === highlightCode;
             return (
               <CodeBadge
-                key={code}
+                key={`${patient._id}-${code}-${index}`}
                 code={code}
                 pillClassName={
                   isHighlight
@@ -267,11 +288,11 @@ function PatientRow({
       </td>
       <td className="px-4 py-3 text-right">
         <Link
-          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--bg-surface-muted)] text-[var(--text-color)] hover:bg-[var(--border-muted)] transition text-sm font-semibold"
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--primary)] text-white hover:bg-[var(--primary-dark)] transition text-sm font-medium"
           to={buildPath(`/catalog/${patient._id}${highlightCode ? `?code=${highlightCode}` : ""}`)}
           target="_blank"
         >
-          <FontAwesomeIcon icon={faShareFromSquare} />
+          <FontAwesomeIcon icon={faShareFromSquare} className="w-3 h-3" />
           {t("catalog.detail")}
         </Link>
       </td>

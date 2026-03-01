@@ -192,6 +192,7 @@
   "heatmap.pred": "Pred",
   "heatmap.yes": "Ano",
   "heatmap.no": "Ne",
+  "heatmap.accuracy": "Přesnost",
   "footer.text": "Studentský projekt FBMI ČVUT",
   "footer.github": "GitHub repozitář"
 }

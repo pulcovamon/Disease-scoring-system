@@ -192,6 +192,7 @@
   "heatmap.pred": "Pred",
   "heatmap.yes": "Yes",
   "heatmap.no": "No",
+  "heatmap.accuracy": "Accuracy",
   "footer.text": "FBMI CTU student project",
   "footer.github": "GitHub repository"
 }

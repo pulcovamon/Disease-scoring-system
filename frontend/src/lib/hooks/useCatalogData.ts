@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Patient } from "../classes/catalogData";
+import { Patient, getPatientsSummary } from "../classes/catalogData";
 import { catalogCache, PatientQuery } from "../store/catalogCache";
 
 type PatientsResult = {
@@ -7,6 +7,7 @@ type PatientsResult = {
   loading: boolean;
   error: string | null;
   refresh: () => void;
+  calculateSummary: () => void;
 };
 
 type CountResult = {
@@ -37,6 +38,21 @@ export function useCatalogPatients(query: PatientQuery): PatientsResult {
     }
   };
 
+  const calculateSummary = () => {
+    setPatients(currentPatients => 
+      currentPatients.map((p) => {
+        // Only add summary if it doesn't already exist
+        if (!p.summary) {
+          return {
+            ...p,
+            summary: getPatientsSummary(p)
+          }
+        }
+        return p;
+      })
+    )
+  }
+
   useEffect(() => {
     let cancelled = false;
     const cached = catalogCache.getPatientsFromCache(query);
@@ -64,6 +80,7 @@ export function useCatalogPatients(query: PatientQuery): PatientsResult {
     loading,
     error,
     refresh: fetchPatients,
+    calculateSummary,
   };
 }
 

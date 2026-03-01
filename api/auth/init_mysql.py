@@ -50,6 +50,7 @@ def init_db():
                 first_name="Admin",
                 last_name="Default",
                 email=admin_email,
+                username=None,
                 is_approved=True,
                 role="admin"
             )
