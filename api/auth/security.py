@@ -73,13 +73,20 @@ def get_user_by_email(email: str) -> models.User | None:
         return result.first()
 
 
+def get_user_by_username(username: str) -> models.User | None:
+    with get_session() as session:
+        result = session.exec(select(models.User).where(models.User.username == username))
+        return result.first()
+
+
 def get_user_auth(user_id):
     with get_session() as session:
         result = session.exec(select(models.Auth).where(models.Auth.user_id == user_id))
         return result.first()
 
-def authenticate(email: str, password: str):
-    user = get_user_by_email(email)
+def authenticate(identifier: str, password: str):
+    # identifier can be email or username
+    user = get_user_by_email(identifier) or get_user_by_username(identifier)
     if not user:
         logger.debug(f"{email} not in db")
         return

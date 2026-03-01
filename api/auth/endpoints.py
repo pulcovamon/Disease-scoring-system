@@ -31,6 +31,11 @@ async def register_user(data: models.UserCreate):
     existing_user = get_user_by_email(data.email)
     if existing_user:
         raise HTTPException(status_code=403, detail="User with this email already exists!")
+    if data.username:
+        with get_session() as session:
+            existing_username = session.exec(select(models.User).where(models.User.username == data.username)).first()
+            if existing_username:
+                raise HTTPException(status_code=403, detail="User with this username already exists!")
 
     hashed_password, salt = hash_password(data.password)
     with get_session() as session:
@@ -39,6 +44,7 @@ async def register_user(data: models.UserCreate):
             first_name=data.first_name,
             last_name=data.last_name,
             email=data.email,
+            username=data.username,
             is_approved=False,
             role=DEFAULT_ROLE
         )
@@ -60,7 +66,7 @@ async def register_user(data: models.UserCreate):
 async def get_token(credentials: Annotated[HTTPBasicCredentials, Depends(http_basic)]):
     user = authenticate(credentials.username, credentials.password)
     logger.info(credentials.username)
-    if not credentials.username or not credentials.password:
+    if not credentials.username or not credentials.password or not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     access_token = create_access_token(user, datetime.utcnow() + timedelta(days=15))
@@ -85,11 +91,16 @@ def list_users(current_user=Depends(require_authenticated_user)):
         statement = select(models.User)
         users = session.exec(statement).all()
 
-    if str(current_user.role).lower() == Role.ADMIN.value:
+    if str(current_user.role).lower() == Role.ADMIN.value.lower():
         sanitized = users
     else:
         sanitized = [
-            {"first_name": u.first_name, "last_name": u.last_name, "email": u.email}
+            {
+                "first_name": u.first_name,
+                "last_name": u.last_name,
+                "email": u.email,
+                "username": u.username,
+            }
             for u in users
         ]
     return JSONResponse(status_code=200, content=jsonable_encoder(sanitized))

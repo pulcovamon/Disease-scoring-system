@@ -6,9 +6,10 @@ from api.auth.roles import Role, DEFAULT_ROLE
 
 
 class UserBase(SQLModel):
-    first_name: str
-    last_name: str
-    email: EmailStr
+    first_name: Optional[str] = ""
+    last_name: Optional[str] = ""
+    email: EmailStr = Field(sa_column_kwargs={"unique": True}, index=True)
+    username: Optional[str] = Field(default=None, sa_column_kwargs={"unique": True}, index=True)
     
 class UserCreate(UserBase):
     password: str

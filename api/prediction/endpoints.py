@@ -12,20 +12,37 @@ from fastapi import APIRouter, HTTPException, UploadFile, Query, Depends
 from fastapi.responses import JSONResponse, FileResponse
 from pydantic import BaseModel
 
+from pathlib import Path
 from api.worker import celery_app
 from api.prediction.utils import format_task_result, get_all_task_ids, models_db
 from api.auth.models import Patient
 from api.auth.dependencies import ensure_can_run_prediction, require_admin
+from api.logger import Logger
 
 class PredictionRequest(BaseModel):
     codes: List[str]
     patient: Patient|int|None
 
 router = APIRouter(prefix="/prediction", tags=["Prediction"])
+logger = Logger()
 
 MODEL_DIR = "/app/models"
 TEMPLATE_DIR = os.path.join("api", "templates")
 ALLOWED_FORMATS = {"csv", "json"}
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def resolve_model_path(raw_path: str) -> Path | None:
+    candidates = []
+    # as stored
+    if raw_path:
+        candidates.append(Path(raw_path))
+        # relative to repo root
+        candidates.append(REPO_ROOT / raw_path)
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    return None
 
 @router.get("/result/{id}")
 async def get_task_by_id(id: str):
@@ -47,15 +64,16 @@ async def predict(
     Request a model prediction based on model ID and input code sequence.
     """
     model_doc = context["model"]
-    model_path = model_doc.get("path")
-    if not model_path or not os.path.isfile(model_path):
-        raise HTTPException(status_code=500, detail="Model file is missing on server")
+    model_path = resolve_model_path(model_doc.get("path"))
+    if not model_path:
+        logger.error(f"Model file missing for model {model_id} at '{model_doc.get('path')}' (searched repo root fallback too)")
+        raise HTTPException(status_code=404, detail="Model file is missing on server")
 
     encoder_path = model_doc.get("encoder")
-    if encoder_path and not os.path.isfile(encoder_path):
-        encoder_path = None
+    enc_resolved = resolve_model_path(encoder_path) if encoder_path else None
+    encoder_path = str(enc_resolved) if enc_resolved else None
     
-    task = celery_app.send_task("run_model_prediction", args=[model_id, model_path, data.codes, encoder_path])
+    task = celery_app.send_task("run_model_prediction", args=[model_id, str(model_path), data.codes, encoder_path])
     return JSONResponse(status_code=202, content={"task_id": task.id})
 
 @router.post("/dataset")
@@ -68,13 +86,14 @@ async def predict_dataset(
     Request a model prediction based on model ID and input code sequence.
     """
     model_doc = context["model"]
-    model_path = model_doc.get("path")
-    if not model_path or not os.path.isfile(model_path):
-        raise HTTPException(status_code=500, detail="Model file is missing on server")
+    model_path = resolve_model_path(model_doc.get("path"))
+    if not model_path:
+        logger.error(f"Model file missing for model {model_id} at '{model_doc.get('path')}' (searched repo root fallback too)")
+        raise HTTPException(status_code=404, detail="Model file is missing on server")
 
     encoder_path = model_doc.get("encoder")
-    if encoder_path and not os.path.isfile(encoder_path):
-        encoder_path = None
+    enc_resolved = resolve_model_path(encoder_path) if encoder_path else None
+    encoder_path = str(enc_resolved) if enc_resolved else None
     
     if dataset.content_type == "text/csv":
         content = await dataset.read()
@@ -104,7 +123,7 @@ async def predict_dataset(
     else:
         raise HTTPException(status_code=400, detail="File must be CSV or JSON!")
     
-    task = celery_app.send_task("run_model_prediction", args=[model_id, model_path, data, encoder_path])
+    task = celery_app.send_task("run_model_prediction", args=[model_id, str(model_path), data, encoder_path])
     return JSONResponse(status_code=202, content={"task_id": task.id})
 
 
