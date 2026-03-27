@@ -1,4 +1,4 @@
-import React, { useState, DragEvent } from "react";
+import React, { useRef, useState, DragEvent } from "react";
 
 function FileUploader({
   accept = "*",
@@ -7,9 +7,17 @@ function FileUploader({
 }: {
   accept: string;
   onFileSelect: (file: File) => void;
-  unallowed: boolean
+  unallowed: boolean;
 }) {
   const [isDragging, setIsDragging] = useState(false);
+  const [wrongType, setWrongType] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const isAccepted = (file: File): boolean => {
+    if (accept === "*") return true;
+    const ext = "." + file.name.split(".").pop()?.toLowerCase();
+    return accept.split(",").map((a) => a.trim().toLowerCase()).includes(ext);
+  };
 
   const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -25,6 +33,11 @@ function FileUploader({
     setIsDragging(false);
     if (event.dataTransfer.files.length > 0) {
       const file = event.dataTransfer.files[0];
+      if (!isAccepted(file)) {
+        setWrongType(true);
+        setTimeout(() => setWrongType(false), 2000);
+        return;
+      }
       onFileSelect(file);
     }
   };
@@ -37,17 +50,13 @@ function FileUploader({
   };
 
   const handleButtonClick = () => {
-    document.getElementById("fileInput")?.click();
+    inputRef.current?.click();
   };
 
   function setBorder() {
-    if (isDragging) {
-      return `2px dashed var(--primary)`
-    } 
-    if (unallowed) {
-      return "2px solid red"
-    } 
-    return "2px dashed var(--border-muted)"
+    if (wrongType || unallowed) return "2px solid red";
+    if (isDragging) return "2px dashed var(--primary)";
+    return "2px dashed var(--border-muted)";
   }
 
   return (
@@ -56,7 +65,7 @@ function FileUploader({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`drag-box ${unallowed ? "unallowed" : ""}`}
+        className={`drag-box ${wrongType || unallowed ? "unallowed" : ""}`}
         style={{
           border: setBorder(),
           backgroundColor: isDragging ? "var(--bg-surface-muted)" : "var(--bg-surface)",
@@ -64,17 +73,13 @@ function FileUploader({
         }}
       >
         <p style={{ margin: 0 }}>
-          Drag and drop a file here, or click to upload
+          {wrongType ? "Unsupported file type" : "Drag and drop a file here, or click to upload"}
         </p>
-        <button
-          onClick={handleButtonClick}
-          type="button"
-          className="file-button"
-        >
+        <button onClick={handleButtonClick} type="button" className="file-button">
           Select File
         </button>
         <input
-          id="fileInput"
+          ref={inputRef}
           type="file"
           accept={accept}
           onChange={handleFileChange}

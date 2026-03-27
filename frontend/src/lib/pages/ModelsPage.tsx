@@ -20,7 +20,6 @@ export default function ModelsPage() {
   const { status } = useAuth();
   const { t } = useTranslations();
 
-  const [modelFile, setModelFile] = useState<File | null>(null);
   const [sendDialogOpen, setSendDialogOpen] = useState<boolean>(false);
   const [uploading, setUploading] = useState(false);
   const [uploadState, setUploadState] = useState<UploadState>({ type: null, message: "" });
@@ -57,10 +56,13 @@ export default function ModelsPage() {
           model_name: modelToSend.name,
           description: modelToSend.description || "",
           is_public: modelToSend.is_public,
+          ...(modelToSend.algorithm ? { algorithm: modelToSend.algorithm } : {}),
+          ...(modelToSend.accuracy !== null && modelToSend.accuracy !== undefined
+            ? { accuracy: modelToSend.accuracy }
+            : {}),
         },
       });
 
-      setModelFile(null);
       setRefreshKey((key) => key + 1);
       setUploadState({
         type: "success",
@@ -144,16 +146,17 @@ export default function ModelsPage() {
 
       {sendDialogOpen && (
         <ModelUpload
-          model={modelFile}
-          uploadModel={setModelFile}
-          removeModel={() => setModelFile(null)}
           setSendDialogOpen={setSendDialogOpen}
           send={sendModel}
           sending={uploading}
         />
       )}
 
-      <ModelList filters={filters} refreshKey={refreshKey} />
+      <ModelList
+        filters={filters}
+        refreshKey={refreshKey}
+        onRefresh={() => setRefreshKey((k) => k + 1)}
+      />
     </div>
   );
 }

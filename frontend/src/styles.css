@@ -51,20 +51,22 @@ p {
     color: var(--text-muted);
 }
 
-button {
-    background-color: var(--primary);
-    border: none;
-    color: white;
-    cursor: pointer;
-    border-radius: 12px;
-    padding: 10px 14px;
-    font-weight: 600;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-}
+@layer base {
+    button {
+        background-color: var(--primary);
+        border: none;
+        color: white;
+        cursor: pointer;
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-weight: 600;
+        transition: background-color 0.2s ease, transform 0.1s ease;
+    }
 
-button:hover { background-color: var(--primary-hover); }
-button:active { transform: translateY(1px); }
-button:disabled { background-color: var(--border-muted); color: var(--text-muted); cursor: not-allowed; }
+    button:hover { background-color: var(--primary-hover); }
+    button:active { transform: translateY(1px); }
+    button:disabled { background-color: var(--border-muted); color: var(--text-muted); cursor: not-allowed; }
+}
 
 /* Button variants */
 .btn {

@@ -6,5 +6,8 @@ export interface Model {
         disease: string,
         description: string|null,
         image: string | null,
-        is_public: boolean
+        is_public: boolean,
+        encoder: string|null,
+        algorithm: string|null,
+        accuracy: number|null,
 }

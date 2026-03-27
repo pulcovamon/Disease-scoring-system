@@ -120,7 +120,7 @@ export async function postFormMethod<Type>(
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(getUrl(path, options?.queryParams), {
+  const response = await fetch(buildApiUrl(path, options?.queryParams), {
     method: "POST",
     headers,
     body: formData,
@@ -139,6 +139,54 @@ export async function postFormMethod<Type>(
   } catch (error) {
     console.warn("Response is not JSON, returning empty object.");
     return {} as Type;
+  }
+}
+
+export async function patchMethod<Type>(
+  path: string,
+  data: { [key: string]: any },
+  options?: { includeAuth?: boolean; queryParams?: { [key: string]: string | number | boolean } }
+): Promise<Type> {
+  const includeAuth = options?.includeAuth ?? true;
+  const request = {
+    method: "PATCH",
+    headers: {
+      accept: "application/json",
+      "Content-Type": "application/json",
+    } as Record<string, string>,
+    body: JSON.stringify(data),
+  };
+  const token = includeAuth ? tokenGetter() : null;
+  if (token) {
+    request.headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(buildApiUrl(path, options?.queryParams), request);
+  if (!response.ok) {
+    if (response.status === 401 && unauthorizedHandler) unauthorizedHandler();
+    throw new HTTPError({ code: response.status as HttpErrorCode });
+  }
+  return response.json() as Type;
+}
+
+export async function deleteMethod(
+  path: string,
+  options?: { includeAuth?: boolean }
+): Promise<void> {
+  const includeAuth = options?.includeAuth ?? true;
+  const headers: Record<string, string> = { accept: "application/json" };
+  const token = includeAuth ? tokenGetter() : null;
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(buildApiUrl(path), {
+    method: "DELETE",
+    headers,
+  });
+  if (!response.ok) {
+    if (response.status === 401 && unauthorizedHandler) unauthorizedHandler();
+    throw new HTTPError({ code: response.status as HttpErrorCode });
   }
 }
 

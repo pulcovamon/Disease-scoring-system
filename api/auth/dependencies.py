@@ -6,6 +6,7 @@ from api.auth.security import JWTBearer, verify_jwt
 from api.auth.roles import Role
 from api.auth.permissions import (
     can_create_model,
+    can_modify_model,
     can_run_prediction,
     can_view_model,
 )
@@ -58,6 +59,23 @@ async def get_model_for_read(model_id: str, user: Optional[auth_models.User] = D
     if not can_view_model(user, model_doc):
         raise HTTPException(status_code=403, detail="Permission denied to read model")
     return model_doc
+
+
+async def get_model_for_modify(
+    model_id: str,
+    user: auth_models.User = Depends(require_authenticated_user),
+):
+    try:
+        object_id = ObjectId(model_id)
+    except Exception:
+        object_id = model_id
+
+    model_doc = prediction_models_db.collection.find_one({"$or": [{"_id": object_id}, {"_id": model_id}]})
+    if not model_doc:
+        raise HTTPException(status_code=404, detail="Model not found")
+    if not can_modify_model(user, model_doc):
+        raise HTTPException(status_code=403, detail="Permission denied to modify this model")
+    return {"model": model_doc, "user": user, "object_id": object_id}
 
 
 async def ensure_can_run_prediction(

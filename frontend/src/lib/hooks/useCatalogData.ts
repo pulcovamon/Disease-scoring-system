@@ -43,9 +43,11 @@ export function useCatalogPatients(query: PatientQuery): PatientsResult {
       currentPatients.map((p) => {
         // Only add summary if it doesn't already exist
         if (!p.summary) {
+          const summary = getPatientsSummary(p);
+          console.log('Calculated summary for patient', p._id, ':', summary);
           return {
             ...p,
-            summary: getPatientsSummary(p)
+            summary: summary
           }
         }
         return p;

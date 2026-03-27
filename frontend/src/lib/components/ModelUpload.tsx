@@ -3,29 +3,29 @@ import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import FileUploader from "./FileUploader"
 import { Model } from "../classes/model"
+import { DiseaseType, DiseaseInfo } from "../classes/disease"
+import { useTranslations } from "../i18n/useTranslations"
 
 type ModelUploadProps = {
-  model: File | null
-  uploadModel: (file: File) => void
-  removeModel: () => void
   setSendDialogOpen: (open: boolean) => void
   send: (modelToSend: Model, modelFile: File, encoderFile?: File, imageFile?: File) => Promise<boolean>
   sending: boolean
 }
 
 export default function ModelUpload({
-  model,
-  uploadModel,
-  removeModel,
   setSendDialogOpen,
   send,
-  sending
+  sending,
 }: ModelUploadProps) {
+  const { t } = useTranslations()
   const [modelName, setModelName] = useState("")
-  const [disease, setDisease] = useState("")
+  const [disease, setDisease] = useState<DiseaseType>(DiseaseType.LungCancer)
   const [description, setDescription] = useState("")
   const [isPublic, setIsPublic] = useState(false)
+  const [algorithm, setAlgorithm] = useState("")
+  const [accuracy, setAccuracy] = useState("")
 
+  const [modelFile, setModelFile] = useState<File | null>(null)
   const [image, setImage] = useState<File | null>(null)
   const [encoder, setEncoder] = useState<File | null>(null)
 
@@ -36,11 +36,11 @@ export default function ModelUpload({
           <FontAwesomeIcon icon={faXmark} />
         </button>
 
-        <h3>Upload new model</h3>
+        <h3>{t("models.upload.title")}</h3>
 
         <form>
           <label>
-            Model name*:
+            {t("models.upload.name")}
             <input
               type="text"
               required
@@ -50,17 +50,21 @@ export default function ModelUpload({
           </label>
 
           <label>
-            Disease*:
-            <input
-              type="text"
-              required
+            {t("models.upload.disease")}
+            <select
               value={disease}
-              onChange={(e) => setDisease(e.target.value)}
-            />
+              onChange={(e) => setDisease(e.target.value as DiseaseType)}
+            >
+              {Object.values(DiseaseType).map((d) => (
+                <option key={d} value={d}>
+                  {DiseaseInfo[d].name}
+                </option>
+              ))}
+            </select>
           </label>
 
           <label>
-            Description:
+            {t("models.upload.description")}
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -68,7 +72,28 @@ export default function ModelUpload({
           </label>
 
           <label>
-            Public model:
+            {t("models.upload.algorithm")}
+            <input
+              type="text"
+              value={algorithm}
+              onChange={(e) => setAlgorithm(e.target.value)}
+            />
+          </label>
+
+          <label>
+            {t("models.upload.accuracy")}
+            <input
+              type="number"
+              min="0"
+              max="1"
+              step="0.01"
+              value={accuracy}
+              onChange={(e) => setAccuracy(e.target.value)}
+            />
+          </label>
+
+          <label>
+            {t("models.upload.public")}
             <input
               type="checkbox"
               checked={isPublic}
@@ -77,12 +102,12 @@ export default function ModelUpload({
           </label>
 
           <label>
-            Model file (.pkl)*:
-            <FileUploader onFileSelect={uploadModel} unallowed={false} accept=".pkl" />
-            {model && (
+            {t("models.upload.file")}
+            <FileUploader onFileSelect={setModelFile} unallowed={false} accept=".pkl" />
+            {modelFile && (
               <span className="uploaded-model">
-                {model.name}
-                <button type="button" onClick={removeModel}>
+                {modelFile.name}
+                <button type="button" onClick={() => setModelFile(null)}>
                   <FontAwesomeIcon icon={faXmark} />
                 </button>
               </span>
@@ -90,7 +115,7 @@ export default function ModelUpload({
           </label>
 
           <label>
-            Optional image (.jpg, .jpeg, .png, .webp):
+            {t("models.upload.image")}
             <FileUploader
               onFileSelect={setImage}
               unallowed={false}
@@ -107,7 +132,7 @@ export default function ModelUpload({
           </label>
 
           <label>
-            Optional encoder (.pkl):
+            {t("models.upload.encoder")}
             <FileUploader
               onFileSelect={setEncoder}
               unallowed={false}
@@ -126,37 +151,31 @@ export default function ModelUpload({
           <button
             type="submit"
             onClick={async (e) => {
-                e.preventDefault();
-              
-                if (!model) return;
-              
-                const modelToSend: Model = {
-                  _id: null,
-                  user: null,
-                  path: null,
-                  name: modelName.trim(),
-                  disease: disease.trim(),
-                  description: description.trim() || null,
-                  image: null,
-                  is_public: isPublic
-                };
-              
-                const success = await send(modelToSend, model, encoder || undefined, image || undefined);
-                if (success) {
-                  setModelName("");
-                  setDisease("");
-                  setDescription("");
-                  setIsPublic(false);
-                  setImage(null);
-                  setEncoder(null);
-                  removeModel();
-                  setSendDialogOpen(false);
-                }
-              }}
-              
-            disabled={!model || modelName.trim() === "" || disease.trim() === "" || sending}
+              e.preventDefault()
+              if (!modelFile) return
+
+              const modelToSend: Model = {
+                _id: null,
+                user: null,
+                path: null,
+                name: modelName.trim(),
+                disease: disease,
+                description: description.trim() || null,
+                image: null,
+                is_public: isPublic,
+                encoder: null,
+                algorithm: algorithm.trim() || null,
+                accuracy: accuracy !== "" ? parseFloat(accuracy) : null,
+              }
+
+              const success = await send(modelToSend, modelFile, encoder || undefined, image || undefined)
+              if (success) {
+                setSendDialogOpen(false)
+              }
+            }}
+            disabled={!modelFile || modelName.trim() === "" || sending}
           >
-            {sending ? "Uploading..." : "Send"}
+            {sending ? t("models.uploading") : t("models.upload.send")}
           </button>
         </form>
       </div>

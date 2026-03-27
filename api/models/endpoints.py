@@ -1,10 +1,9 @@
 import os
-from typing import Optional
+from typing import Literal, Optional
 
-from fastapi import APIRouter, UploadFile, HTTPException, File, Depends, Query, Security
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, UploadFile, HTTPException, File, Depends, Query
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
-from bson.json_util import dumps
 from fastapi.encoders import jsonable_encoder
 
 from api.database import MongoDatabase
@@ -15,8 +14,15 @@ from api.auth.dependencies import (
     ensure_can_upload_model,
     get_current_user_optional,
     get_model_for_read,
+    get_model_for_modify,
 )
 from api.auth.permissions import can_view_model
+
+DiseaseType = Literal[
+    "lung_cancer",
+    "multiple_sclerosis",
+    "hidradenitis_suppurativa",
+]
 
 router = APIRouter(prefix="/model", tags=["Models"])
 models_db = MongoDatabase(db_name="scoring_system", collection_name="models")
@@ -24,7 +30,7 @@ models_db = MongoDatabase(db_name="scoring_system", collection_name="models")
 
 class ModelUploadForm(BaseModel):
     model_name: str
-    disease: str
+    disease: DiseaseType
     description: str = ""
     is_public: bool = False
     algorithm: Optional[str] = None
@@ -33,7 +39,7 @@ class ModelUploadForm(BaseModel):
     @classmethod
     def as_form(
         cls,
-        disease: str,
+        disease: DiseaseType,
         model_name: str,
         description: str = "",
         is_public: bool = False,
@@ -111,6 +117,14 @@ async def upload_model(
 
     return {"status": "Model uploaded", "model_id": str(model_id)}
 
+class ModelPatchForm(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    is_public: Optional[bool] = None
+    algorithm: Optional[str] = None
+    accuracy: Optional[float] = None
+
+
 @router.get("/{_id}")
 async def get_model_by_id(data=Depends(get_model_for_read)):
     data["_id"] = str(data["_id"])
@@ -165,3 +179,29 @@ async def get_models(
         visible_models.append(model)
 
     return JSONResponse(content=visible_models, status_code=200)
+
+
+@router.patch("/{model_id}")
+async def update_model(
+    body: ModelPatchForm,
+    ctx: dict = Depends(get_model_for_modify),
+):
+    update_data = {k: v for k, v in body.model_dump().items() if v is not None}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No fields to update")
+    models_db.collection.update_one(
+        {"_id": ctx["object_id"]},
+        {"$set": update_data},
+    )
+    return JSONResponse(content={"status": "updated"}, status_code=200)
+
+
+@router.delete("/{model_id}", status_code=204)
+async def delete_model(ctx: dict = Depends(get_model_for_modify)):
+    model_doc = ctx["model"]
+    for field in ("path", "image", "encoder"):
+        file_path = model_doc.get(field)
+        if file_path and os.path.isfile(file_path):
+            os.remove(file_path)
+    models_db.collection.delete_one({"_id": ctx["object_id"]})
+    return Response(status_code=204)

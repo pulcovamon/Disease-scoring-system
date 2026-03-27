@@ -25,6 +25,7 @@ export default function HeatMapRow({
         <th className="category-name">{categoryName}</th>
         {patients.map((patient, index) => {
           const summaryValue = patient.summary?.[summaryType] ?? 0;
+          console.log('HeatmapRow: Patient', patient._id, 'summary:', patient.summary, 'value:', summaryValue);
           // Modern monochromatic purple scheme (better for accessibility)
           const lightness = 85 - (summaryValue * 0.7); // 85% lightness at 0%, 14% at 100%
           const backgroundColor = `hsl(270, 80%, ${lightness}%)`;

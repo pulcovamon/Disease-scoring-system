@@ -4,7 +4,7 @@ import Filtering from "../components/Filtering";
 import Pagination from "../components/Pagination";
 import { Link, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faShareFromSquare } from "@fortawesome/free-solid-svg-icons";
+import { faShareFromSquare, faTable, faChartSimple } from "@fortawesome/free-solid-svg-icons";
 import { useCatalogCount, useCatalogPatients } from "../hooks/useCatalogData";
 import { useLanguage } from "../store/language";
 import { useTranslations } from "../i18n/useTranslations";
@@ -15,6 +15,7 @@ import Heatmap from "../components/Heatmap";
 export default function Catalog() {
   const { buildPath } = useLanguage();
   const { t } = useTranslations();
+  const [activeTab, setActiveTab] = useState<'list' | 'heatmap'>('list');
   const [patientId, setPatientId] = useState<number | undefined>(undefined);
   const [patientCode, setPatientCode] = useState<string | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -55,7 +56,7 @@ export default function Catalog() {
     if (!loadingPatients && patients.length > 0) {
       calculateSummary();
     }
-  }, [loadingPatients])
+  }, [loadingPatients, patients, calculateSummary])
 
   const { total, loading: loadingTotal, error: totalError } = useCatalogCount(patientCode);
 
@@ -129,6 +130,24 @@ export default function Catalog() {
         </div>
       </div>
 
+      {/* Tab Navigation */}
+      <div className="flex border-b border-[var(--border-muted)]">
+        <button
+          onClick={() => setActiveTab('list')}
+          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 bg-transparent rounded-none ${activeTab === 'list' ? 'border-b-2 border-[var(--primary)] text-[var(--primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-color)]'}`}
+        >
+          <FontAwesomeIcon icon={faTable} className="w-4 h-4" />
+          {t("catalog.tab.list")}
+        </button>
+        <button
+          onClick={() => setActiveTab('heatmap')}
+          className={`px-4 py-2 text-sm font-medium flex items-center gap-2 bg-transparent rounded-none ${activeTab === 'heatmap' ? 'border-b-2 border-[var(--primary)] text-[var(--primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-color)]'}`}
+        >
+          <FontAwesomeIcon icon={faChartSimple} className="w-4 h-4" />
+          {t("catalog.tab.heatmap")}
+        </button>
+      </div>
+
       {message && <div className="box">{message}</div>}
       {emptyState && <div className="box">{emptyState}</div>}
 
@@ -177,48 +196,53 @@ export default function Catalog() {
         />
       </div>
 
-      <div className="rounded-2xl border border-[var(--border-muted)] bg-[var(--bg-surface)]">
-        <div className="relative">
-          {loadingPatients && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[var(--bg-surface)]/85 backdrop-blur-sm rounded-2xl z-10">
-              <span className="w-10 h-10 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin" aria-label="Loading" />
-            </div>
-          )}
+      {/* Tab Content */}
+      {activeTab === 'list' && (
+        <div className="rounded-2xl border border-[var(--border-muted)] bg-[var(--bg-surface)]">
+          <div className="relative">
+            {loadingPatients && (
+              <div className="absolute inset-0 flex items-center justify-center bg-[var(--bg-surface)]/85 backdrop-blur-sm rounded-2xl z-10">
+                <span className="w-10 h-10 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin" aria-label="Loading" />
+              </div>
+            )}
 
-          {patients.length > 0 && (
-            <div className="heatmap-wrapper mb-6">
-              <Heatmap 
-                patients={patients} 
-                mode="summary" 
-                titleVisible={false}
-              />
-            </div>
-          )}
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-[var(--border-muted)] bg-[var(--bg-surface-muted)]">
-                <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">{t("catalog.table.patientId")}</th>
-                <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">{t("catalog.table.codes")}</th>
-                <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">{t("catalog.table.predictions")}</th>
-                <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">{t("catalog.table.accuracy")}</th>
-                <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]"></th>
-              </tr>
-            </thead>
-            <tbody>
-            {patients.map((patient) => (
-              <PatientRow
-                key={patient._id}
-                patient={patient}
-                highlightCode={patientCode}
-              />
-              ))}
-            </tbody>
-          </table>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-[var(--border-muted)] bg-[var(--bg-surface-muted)]">
+                  <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">{t("catalog.table.patientId")}</th>
+                  <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">{t("catalog.table.codes")}</th>
+                  <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">{t("catalog.table.predictions")}</th>
+                  <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">{t("catalog.table.accuracy")}</th>
+                  <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]"></th>
+                </tr>
+              </thead>
+              <tbody>
+              {patients.map((patient) => (
+                <PatientRow
+                  key={patient._id}
+                  patient={patient}
+                  highlightCode={patientCode}
+                />
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
-      </div>
+        </div>
+      )}
+
+      {activeTab === 'heatmap' && patients.length > 0 && (
+        <div className="rounded-2xl border border-[var(--border-muted)] bg-[var(--bg-surface)] p-6">
+          <div className="heatmap-wrapper">
+            <Heatmap 
+              patients={patients} 
+              mode="summary" 
+              titleVisible={false}
+            />
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-wrap items-center gap-3 justify-between">
         <Pagination

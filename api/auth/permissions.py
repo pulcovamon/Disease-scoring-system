@@ -39,6 +39,17 @@ def can_view_model(user: Optional[Any], model: dict) -> bool:
     return False
 
 
+def can_modify_model(user: Optional[Any], model: dict) -> bool:
+    if not user:
+        return False
+    if is_admin(user):
+        return True
+    owner_id = str(model.get("user")) if model else None
+    if owner_id == "default":
+        return False
+    return owner_id == str(getattr(user, "id", ""))
+
+
 def can_list_users(requesting_user: Optional[Any]) -> bool:
     return is_admin(requesting_user) or str(getattr(requesting_user, "role", "")).lower() in {
         Role.USER.value.lower(),
