@@ -9,10 +9,11 @@ services:
       - "27017:27017"
     volumes:
       - "patient_catalog_data:/data/db"
+      - "scoring_system_data:/data/scoring_system"
     networks:
       - scoring-system
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongosh", "-u", "root", "-p", "pass", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 10s
       retries: 3
@@ -85,6 +86,21 @@ services:
       C_FORCE_ROOT: "true"
     volumes:
       - "model_storage:/models"
+    networks:
+      - scoring-system
+
+  flower:
+    build:
+      context: .
+      dockerfile: flower/Dockerfile
+    environment:
+      REDIS_URL: "redis://redis_server:6379"
+      C_FORCE_ROOT: "true"
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis_server
+      - worker
     networks:
       - scoring-system
 

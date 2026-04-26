@@ -7,7 +7,6 @@ type PatientsResult = {
   loading: boolean;
   error: string | null;
   refresh: () => void;
-  calculateSummary: () => void;
 };
 
 type CountResult = {
@@ -29,7 +28,7 @@ export function useCatalogPatients(query: PatientQuery): PatientsResult {
     if (showLoading) setLoading(true);
     try {
       const data = await catalogCache.fetchPatients(query);
-      setPatients(data);
+      setPatients(data.map(p => ({ ...p, summary: getPatientsSummary(p) })));
     } catch (err) {
       console.error(err);
       setError("Failed to load patients.");
@@ -37,23 +36,6 @@ export function useCatalogPatients(query: PatientQuery): PatientsResult {
       setLoading(false);
     }
   };
-
-  const calculateSummary = () => {
-    setPatients(currentPatients => 
-      currentPatients.map((p) => {
-        // Only add summary if it doesn't already exist
-        if (!p.summary) {
-          const summary = getPatientsSummary(p);
-          console.log('Calculated summary for patient', p._id, ':', summary);
-          return {
-            ...p,
-            summary: summary
-          }
-        }
-        return p;
-      })
-    )
-  }
 
   useEffect(() => {
     let cancelled = false;
@@ -82,7 +64,6 @@ export function useCatalogPatients(query: PatientQuery): PatientsResult {
     loading,
     error,
     refresh: fetchPatients,
-    calculateSummary,
   };
 }
 

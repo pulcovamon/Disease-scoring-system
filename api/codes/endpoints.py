@@ -1,5 +1,6 @@
 import os
 import math
+import asyncio
 from fastapi import APIRouter, HTTPException, Query
 from elasticsearch import Elasticsearch
 
@@ -12,9 +13,9 @@ ES_PORT = os.getenv("ES_PORT", "9200")
 ES_URL = f"http://{ES_HOST}:{ES_PORT}"
 es = Elasticsearch(
     ES_URL,
-    request_timeout=60,
-    retry_on_timeout=True,
-    max_retries=5,
+    request_timeout=10,
+    retry_on_timeout=False,
+    max_retries=1,
 )
 
 
@@ -26,34 +27,25 @@ logger = Logger()
 @router.get("")
 async def get_all_codes(limit: int = 100, skip: int = 0):
     try:
-        result = es.search(
-            index=INDEX_NAME,
-            query={"match_all": {}},
-            size=limit,
-            from_=skip,
-            request_timeout=60
+        result = await asyncio.to_thread(
+            lambda: es.search(index=INDEX_NAME, query={"match_all": {}}, size=limit, from_=skip)
         )
         hits = result.get("hits", {}).get("hits", [])
         return [hit["_source"] for hit in hits]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
-    
+
+
 @router.get("/count")
 async def get_total_codes():
     try:
-        result = es.search(
-            index=INDEX_NAME,
-            query={"match_all": {}},
-            size=0,
-            track_total_hits=True,
-            request_timeout=60
+        result = await asyncio.to_thread(
+            lambda: es.search(index=INDEX_NAME, query={"match_all": {}}, size=0, track_total_hits=True)
         )
         total = result["hits"]["total"]["value"]
         return {"total_codes": total}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 
 @router.get("/search")
@@ -86,12 +78,8 @@ async def search_codes(
     }
 
     try:
-        result = es.search(
-            index=INDEX_NAME,
-            query=search_query,
-            size=limit,
-            from_=skip,
-            request_timeout=60,
+        result = await asyncio.to_thread(
+            lambda: es.search(index=INDEX_NAME, query=search_query, size=limit, from_=skip)
         )
         hits = result.get("hits", {}).get("hits", [])
         return [hit["_source"] for hit in hits]
@@ -104,16 +92,17 @@ async def search_codes(
 async def get_aggregated_params():
     logger.info("Fetching aggregated statistics")
     try:
-        result = es.search(
-            index=INDEX_NAME,
-            size=0,
-            aggs={
-                "tfidf0": {"extended_stats": {"field": "tfidf_label_0"}},
-                "tfidf1": {"extended_stats": {"field": "tfidf_label_1"}},
-                "frequency": {"extended_stats": {"field": "frequency"}}
-            },
-            request_timeout=60,
-            allow_partial_search_results=True,
+        result = await asyncio.to_thread(
+            lambda: es.search(
+                index=INDEX_NAME,
+                size=0,
+                aggs={
+                    "tfidf0": {"extended_stats": {"field": "tfidf_label_0"}},
+                    "tfidf1": {"extended_stats": {"field": "tfidf_label_1"}},
+                    "frequency": {"extended_stats": {"field": "frequency"}},
+                },
+                allow_partial_search_results=True,
+            )
         )
 
         def to_payload(stats):
@@ -138,7 +127,6 @@ async def get_aggregated_params():
         }
 
     except Exception as e:
-        # přidej si víc detailů z ES klienta
         logger.error(f"Aggregation failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -151,11 +139,15 @@ async def get_code_by_id(code: str):
     code = code.lstrip("0")
     logger.debug(code)
     try:
-        result = es.search(index=INDEX_NAME, query={"term": {"code": code}}, request_timeout=60)
+        result = await asyncio.to_thread(
+            lambda: es.search(index=INDEX_NAME, query={"term": {"code": code}})
+        )
         hits = result.get("hits", {}).get("hits", [])
         if not hits:
             raise HTTPException(status_code=404, detail="Code not found")
         return hits[0]["_source"]
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(e)
         raise HTTPException(status_code=500, detail=str(e))

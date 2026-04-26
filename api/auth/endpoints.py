@@ -82,6 +82,13 @@ def get_current_user(token: str = Depends(JWTBearer())):
     return models.User.model_validate(user)
 
 
+@router.get("/users/count")
+def get_users_count():
+    with get_session() as session:
+        count = len(session.exec(select(models.User)).all())
+    return JSONResponse(status_code=200, content={"count": count})
+
+
 @router.get("/user")
 def list_users(current_user=Depends(require_authenticated_user)):
     if not can_list_users(current_user):

@@ -1,4 +1,4 @@
-.PHONY: requirements db setup clean-db stop-db start-db clean app reinstall
+.PHONY: requirements db setup clean-db stop-db start-db clean app reinstall docs-serve docs-build
 
 dotenv = env $(shell cat .env-dev | xargs)
 PYTHONPATH_ROOT = $(CURDIR)
@@ -32,7 +32,7 @@ db:
 		-e MONGO_INITDB_ROOT_PASSWORD=pass \
 		-e MONGO_INITDB_DATABASE=catalog_db \
 		-v patient_catalog_data:/data/db \
-		mongo:latest
+		mongo:7.0
 
 	@echo "📡 Starting Redis..."
 	docker run -d \
@@ -79,10 +79,11 @@ app:
 	@echo "🚀 Starting app with .env variables..."
 	@touch $(NODE_LOCALSTORAGE_FILE)
 	$(dotenv) npx concurrently \
-		--names "API,WORKER,FRONTEND" \
-		--prefix-colors "blue,green,magenta" \
+		--names "API,WORKER,FLOWER,FRONTEND" \
+		--prefix-colors "blue,green,yellow,magenta" \
 		"PYTHONPATH=$(PYTHONPATH_ROOT) uv run --directory api uvicorn api.main:app --port 8080 --reload" \
 		"PYTHONPATH=$(PYTHONPATH_ROOT) uv run --project worker celery -A worker.tasks worker --loglevel=info" \
+		"PYTHONPATH=$(PYTHONPATH_ROOT) uv run --project worker celery -A worker.tasks flower --port=5555" \
 		"export NODE_OPTIONS=--localstorage-file=$(NODE_LOCALSTORAGE_FILE); cd frontend && npm run dev"
 
 # Clean only DB containers and volumes
@@ -120,3 +121,17 @@ reinstall:
 
 	@echo "📦 Reinstalling frontend dependencies..."
 	cd frontend && npm install
+
+# Serve documentation locally (http://localhost:8000)
+docs-serve:
+	@echo "📖 Installing docs dependencies..."
+	cd docs && uv sync
+	@echo "📖 Serving docs at http://localhost:8000 ..."
+	cd docs && uv run --no-sync mkdocs serve --config-file ../mkdocs.yml
+
+# Build static documentation site
+docs-build:
+	@echo "📖 Installing docs dependencies..."
+	cd docs && uv sync
+	@echo "📖 Building docs..."
+	cd docs && uv run --no-sync mkdocs build --config-file ../mkdocs.yml

@@ -10,3 +10,4 @@ vizualization
 data
 *.log
 .node-localstorage
+site/

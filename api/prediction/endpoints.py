@@ -34,14 +34,12 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 def resolve_model_path(raw_path: str) -> Path | None:
     candidates = []
-    # as stored
     if raw_path:
         candidates.append(Path(raw_path))
-        # relative to repo root
         candidates.append(REPO_ROOT / raw_path)
     for candidate in candidates:
         if candidate.is_file():
-            return candidate
+            return candidate.resolve()  # always return absolute path
     return None
 
 @router.get("/result/{id}")

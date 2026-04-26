@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Patient } from "../classes/catalogData";
 import Filtering from "../components/Filtering";
 import Pagination from "../components/Pagination";
@@ -49,14 +49,7 @@ export default function Catalog() {
     patients,
     loading: loadingPatients,
     error: patientsError,
-    calculateSummary,
   } = useCatalogPatients(patientQuery);
-
-  useEffect(() => {
-    if (!loadingPatients && patients.length > 0) {
-      calculateSummary();
-    }
-  }, [loadingPatients, patients, calculateSummary])
 
   const { total, loading: loadingTotal, error: totalError } = useCatalogCount(patientCode);
 
