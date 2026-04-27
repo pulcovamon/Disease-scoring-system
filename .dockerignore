@@ -1,0 +1,9 @@
+# Ignore local environment and cache
+.git
+__pycache__
+venv/
+.env
+
+# Ignore the actual DATA so it doesn't get baked into images
+db/data/
+db/model_storage/
