@@ -23,7 +23,7 @@ FROM nginx:alpine
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy the React app build files to the container
-COPY --from=build /app/build /usr/share/nginx/html
+COPY --from=build /dist/assets/ /usr/share/nginx/html
 
 # Start Nginx when the container starts
 CMD ["nginx", "-g", "daemon off;"]
