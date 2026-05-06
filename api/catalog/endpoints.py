@@ -3,19 +3,22 @@ from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from typing import Optional
 
-from api.database import MongoDatabase
+from api.database import MongoDatabase, SortBy, SortOrder
 
 router = APIRouter(prefix="/catalog", tags=["Catalog"])
 
 catalog_db = MongoDatabase(db_name="catalog_db", collection_name="lung_cancer")
 
 @router.get("/lung-cancer")
-async def get_lung_cancer_catalog(skip: int = 0, limit: int = 20, code: Optional[str] = Query(None)):
-    if code:
-        data = catalog_db.get_documents_by_field_value("codes", code, skip, limit)
-    else:
-        data = catalog_db.get_page_of_documents(skip, limit)
-
+async def get_lung_cancer_catalog(
+    skip: int = 0,
+    limit: int = 20,
+    code: Optional[str] = Query(None),
+    sort_by: SortBy = Query("id"),
+    sort_order: SortOrder = Query("asc"),
+):
+    filter_query = {"codes": {"$in": [code]}} if code else {}
+    data = catalog_db.get_page_of_documents(skip, limit, filter_query, sort_by, sort_order)
     return JSONResponse(content=jsonable_encoder(data), status_code=200)
 
 @router.get("/lung-cancer/{id}")

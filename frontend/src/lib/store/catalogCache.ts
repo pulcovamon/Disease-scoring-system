@@ -1,7 +1,16 @@
 import { getMethod } from "../classes/api";
 import { Patient } from "../classes/catalogData";
 
-type PatientQuery = { limit?: number; skip?: number; code?: string; id?: string | number };
+type SortBy = "id" | "codes" | "predictions" | "accuracy";
+type SortOrder = "asc" | "desc";
+type PatientQuery = {
+  limit?: number;
+  skip?: number;
+  code?: string;
+  id?: string | number;
+  sort_by?: SortBy;
+  sort_order?: SortOrder;
+};
 
 type CacheEntry<T> = { data: T; timestamp: number };
 
@@ -81,4 +90,4 @@ class CatalogCache {
 
 export const catalogCache = new CatalogCache();
 
-export type { PatientQuery };
+export type { PatientQuery, SortBy, SortOrder };

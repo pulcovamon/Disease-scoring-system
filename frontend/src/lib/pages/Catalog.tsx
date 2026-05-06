@@ -4,13 +4,14 @@ import Filtering from "../components/Filtering";
 import Pagination from "../components/Pagination";
 import { Link, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faShareFromSquare, faTable, faChartSimple } from "@fortawesome/free-solid-svg-icons";
+import { faShareFromSquare, faTable, faChartSimple, faChevronUp, faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { useCatalogCount, useCatalogPatients } from "../hooks/useCatalogData";
 import { useLanguage } from "../store/language";
 import { useTranslations } from "../i18n/useTranslations";
 import CodeSearchFilter from "../components/CodeSearchFilter";
 import { CodeBadge } from "../components/CodeBadge";
 import Heatmap from "../components/Heatmap";
+import type { SortBy, SortOrder } from "../store/catalogCache";
 
 export default function Catalog() {
   const { buildPath } = useLanguage();
@@ -20,6 +21,8 @@ export default function Catalog() {
   const [patientCode, setPatientCode] = useState<string | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(20);
+  const [sortBy, setSortBy] = useState<SortBy>("id");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
   const [searchParams, setSearchParams] = useSearchParams();
 
   React.useEffect(() => {
@@ -34,6 +37,16 @@ export default function Catalog() {
     setPageSize(size ? Number(size) : 20);
   }, [searchParams]);
 
+  const handleSort = (column: SortBy) => {
+    if (sortBy === column) {
+      setSortOrder(prev => prev === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(column);
+      setSortOrder("asc");
+    }
+    setCurrentPage(1);
+  };
+
   const patientQuery = useMemo(() => {
     if (patientId !== undefined) {
       return { id: patientId };
@@ -42,8 +55,10 @@ export default function Catalog() {
       skip: currentPage * pageSize - pageSize,
       limit: pageSize,
       code: patientCode,
+      sort_by: sortBy,
+      sort_order: sortOrder,
     };
-  }, [currentPage, pageSize, patientCode, patientId]);
+  }, [currentPage, pageSize, patientCode, patientId, sortBy, sortOrder]);
 
   const {
     patients,
@@ -203,11 +218,27 @@ export default function Catalog() {
               <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-[var(--border-muted)] bg-[var(--bg-surface-muted)]">
-                  <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">{t("catalog.table.patientId")}</th>
-                  <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">{t("catalog.table.codes")}</th>
-                  <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">{t("catalog.table.predictions")}</th>
-                  <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">{t("catalog.table.accuracy")}</th>
-                  <th className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]"></th>
+                  {(["id", "codes", "predictions", "accuracy"] as SortBy[]).map((col) => (
+                    <th key={col} className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">
+                      <button
+                        onClick={() => handleSort(col)}
+                        className="flex items-center gap-1 bg-transparent text-[var(--text-muted)] hover:text-[var(--text-color)] transition font-semibold"
+                      >
+                        {t(`catalog.table.${col === "id" ? "patientId" : col}`)}
+                        <span className="flex flex-col text-[10px] leading-none">
+                          <FontAwesomeIcon
+                            icon={faChevronUp}
+                            className={sortBy === col && sortOrder === "asc" ? "text-[var(--primary)]" : "opacity-30"}
+                          />
+                          <FontAwesomeIcon
+                            icon={faChevronDown}
+                            className={sortBy === col && sortOrder === "desc" ? "text-[var(--primary)]" : "opacity-30"}
+                          />
+                        </span>
+                      </button>
+                    </th>
+                  ))}
+                  <th className="px-4 py-3" />
                 </tr>
               </thead>
               <tbody>

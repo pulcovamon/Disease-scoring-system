@@ -1,4 +1,4 @@
-.PHONY: requirements db setup clean-db stop-db start-db clean app reinstall docs-serve docs-build
+.PHONY: requirements db setup clean-db stop-db start-db clean app reinstall docs-serve docs-build anonymize-catalog
 
 dotenv = env $(shell cat .env-dev | xargs)
 PYTHONPATH_ROOT = $(CURDIR)
@@ -128,6 +128,12 @@ docs-serve:
 	cd docs && uv sync
 	@echo "📖 Serving docs at http://localhost:8000 ..."
 	cd docs && uv run --no-sync mkdocs serve --config-file ../mkdocs.yml
+
+# Anonymize patient catalog (shuffle codes + replace IDs) for privacy / screenshots
+anonymize-catalog:
+	@echo "🔀 Anonymizing patient catalog..."
+	$(dotenv) uv run --directory db anonymize_catalog.py
+	@echo "✅ Catalog anonymized."
 
 # Build static documentation site
 docs-build:

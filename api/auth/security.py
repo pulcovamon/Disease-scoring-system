@@ -9,7 +9,6 @@ from fastapi import HTTPException, Request
 from fastapi.security import HTTPBasic, HTTPBearer
 
 from sqlmodel import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth import models
 from api.auth.sql_database import get_session
@@ -88,7 +87,7 @@ def authenticate(identifier: str, password: str):
     # identifier can be email or username
     user = get_user_by_email(identifier) or get_user_by_username(identifier)
     if not user:
-        logger.debug(f"{email} not in db")
+        logger.debug(f"{identifier} not in db")
         return
     auth = get_user_auth(user.id)
     hashed_password, _ = hash_password(password, auth.salt)
