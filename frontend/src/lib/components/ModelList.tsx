@@ -22,13 +22,32 @@ export default function ModelList({ filters = { include_user: true }, refreshKey
   const [editingModel, setEditingModel] = useState<Model | null>(null);
   const [deletingModel, setDeletingModel] = useState<Model | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [ownerNames, setOwnerNames] = useState<Record<string, string>>({});
+
+  const resolveOwnerName = (userId: string | null): string | undefined => {
+    if (!userId) return undefined;
+    if (userId === "default") return t("form.cards.model.builtin", "Built-in");
+    return ownerNames[userId] ?? undefined;
+  };
 
   useEffect(() => {
     setLoading(true);
     setError(null);
 
     getMethod<Model[]>("/model", filters)
-      .then(setModels)
+      .then((data) => {
+        setModels(data);
+        const ids = Array.from(new Set(data.map((m) => m.user).filter((u) => u && u !== "default"))) as string[];
+        if (ids.length) {
+          getMethod<{ id: string; first_name: string; last_name: string }[]>("/auth/user", undefined, { handleUnauthorized: false })
+            .then((users) => {
+              const map: Record<string, string> = {};
+              users.forEach((u) => { map[u.id] = `${u.first_name} ${u.last_name}`.trim(); });
+              setOwnerNames(map);
+            })
+            .catch(() => {});
+        }
+      })
       .catch((err) => {
         console.error(err);
         setError(t("models.list.error"));
@@ -72,6 +91,7 @@ export default function ModelList({ filters = { include_user: true }, refreshKey
             key={model._id || model.name}
             model={model}
             currentUser={user}
+            ownerName={resolveOwnerName(model.user)}
             onEdit={setEditingModel}
             onDelete={setDeletingModel}
           />

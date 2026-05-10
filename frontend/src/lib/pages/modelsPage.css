@@ -16,16 +16,24 @@
 .dialog-content {
     background-color: var(--bg-surface);
     color: var(--text-color);
-    width: 50%;
-    max-width: 600px;
+    width: min(600px, 90vw);
     padding: 2rem;
     border-radius: 1rem;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     position: relative;
     animation: slideUp 0.3s ease;
-    max-height: 80vh;
+    max-height: 85vh;
     overflow-y: auto;
     scroll-behavior: smooth;
+    align-items: stretch;
+}
+
+.dialog-content form,
+.dialog-content form label,
+.dialog-content form input:not([type="checkbox"]),
+.dialog-content form textarea,
+.dialog-content form select {
+    width: 100%;
 }
 
 .dialog p {
@@ -65,18 +73,108 @@ form label {
 
 form input[type="text"],
 form input[type="file"],
+form input[type="number"],
+form select,
 form textarea {
-    padding: 0.5rem;
+    padding: 0.5rem 0.625rem;
     border: 1px solid var(--border-muted);
     border-radius: 8px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     background: var(--bg-surface);
     color: var(--text-color);
+    transition: border-color 0.15s;
+}
+
+form input[type="text"]:focus,
+form input[type="number"]:focus,
+form select:focus,
+form textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-muted);
+}
+
+.form-section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem 1rem;
+}
+
+.metric-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.metric-field label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    gap: 0;
+}
+
+.metric-input-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.metric-input-row input {
+    width: 72px;
+    text-align: right;
+    padding: 0.35rem 0.5rem !important;
+}
+
+.metric-input-row .unit {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.toggle-row {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.toggle-label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-weight: 500;
+    user-select: none;
+}
+
+form .toggle-label input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    cursor: pointer;
+    accent-color: var(--primary);
+    margin: 0;
+    align-self: center;
 }
 
 form textarea {
     resize: vertical;
-    min-height: 80px;
+    min-height: 120px;
 }
 
 form input[type="checkbox"] {
@@ -125,7 +223,6 @@ form button[type="submit"]:disabled {
 
 @media (max-width: 768px) {
     .dialog-content {
-        width: 90%;
         padding: 1.5rem;
     }
 }

@@ -677,7 +677,7 @@ function ModelDetailModal({ model, onClose, getDiseaseKeyFromName, resolveOwnerN
     ["models.metrics.f1", model.metrics.f1],
     ["models.metrics.recall", model.metrics.recall],
     ["models.metrics.precision", model.metrics.precision],
-  ] : [];
+  ].filter(([, v]) => v != null && !isNaN(v as number)) as [string, number][] : [];
 
   return (
     <div
@@ -736,27 +736,17 @@ function ModelDetailModal({ model, onClose, getDiseaseKeyFromName, resolveOwnerN
             </p>
           </div>
 
-          {/* All 5 metrics — 3 primary + 2 secondary */}
-          {model.metrics && (
+          {/* Performance metrics — only filled values */}
+          {allMetrics.length > 0 && (
             <div className="rounded-xl border border-[var(--border-muted)] bg-[var(--bg-surface-muted)] p-4">
               <p className="text-xs uppercase tracking-wide text-[var(--text-muted)] mb-3">{t("form.cards.model.metrics")}</p>
-              <div className="flex flex-col gap-2">
-                <div className="grid grid-cols-3 gap-2">
-                  {allMetrics.slice(0, 3).map(([key, value]) => (
-                    <div key={key} title={t(`${key}.tooltip`, "")} className="text-center rounded-lg bg-[var(--bg-surface)] border border-[var(--border-muted)] p-2 cursor-help">
-                      <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide mb-1">{t(key)}</p>
-                      <p className="text-sm font-bold text-[var(--text-color)]">{(value * 100).toFixed(1)}%</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  {allMetrics.slice(3).map(([key, value]) => (
-                    <div key={key} title={t(`${key}.tooltip`, "")} className="text-center rounded-lg bg-[var(--bg-surface)] border border-[var(--border-muted)] p-2 cursor-help">
-                      <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide mb-1">{t(key)}</p>
-                      <p className="text-sm font-bold text-[var(--text-color)]">{(value * 100).toFixed(1)}%</p>
-                    </div>
-                  ))}
-                </div>
+              <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${Math.min(allMetrics.length, 3)}, 1fr)` }}>
+                {allMetrics.map(([key, value]) => (
+                  <div key={key} title={t(`${key}.tooltip`, "")} className="text-center rounded-lg bg-[var(--bg-surface)] border border-[var(--border-muted)] p-2 cursor-help">
+                    <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide mb-1">{t(key)}</p>
+                    <p className="text-sm font-bold text-[var(--text-color)]">{(value * 100).toFixed(1)}%</p>
+                  </div>
+                ))}
               </div>
             </div>
           )}

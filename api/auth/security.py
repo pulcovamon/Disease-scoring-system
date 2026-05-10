@@ -51,7 +51,7 @@ def hash_password(password: str, salt: bytes | None = None) -> Tuple[bytes, byte
 
 
 def create_access_token(user: models.User, expiration: datetime) -> str | None:
-    to_encode = user.model_dump()
+    to_encode = user.dict()
     to_encode.update({"exp": expiration})
     to_encode["id"] = str(to_encode["id"])
     if "role" in to_encode and isinstance(to_encode["role"], Role):

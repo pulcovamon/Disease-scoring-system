@@ -37,8 +37,7 @@ export default function ModelsPage() {
   async function sendModel(
     modelToSend: Model,
     modelFileToSend: File,
-    encoderFile?: File,
-    imageFile?: File
+    encoderFile?: File
   ): Promise<boolean> {
     setUploading(true);
     setUploadState({ type: "info", message: t("models.uploading") });
@@ -46,7 +45,6 @@ export default function ModelsPage() {
     const formData = new FormData();
     formData.append("file", modelFileToSend);
     if (encoderFile) formData.append("encoder", encoderFile);
-    if (imageFile) formData.append("image", imageFile);
 
     try {
       await postFormMethod("/model", formData, {
@@ -56,10 +54,10 @@ export default function ModelsPage() {
           model_name: modelToSend.name,
           description: modelToSend.description || "",
           is_public: modelToSend.is_public,
+          ...(modelToSend.summary ? { summary: modelToSend.summary } : {}),
+          ...(modelToSend.model_type ? { model_type: modelToSend.model_type } : {}),
+          ...(modelToSend.recommended !== null ? { recommended: modelToSend.recommended } : {}),
           ...(modelToSend.algorithm ? { algorithm: modelToSend.algorithm } : {}),
-          ...(modelToSend.accuracy !== null && modelToSend.accuracy !== undefined
-            ? { accuracy: modelToSend.accuracy }
-            : {}),
         },
       });
 

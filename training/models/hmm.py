@@ -132,8 +132,43 @@ class TwoClassHMM:
         return (self.predict_proba(sequences)[:, 1] >= 0.5).astype(int)
 
     def save(self, path: str) -> None:
-        joblib.dump({"model": self, "vocab": self.vocab}, path)
+        joblib.dump({
+            "_format": "TwoClassHMM_v1",
+            "n_components": self.n_components,
+            "vocab": {
+                "code_to_id": self.vocab.code_to_id,
+                "vocab_size": self.vocab.vocab_size,
+            },
+            "hmm_pos": {
+                "startprob_": self.hmm_pos.startprob_,
+                "transmat_": self.hmm_pos.transmat_,
+                "emissionprob_": self.hmm_pos.emissionprob_,
+            },
+            "hmm_neg": {
+                "startprob_": self.hmm_neg.startprob_,
+                "transmat_": self.hmm_neg.transmat_,
+                "emissionprob_": self.hmm_neg.emissionprob_,
+            },
+        }, path)
 
     @classmethod
     def load(cls, path: str) -> "TwoClassHMM":
-        return joblib.load(path)["model"]
+        state = joblib.load(path)
+        obj = cls.__new__(cls)
+        obj.n_components = state["n_components"]
+        obj.n_iter = 0
+        obj.verbose = False
+        obj.vocab = CodeVocabulary()
+        obj.vocab.code_to_id = state["vocab"]["code_to_id"]
+        obj.vocab.vocab_size = state["vocab"]["vocab_size"]
+
+        def _build(d):
+            m = hmm.CategoricalHMM(n_components=obj.n_components)
+            m.startprob_ = d["startprob_"]
+            m.transmat_ = d["transmat_"]
+            m.emissionprob_ = d["emissionprob_"]
+            return m
+
+        obj.hmm_pos = _build(state["hmm_pos"])
+        obj.hmm_neg = _build(state["hmm_neg"])
+        return obj

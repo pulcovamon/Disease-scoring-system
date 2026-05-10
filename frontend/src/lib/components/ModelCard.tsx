@@ -7,6 +7,7 @@ import { useTranslations } from "../i18n/useTranslations"
 type ModelCardProps = {
   model: Model
   currentUser: UserProfile | null
+  ownerName?: string
   onEdit: (model: Model) => void
   onDelete: (model: Model) => void
 }
@@ -17,7 +18,7 @@ function canModify(model: Model, user: UserProfile | null): boolean {
   return model.user === user.id
 }
 
-export default function ModelCard({ model, currentUser, onEdit, onDelete }: ModelCardProps) {
+export default function ModelCard({ model, currentUser, ownerName, onEdit, onDelete }: ModelCardProps) {
   const { t } = useTranslations()
   const modifiable = canModify(model, currentUser)
 
@@ -36,7 +37,7 @@ export default function ModelCard({ model, currentUser, onEdit, onDelete }: Mode
           {model.description || (!model.summary && t("models.card.noDescription"))}
         </p>
       </div>
-      <div className="model-foot">
+      <div className="model-foot" style={{ justifyContent: "flex-start" }}>
         <span className="chip">{t(`disease.${model.disease}.name`, model.disease)}</span>
         {model.model_type && (
           <span className="chip subtle" title={t(`model.type.${model.model_type}.paradigm`, "")}>
@@ -48,16 +49,23 @@ export default function ModelCard({ model, currentUser, onEdit, onDelete }: Mode
           <span className="chip subtle">{Math.round(model.accuracy * 100)}%</span>
         )}
       </div>
-      {model.metrics && (
-        <div className="model-metrics">
-          <span>{t("models.metrics.roc_auc")}: <strong>{(model.metrics.roc_auc * 100).toFixed(1)}%</strong></span>
-          <span>{t("models.metrics.recall")}: <strong>{(model.metrics.recall * 100).toFixed(1)}%</strong></span>
-          <span>{t("models.metrics.f1")}: <strong>{(model.metrics.f1 * 100).toFixed(1)}%</strong></span>
-        </div>
-      )}
-      {model.user && (
+      {model.metrics && (() => {
+        const shown = [
+          ["roc_auc", model.metrics.roc_auc] as const,
+          ["recall", model.metrics.recall] as const,
+          ["f1", model.metrics.f1] as const,
+        ].filter(([, v]) => v != null && !isNaN(v))
+        return shown.length > 0 ? (
+          <div className="model-metrics">
+            {shown.map(([key, v]) => (
+              <span key={key}>{t(`models.metrics.${key}`)}: <strong>{(v * 100).toFixed(1)}%</strong></span>
+            ))}
+          </div>
+        ) : null
+      })()}
+      {ownerName && (
         <p className="subtle" style={{ margin: 0, fontSize: "0.8rem" }}>
-          {t("models.card.owner")}: {model.user}
+          {t("models.card.owner")}: {ownerName}
         </p>
       )}
       {modifiable && (

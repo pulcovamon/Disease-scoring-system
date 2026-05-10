@@ -1,5 +1,5 @@
 import os
-from typing import Literal, Optional
+from typing import Optional
 
 from fastapi import APIRouter, UploadFile, HTTPException, File, Depends, Query
 from fastapi.responses import JSONResponse, Response
@@ -18,21 +18,16 @@ from api.auth.dependencies import (
 )
 from api.auth.permissions import can_view_model
 
-DiseaseType = Literal[
-    "lung_cancer",
-    "multiple_sclerosis",
-    "hidradenitis_suppurativa",
-]
-
 router = APIRouter(prefix="/model", tags=["Models"])
 models_db = MongoDatabase(db_name="scoring_system", collection_name="models")
 
 
 class ModelUploadForm(BaseModel):
     model_name: str
-    disease: DiseaseType
+    disease: str
     description: str = ""
     is_public: bool = False
+    recommended: bool = False
     algorithm: Optional[str] = None
     accuracy: Optional[float] = None
     model_type: Optional[str] = None
@@ -41,10 +36,11 @@ class ModelUploadForm(BaseModel):
     @classmethod
     def as_form(
         cls,
-        disease: DiseaseType,
+        disease: str,
         model_name: str,
         description: str = "",
         is_public: bool = False,
+        recommended: bool = False,
         algorithm: Optional[str] = None,
         accuracy: Optional[float] = None,
         model_type: Optional[str] = None,
@@ -54,6 +50,7 @@ class ModelUploadForm(BaseModel):
             model_name=model_name,
             description=description,
             is_public=is_public,
+            recommended=recommended,
             disease=disease,
             algorithm=algorithm,
             accuracy=accuracy,
@@ -115,6 +112,7 @@ async def upload_model(
         "description": form.description,
         "image": image_filename,
         "is_public": form.is_public,
+        "recommended": form.recommended,
         "encoder": encoder_path,
         "algorithm": form.algorithm,
         "accuracy": form.accuracy,
@@ -125,14 +123,25 @@ async def upload_model(
 
     return {"status": "Model uploaded", "model_id": str(model_id)}
 
+class MetricsPatch(BaseModel):
+    accuracy: Optional[float] = None
+    precision: Optional[float] = None
+    recall: Optional[float] = None
+    f1: Optional[float] = None
+    roc_auc: Optional[float] = None
+
+
 class ModelPatchForm(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     summary: Optional[str] = None
     is_public: Optional[bool] = None
+    recommended: Optional[bool] = None
     algorithm: Optional[str] = None
     accuracy: Optional[float] = None
     model_type: Optional[str] = None
+    disease: Optional[str] = None
+    metrics: Optional[MetricsPatch] = None
 
 
 @router.get("/{_id}")
@@ -196,7 +205,16 @@ async def update_model(
     body: ModelPatchForm,
     ctx: dict = Depends(get_model_for_modify),
 ):
-    update_data = {k: v for k, v in body.model_dump().items() if v is not None}
+    raw = body.dict()
+    update_data = {}
+    for k, v in raw.items():
+        if v is None:
+            continue
+        if k == "metrics" and isinstance(v, dict):
+            v = {mk: mv for mk, mv in v.items() if mv is not None}
+            if not v:
+                continue
+        update_data[k] = v
     if not update_data:
         raise HTTPException(status_code=400, detail="No fields to update")
     models_db.collection.update_one(
