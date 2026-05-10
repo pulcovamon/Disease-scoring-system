@@ -4,3 +4,4 @@ matplotlib
 scikit-learn
 hmmlearn
 gensim
+pymongo
