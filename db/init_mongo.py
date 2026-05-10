@@ -111,7 +111,7 @@ models_collection = scoring_db["models"]
 
 model_definitions = [
     {
-        "filename": "rf_model.pkl",
+        "filename": "rf_model.onnx",
         "name": "Random Forest",
         "disease": "lung_cancer",
         "model_type": "random_forest",
@@ -126,9 +126,14 @@ model_definitions = [
             "f1": 0.770,
             "roc_auc": 0.904,
         },
+        "onnx_metadata": {
+            "input_name": "input",
+            "input_dtype": "string",
+            "output_name": "probabilities",
+        },
     },
     {
-        "filename": "hmm_model.pkl",
+        "filename": "hmm_model.onnx",
         "name": "Hidden Markov Model",
         "disease": "lung_cancer",
         "model_type": "hmm",
@@ -143,9 +148,14 @@ model_definitions = [
             "f1": 0.706,
             "roc_auc": 0.822,
         },
+        "onnx_metadata": {
+            "input_name": "input",
+            "input_dtype": "string",
+            "output_name": "probabilities",
+        },
     },
     {
-        "filename": "lr_model.pkl",
+        "filename": "lr_model.onnx",
         "name": "Logistic Regression",
         "disease": "lung_cancer",
         "model_type": "logistic_regression",
@@ -159,6 +169,11 @@ model_definitions = [
             "recall": 0.722,
             "f1": 0.749,
             "roc_auc": 0.900,
+        },
+        "onnx_metadata": {
+            "input_name": "input",
+            "input_dtype": "string",
+            "output_name": "probabilities",
         },
     },
 ]
@@ -176,7 +191,7 @@ for model in model_definitions:
 
         model_doc = {
             "user": default_user,
-            "path": dst_path,
+            "path": os.path.abspath(dst_path),
             "name": model["name"],
             "disease": model["disease"],
             "model_type": model.get("model_type"),
@@ -185,7 +200,9 @@ for model in model_definitions:
             "description": model["description"],
             "image": model["image"],
             "is_public": True,
+            "status": "active",
             "metrics": model.get("metrics"),
+            "onnx_metadata": model.get("onnx_metadata"),
         }
 
         if not models_collection.find_one({"path": dst_path}):

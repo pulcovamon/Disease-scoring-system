@@ -9,16 +9,16 @@ Browser (Scoring Wizard)
   ▼
 FastAPI (API)
   │  validates auth + permissions
-  │  resolves model file path
+  │  resolves model file path (absolute)
   │  send_task("run_model_prediction", ...)
   ▼
 Redis (broker)
   │  task queued
   ▼
 Celery Worker
-  │  joblib.load(model)
-  │  encode input codes → feature vector
-  │  model.predict_proba(vector)
+  │  onnxruntime.InferenceSession(model.onnx)
+  │  build input array from ICD-10 codes
+  │  session.run() → P(class=1)
   │  stores result
   ▼
 Redis (result backend)
@@ -84,7 +84,6 @@ POST /api/v1/prediction/dataset?model_id={id}     ← file upload
 ```json
 {
   "codes": ["96900", "35532", "4560"],
-  "model_type": "unordered",
   "patient": { "name": "Jan", "surname": "Novak", "id": null }
 }
 ```
@@ -101,10 +100,10 @@ The `ensure_can_run_prediction` FastAPI dependency runs before the handler:
 2. Evaluates `can_run_prediction(user, model)` — see permission table below.
 3. Returns **403** if the check fails.
 
-`resolve_model_path()` then resolves the stored relative path to an **absolute path**:
-- Tries the raw stored path first.
-- Falls back to `REPO_ROOT / raw_path`.
-- Always returns an absolute path via `.resolve()` so the path is valid regardless of which directory the Celery worker runs from.
+`resolve_model_path()` then resolves the stored path to an absolute path:
+
+- Tries the raw stored path first (will succeed for all models registered with absolute paths).
+- Falls back to `REPO_ROOT / raw_path` for any legacy relative paths.
 - Returns **404** if the file is missing on disk.
 
 ---
@@ -114,7 +113,7 @@ The `ensure_can_run_prediction` FastAPI dependency runs before the handler:
 ```python
 celery_app.send_task(
     "run_model_prediction",
-    args=[model_id, "/absolute/path/to/model.pkl", codes, encoder_path]
+    args=[model_id, "/absolute/path/to/model.onnx", codes]
 )
 ```
 
@@ -133,18 +132,14 @@ The frontend navigates to `/result?id={task_id}`.
 
 The Celery worker picks up the task from the Redis queue (`worker/tasks.py`):
 
-1. **Load model** — `joblib.load(model_path)` loads the scikit-learn model from the shared `model_storage` volume (mounted into both `api` and `worker` containers).
-2. **Load encoder** — if `encoder_path` is provided, loads a label encoder via `joblib.load`.
-3. **Build feature vector** — one of three strategies, checked in order:
-   - Encoder present: `encoder.transform([codes])`
-   - Model exposes `feature_names_in_`: binary presence vector over all known feature codes.
-   - Model exposes `features` attribute: same approach with a custom attribute.
-   - If none apply, raises `RuntimeError`.
-4. **Run inference:**
-   - `predict_proba` → returns `float` (probability of positive class at index 1).
-   - `predict` → returns `int` (class label).
+1. **Load model** — `onnxruntime.InferenceSession(model_path)` loads the `.onnx` file from the shared `model_storage` volume. Sessions are LRU-cached in memory (up to 32 models) so repeated predictions on the same model skip the disk read.
+2. **Detect model type** — `inference.py` inspects the ONNX input shape:
+   - **1-D input** (`[seq_len]`) → HMM model; codes are passed as a raw string array.
+   - **2-D input** (`[N, 1]`) → RF or LR model; codes are joined into a single space-separated string and passed as `[["J44 C34 J44"]]`.
+3. **Find probability output** — iterates `session.get_outputs()` and selects the first `float32` output, skipping the `output_label` (int64 predicted class) that sklearn-converted models emit as their first output.
+4. **Run inference** — `session.run([output_name], {input_name: data})` returns a probability array. `P(class=1)` is extracted from the result (`probas[1]` for 1-D output, `probas[0,1]` for 2-D).
 5. **Return value:**
-   - Single patient: `{ "prediction": float|int, "model_id": "..." }`
+   - Single patient: `{ "prediction": 0.78, "model_id": "..." }`
    - Batch dataset: `{ "predictions": [{"id": ..., "prediction": ...}, ...], "model_id": "..." }`
 6. Result is stored in the **Redis result backend** keyed by `task_id`.
 
@@ -154,16 +149,16 @@ The Celery worker picks up the task from the Redis queue (`worker/tasks.py`):
 
 The result page (`/result?id={task_id}`) calls on load:
 
-```
+```http
 GET /api/v1/prediction/result/{task_id}
 ```
 
 The API reads `AsyncResult(task_id, app=celery_app)` from Redis. `format_task_result()` also looks up the model document in MongoDB to attach the disease name to the response.
 
 | `status` | Meaning |
-|---|---|
+| --- | --- |
 | `PENDING` | Task is queued or not yet started |
-| `SUCCESS` | Prediction complete — `result` holds the value |
+| `SUCCESS` | Prediction complete — `result` holds `P(class=1)` as a float 0–1 |
 | `FAILURE` | Worker raised an exception — `result` holds the error detail |
 
 The result page displays the probability as a percentage for `SUCCESS`, or the error message for `FAILURE`. There is no automatic polling — the user can manually refresh via the **Refresh** button.
@@ -175,7 +170,7 @@ The result page displays the probability as a percentage for `SUCCESS`, or the e
 `can_run_prediction(user, model)` in `api/auth/permissions.py`:
 
 | Model type | Unauthenticated | Any authenticated user | Owner | Admin |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Default (`user = "default"`) | ✅ | ✅ | ✅ | ✅ |
 | Public (`is_public = true`) | ❌ | ✅ | ✅ | ✅ |
 | Private | ❌ | ❌ | ✅ | ✅ |
@@ -194,3 +189,4 @@ The result page displays the probability as a percentage for `SUCCESS`, or the e
 | API task result formatting | `api/prediction/utils.py` |
 | API permissions | `api/auth/permissions.py` |
 | Celery task | `worker/tasks.py` |
+| Worker inference engine | `worker/inference.py` |

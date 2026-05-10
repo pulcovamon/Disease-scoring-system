@@ -1,6 +1,8 @@
 import os
+import uuid
 from typing import Optional
 
+import onnx
 from fastapi import APIRouter, UploadFile, HTTPException, File, Depends, Query
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
@@ -68,16 +70,34 @@ async def upload_model(
     user: models.User = Depends(ensure_can_upload_model),
 ):
     ext = os.path.splitext(file.filename)[1].lower()
-    if ext != ".pkl":
-        raise HTTPException(status_code=422, detail="Unsupported file type. Expected .pkl file.")
+    if ext != ".onnx":
+        raise HTTPException(status_code=422, detail="Unsupported file type. Expected .onnx file.")
 
     storage_path = os.getenv("MODEL_STORAGE_PATH", "./model_storage")
     user_dir = os.path.join(storage_path, str(user.id))
     os.makedirs(user_dir, exist_ok=True)
 
-    model_path = os.path.join(user_dir, sanitize_filename(file.filename))
+    safe_name = f"{uuid.uuid4().hex}.onnx"
+    model_path = os.path.abspath(os.path.join(user_dir, safe_name))
+
+    content = await file.read()
+
+    try:
+        model_proto = onnx.load_from_string(content)
+        onnx.checker.check_model(model_proto)
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=f"Invalid ONNX model: {e}")
+
+    onnx_metadata = {}
+    if model_proto.graph.input:
+        inp = model_proto.graph.input[0]
+        onnx_metadata["input_name"] = inp.name
+        t = inp.type.tensor_type.elem_type
+        onnx_metadata["input_dtype"] = onnx.TensorProto.DataType.Name(t).lower()
+    if model_proto.graph.output:
+        onnx_metadata["output_name"] = model_proto.graph.output[0].name
+
     with open(model_path, "wb") as f:
-        content = await file.read()
         f.write(content)
 
     image_filename = None
@@ -86,21 +106,11 @@ async def upload_model(
         img_ext = os.path.splitext(image.filename)[1].lower()
         if img_ext not in [".jpg", ".jpeg", ".png", ".webp"]:
             raise HTTPException(status_code=422, detail="Unsupported image format.")
-        image_path = os.path.join(user_dir, sanitize_filename(image.filename))
+        image_path = os.path.abspath(os.path.join(user_dir, sanitize_filename(image.filename)))
         with open(image_path, "wb") as f:
             img_content = await image.read()
             f.write(img_content)
         image_filename = image_path
-
-    encoder_path = None
-    if encoder:
-        encoder_ext = os.path.splitext(encoder.filename)[1].lower()
-        if encoder_ext != ".pkl":
-            raise HTTPException(status_code=422, detail="Unsupported encoder format. Expected .pkl file.")
-        encoder_path = os.path.join(user_dir, sanitize_filename(encoder.filename))
-        with open(encoder_path, "wb") as f:
-            enc_content = await encoder.read()
-            f.write(enc_content)
 
     model_entry = {
         "user": str(user.id),
@@ -113,9 +123,10 @@ async def upload_model(
         "image": image_filename,
         "is_public": form.is_public,
         "recommended": form.recommended,
-        "encoder": encoder_path,
         "algorithm": form.algorithm,
         "accuracy": form.accuracy,
+        "onnx_metadata": onnx_metadata,
+        "status": "active",
     }
 
     result = models_db.collection.insert_one(model_entry)

@@ -11,7 +11,7 @@ const KNOWN_MODEL_TYPES = ["random_forest", "logistic_regression", "hmm"]
 
 type ModelUploadProps = {
   setSendDialogOpen: (open: boolean) => void
-  send: (modelToSend: Model, modelFile: File, encoderFile?: File) => Promise<boolean>
+  send: (modelToSend: Model, modelFile: File) => Promise<boolean>
   sending: boolean
 }
 
@@ -32,7 +32,6 @@ export default function ModelUpload({ setSendDialogOpen, send, sending }: ModelU
 
   // Files
   const [modelFile, setModelFile] = useState<File | null>(null)
-  const [encoder, setEncoder] = useState<File | null>(null)
 
   return (
     <div className="dialog">
@@ -141,24 +140,11 @@ export default function ModelUpload({ setSendDialogOpen, send, sending }: ModelU
 
             <label>
               {t("models.upload.file")}
-              <FileUploader onFileSelect={setModelFile} unallowed={false} accept=".pkl" />
+              <FileUploader onFileSelect={setModelFile} unallowed={false} accept=".onnx" />
               {modelFile && (
                 <span className="uploaded-model">
                   {modelFile.name}
                   <button type="button" onClick={() => setModelFile(null)}>
-                    <FontAwesomeIcon icon={faXmark} />
-                  </button>
-                </span>
-              )}
-            </label>
-
-            <label>
-              {t("models.upload.encoder")}
-              <FileUploader onFileSelect={setEncoder} unallowed={false} accept=".pkl" />
-              {encoder && (
-                <span className="uploaded-model">
-                  {encoder.name}
-                  <button type="button" onClick={() => setEncoder(null)}>
                     <FontAwesomeIcon icon={faXmark} />
                   </button>
                 </span>
@@ -190,7 +176,7 @@ export default function ModelUpload({ setSendDialogOpen, send, sending }: ModelU
                 metrics: null,
               }
 
-              const success = await send(modelToSend, modelFile, encoder || undefined)
+              const success = await send(modelToSend, modelFile)
               if (success) setSendDialogOpen(false)
             }}
             disabled={!modelFile || modelName.trim() === "" || sending}

@@ -45,4 +45,5 @@ nav:
   - Home: index.md
   - Architecture: architecture.md
   - Prediction Flow: prediction_flow.md
+  - Model Upload: model_upload.md
   - User Roles: user_roles.md

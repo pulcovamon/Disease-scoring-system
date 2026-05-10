@@ -36,15 +36,13 @@ export default function ModelsPage() {
 
   async function sendModel(
     modelToSend: Model,
-    modelFileToSend: File,
-    encoderFile?: File
+    modelFileToSend: File
   ): Promise<boolean> {
     setUploading(true);
     setUploadState({ type: "info", message: t("models.uploading") });
 
     const formData = new FormData();
     formData.append("file", modelFileToSend);
-    if (encoderFile) formData.append("encoder", encoderFile);
 
     try {
       await postFormMethod("/model", formData, {

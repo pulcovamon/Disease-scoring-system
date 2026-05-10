@@ -1,9 +1,4 @@
 celery==5.3.6
 redis==5.0.1
-joblib
-scikit-learn
-hmmlearn
 numpy
-pandas
-torch
-tensorflow
+onnxruntime
