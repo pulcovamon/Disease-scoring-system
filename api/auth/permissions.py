@@ -68,17 +68,18 @@ def can_view_prediction_history(requesting_user: Optional[Any], owner_id: Option
 def can_run_prediction(requesting_user: Optional[Any], model: dict) -> bool:
     if not model:
         return False
-    if not requesting_user and model.get("user") != "default":
-        return False
     if model.get("user") == "default":
         return True
+    # Public models are accessible to everyone, including unauthenticated users
+    if model.get("is_public"):
+        return True
+    if not requesting_user:
+        return False
     if is_admin(requesting_user):
         return True
-    if requesting_user and str(model.get("user")) == str(getattr(requesting_user, "id", "")):
-        return True
-    if model.get("is_public") and requesting_user:
+    if str(model.get("user")) == str(getattr(requesting_user, "id", "")):
         return True
     shared_with = model.get("shared_with") or []
-    if requesting_user and str(getattr(requesting_user, "id", "")) in [str(u) for u in shared_with]:
+    if str(getattr(requesting_user, "id", "")) in [str(u) for u in shared_with]:
         return True
     return False

@@ -35,7 +35,7 @@ export default function PatientPreview({
   patient,
   codes,
 }: {
-  patient: Patient;
+  patient: Patient | null;
   codes: string[];
 }) {
   const { t } = useTranslations();
@@ -47,22 +47,22 @@ export default function PatientPreview({
         {t("form.preview.title", "Data Preview")}
       </h4>
 
-      {/* Patient name */}
-      <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--bg-surface-muted)] border border-[var(--border-muted)]">
-        <div className="w-8 h-8 rounded-full bg-[var(--primary)] flex items-center justify-center text-white shrink-0">
-          <FontAwesomeIcon icon={faUser} className="text-xs" />
+      {patient && (
+        <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--bg-surface-muted)] border border-[var(--border-muted)]">
+          <div className="w-8 h-8 rounded-full bg-[var(--primary)] flex items-center justify-center text-white shrink-0">
+            <FontAwesomeIcon icon={faUser} className="text-xs" />
+          </div>
+          <div>
+            <p className="text-xs text-[var(--text-muted)] mb-0 leading-none">
+              {t("form.preview.patient", "Patient")}
+            </p>
+            <p className="text-sm font-semibold text-[var(--text-color)] mt-0.5 mb-0">
+              {patient.name} {patient.surname}
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="text-xs text-[var(--text-muted)] mb-0 leading-none">
-            {t("form.preview.patient", "Patient")}
-          </p>
-          <p className="text-sm font-semibold text-[var(--text-color)] mt-0.5 mb-0">
-            {patient.name} {patient.surname}
-          </p>
-        </div>
-      </div>
+      )}
 
-      {/* Codes list */}
       <div className="flex flex-col">
         <div className="flex items-center gap-2 mb-2">
           <FontAwesomeIcon icon={faTag} className="text-xs text-[var(--text-muted)]" />

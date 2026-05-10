@@ -1,21 +1,42 @@
-import { faFloppyDisk, faNotesMedical, faPen, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faFloppyDisk, faNotesMedical, faPen, faTrash, faWandMagicSparkles, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChangeEvent, useEffect, useRef, useState, KeyboardEvent } from "react";
 import { useTranslations } from "../i18n/useTranslations";
 import { useCodeSearch } from "../hooks/useCodeSearch";
 import { CodeBadge } from "./CodeBadge";
 
+// Representative code sequences sampled from the lung-cancer dataset
+const PRESETS: { labelKey: string; labelFallback: string; codes: string[] }[] = [
+  {
+    labelKey: "form.codes.preset.short",
+    labelFallback: "Short visit",
+    codes: ["89131", "09543", "42022", "89513", "09543", "42023", "89131", "09543", "42023", "89131", "09543", "42022", "89131"],
+  },
+  {
+    labelKey: "form.codes.preset.medium",
+    labelFallback: "Routine case",
+    codes: ["89125", "89713", "89725", "89312", "89131", "89119", "89123", "89127", "89143", "89513", "89514", "89515", "96163", "96863", "09133", "96163", "89119", "89131", "89513"],
+  },
+  {
+    labelKey: "form.codes.preset.complex",
+    labelFallback: "Complex case",
+    codes: ["89131", "89513", "89514", "89123", "87513", "87419", "87433", "87447", "87449", "89513", "89514", "89611", "89619", "89131", "89131", "09125", "89131", "89615", "09511", "87519", "87431", "87447", "87519", "87431", "87435", "97111", "89123"],
+  },
+];
+
 export function ClasifyForm({
   codes,
   handleAddCode,
   handleUpdateCode,
   handleRemoveCode,
+  handleLoadPreset,
   unallowed
 }: {
   codes: string[];
   handleAddCode: (code: string) => void;
   handleUpdateCode: (index: number, newCode: string) => void;
   handleRemoveCode: (index: number) => void;
+  handleLoadPreset?: (codes: string[]) => void;
   unallowed: boolean
 }) {
   const [newCode, setNewCode] = useState("");
@@ -71,12 +92,44 @@ export function ClasifyForm({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-2 text-[var(--text-color)]">
-        <FontAwesomeIcon icon={faNotesMedical} className="text-[var(--primary)]" />
-        <h4 className="text-lg font-semibold m-0">{t("form.codes.title", "Medical codes sequence")}</h4>
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2 text-[var(--text-color)]">
+          <FontAwesomeIcon icon={faNotesMedical} className="text-[var(--primary)]" />
+          <h4 className="text-lg font-semibold m-0">{t("form.codes.title", "Medical codes sequence")}</h4>
+        </div>
+        {handleLoadPreset && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
+              <FontAwesomeIcon icon={faWandMagicSparkles} className="text-[var(--primary)]" />
+              {t("form.codes.tryOut", "Try a sample:")}
+            </span>
+            {PRESETS.map((preset) => (
+              <button
+                key={preset.labelKey}
+                type="button"
+                onClick={() => handleLoadPreset(preset.codes)}
+                className="text-xs px-2.5 py-1 rounded-lg border border-[var(--border-muted)] bg-[var(--bg-surface-muted)] text-[var(--text-muted)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition"
+              >
+                {t(preset.labelKey, preset.labelFallback)}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       <div className="space-y-3">
-        <label className="text-sm text-[var(--text-muted)] font-medium">{t("form.codes.label", "Codes")}</label>
+        <div className="flex items-center justify-between gap-2">
+          <label className="text-sm text-[var(--text-muted)] font-medium">{t("form.codes.label", "Codes")}</label>
+          {codes.length > 0 && handleLoadPreset && (
+            <button
+              type="button"
+              onClick={() => handleLoadPreset([])}
+              className="flex bg-transparent items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg border border-red-300 dark:border-red-700 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/80 transition"
+            >
+              <FontAwesomeIcon icon={faTrash} />
+              {t("form.codes.clearAll", "Clear all")}
+            </button>
+          )}
+        </div>
         <div className="flex flex-wrap gap-2">
           {codes.map((code, index) => (
             <div

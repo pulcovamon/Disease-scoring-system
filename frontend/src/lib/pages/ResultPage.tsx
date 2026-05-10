@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { Results } from "../classes/result";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -10,6 +10,8 @@ import {
   faCircleNotch,
   faTriangleExclamation,
   faRotateRight,
+  faClock,
+  faLink,
 } from "@fortawesome/free-solid-svg-icons";
 import { useTranslations } from "../i18n/useTranslations";
 import { useLanguage } from "../store/language";
@@ -25,12 +27,22 @@ type Task = {
 
 export default function ResultPage() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const isGuest = searchParams.get("guest") === "1";
   const { t } = useTranslations();
   const { buildPath } = useLanguage();
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   const fetchTask = useCallback(async () => {
     if (!id) {
@@ -112,6 +124,22 @@ export default function ResultPage() {
           </span>
         )}
       </div>
+
+      {isGuest && (
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-900/20 px-4 py-3 mb-6 text-sm text-amber-800 dark:text-amber-200">
+          <FontAwesomeIcon icon={faClock} className="shrink-0 text-base" />
+          <span className="flex-1">
+            {t("result.guest.ttlNotice", "This result is accessible via this link for 24 hours. Save or copy the URL now — it will not appear in any history.")}
+          </span>
+          <button
+            onClick={copyLink}
+            className="flex text-[var(--text-color)] items-center gap-2 shrink-0 px-3 py-1.5 rounded-lg bg-amber-200 dark:bg-amber-800 hover:bg-amber-300 dark:hover:bg-amber-700 transition font-medium"
+          >
+            <FontAwesomeIcon icon={faLink} />
+            {copied ? t("result.guest.copied", "Copied!") : t("result.guest.copyLink", "Copy link")}
+          </button>
+        </div>
+      )}
 
       {loading ? (
         <LoadingSpinner />

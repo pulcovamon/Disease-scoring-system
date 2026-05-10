@@ -42,7 +42,8 @@ export class DataSender {
   public async postData() {
     return postMethod<Identificator>(
       `/prediction/${this.predictionType}?model_id=${this.modelID}`,
-      this.data
+      this.data,
+      { handleUnauthorized: false }
     )
       .then((response) => {
         console.log(response);

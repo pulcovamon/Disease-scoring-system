@@ -14,6 +14,7 @@ import {
   faGlobe,
   faLock,
   faPaperPlane,
+  faClock,
 } from "@fortawesome/free-solid-svg-icons";
 import Steps from "../components/Steps";
 import PatientPreview from "../components/PatientPreview";
@@ -26,6 +27,7 @@ import {
   WizardStep,
 } from "../store/scoringWizard";
 import { useTranslations } from "../i18n/useTranslations";
+import { useLanguage } from "../store/language";
 
 export default function ScoringSystem() {
   return (
@@ -37,6 +39,7 @@ export default function ScoringSystem() {
 
 function ScoringSystemView() {
   const navigate = useNavigate();
+  const { buildPath } = useLanguage();
   const { t } = useTranslations();
   const {
     step,
@@ -50,6 +53,7 @@ function ScoringSystemView() {
     addCode,
     updateCode,
     removeCode,
+    loadCodes,
     patient,
     setPatient,
     uploadedFile,
@@ -62,6 +66,7 @@ function ScoringSystemView() {
     selectModel,
     sending,
     submissionError,
+    isGuest,
   } = useScoringWizard();
 
   const titles = [
@@ -85,7 +90,8 @@ function ScoringSystemView() {
   const handleNextButton = async () => {
     const { taskId, error } = await nextStep();
     if (taskId) {
-      navigate(`/result?id=${taskId}`);
+      const path = buildPath(`/result/${taskId}`) + (isGuest ? "?guest=1" : "");
+      navigate(path);
     }
   };
 
@@ -94,27 +100,38 @@ function ScoringSystemView() {
       case WizardInputMethod.Manual:
         return (
           <div className="flex flex-col gap-6">
-            <div className="grid md:grid-cols-2 gap-4">
+            {!isGuest && (
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="box patient w-full">
+                  <SelectedModel
+                    model={currentModel}
+                    getDiseaseKeyFromName={getDiseaseKeyFromName}
+                  />
+                </div>
+                <div className="box patient w-full">
+                  <NewPatient
+                    patient={patient}
+                    handlePatientChange={setPatient}
+                    unallowed={unallowed}
+                  />
+                </div>
+              </div>
+            )}
+            {isGuest && (
               <div className="box patient w-full">
                 <SelectedModel
                   model={currentModel}
                   getDiseaseKeyFromName={getDiseaseKeyFromName}
                 />
               </div>
-              <div className="box patient w-full">
-                <NewPatient
-                  patient={patient}
-                  handlePatientChange={setPatient}
-                  unallowed={unallowed}
-                />
-              </div>
-            </div>
+            )}
             <div className="box code-sequence w-full">
               <ClasifyForm
                 codes={codes}
                 handleAddCode={addCode}
                 handleUpdateCode={updateCode}
                 handleRemoveCode={removeCode}
+                handleLoadPreset={loadCodes}
                 unallowed={unallowed}
               />
             </div>
@@ -167,23 +184,25 @@ function ScoringSystemView() {
       case WizardStep.SelectInputMethod:
         return (
           <div className="space-y-4">
-            <div className="inline-flex gap-2 rounded-xl border border-[var(--border-muted)] bg-[var(--bg-surface-muted)] p-1" role="tablist">
-              {[
-                { key: WizardInputMethod.Manual, label: t("form.input.manual", "Manual Input") },
-                { key: WizardInputMethod.CSV, label: t("form.input.csv", "Upload CSV") },
-              ].map((tab) => (
-                <button
-                  key={tab.key}
-                  role="tab"
-                  className={`btn text-sm ${
-                    inputMethod === tab.key ? "btn-primary shadow-sm" : "btn-secondary"
-                  }`}
-                  onClick={() => setInputMethod(tab.key)}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+            {!isGuest && (
+              <div className="inline-flex gap-2 rounded-xl border border-[var(--border-muted)] bg-[var(--bg-surface-muted)] p-1" role="tablist">
+                {[
+                  { key: WizardInputMethod.Manual, label: t("form.input.manual", "Manual Input") },
+                  { key: WizardInputMethod.CSV, label: t("form.input.csv", "Upload CSV") },
+                ].map((tab) => (
+                  <button
+                    key={tab.key}
+                    role="tab"
+                    className={`btn text-sm ${
+                      inputMethod === tab.key ? "btn-primary shadow-sm" : "btn-secondary"
+                    }`}
+                    onClick={() => setInputMethod(tab.key)}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            )}
             {renderInputMethod()}
           </div>
         );
@@ -191,6 +210,12 @@ function ScoringSystemView() {
       case WizardStep.Send:
         return (
           <div>
+            {isGuest && (
+              <div className="flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-900/20 px-4 py-3 mb-2 text-sm text-amber-800 dark:text-amber-200">
+                <FontAwesomeIcon icon={faClock} className="mt-0.5 shrink-0" />
+                <span>{t("form.guest.ttlNotice", "Your result will be accessible via a unique link for 24 hours. No account is needed to view it.")}</span>
+              </div>
+            )}
             <div className="box preview">
               <SelectedModel
                 model={currentModel}
@@ -199,7 +224,7 @@ function ScoringSystemView() {
             </div>
             <div className="box preview">
               {inputMethod === WizardInputMethod.Manual ? (
-                <PatientPreview patient={patient} codes={codes} />
+                <PatientPreview patient={isGuest ? null : patient} codes={codes} />
               ) : (
                 <CsvPreview uploadedFile={uploadedFile} />
               )}
@@ -277,7 +302,7 @@ function ModelShowcase({
     const ids = Array.from(new Set(models.map((m) => m.user).filter(Boolean) as string[]));
     if (!ids.length) return;
 
-    getMethod<{ id: string; first_name: string; last_name: string }[]>("/auth/user")
+    getMethod<{ id: string; first_name: string; last_name: string }[]>("/auth/user", undefined, { handleUnauthorized: false })
       .then((users) => {
         const map: Record<string, string> = {};
         users.forEach((u) => {

@@ -11,6 +11,7 @@ import { getMethod } from "../classes/api";
 import { Model } from "../classes/model";
 import { Patient } from "../classes/patient";
 import { DataSender } from "../classes/data";
+import { useAuth } from "./auth";
 
 export enum WizardStep {
   SelectModel = 0,
@@ -46,11 +47,13 @@ type SubmitResult = { taskId: string | null; error: string | null };
 
 type ScoringWizardContextValue = WizardState & {
   currentModel: Model | null;
+  isGuest: boolean;
   setInputMethod: (method: WizardInputMethod) => void;
   selectModel: (modelId: string) => void;
   addCode: (code: string) => void;
   updateCode: (index: number, newCode: string) => void;
   removeCode: (index: number) => void;
+  loadCodes: (codes: string[]) => void;
   setPatient: (patient: Patient) => void;
   setUploadedFile: (file: File | null) => void;
   nextStep: () => Promise<SubmitResult>;
@@ -87,6 +90,8 @@ function loadPersistedState(): PersistedWizardState {
 }
 
 export function ScoringWizardProvider({ children }: { children: ReactNode }) {
+  const { status } = useAuth();
+  const isGuest = status === "unauthenticated";
   const persisted = loadPersistedState();
 
   const [state, setState] = useState<WizardState>({
@@ -118,13 +123,14 @@ export function ScoringWizardProvider({ children }: { children: ReactNode }) {
   }, [state.step, state.currentModelId, state.inputMethod, state.codes, state.patient, state.unallowed]);
 
   useEffect(() => {
+    if (status === "loading") return;
     setState((prev) => ({ ...prev, loadingModels: true, modelsError: null }));
 
     getMethod<Model[]>("/model", {
       include_default: true,
-      include_user: true,
       include_public: true,
-    })
+      include_user: !isGuest,
+    }, { handleUnauthorized: false })
       .then((models) => {
         setState((prev) => {
           const existingId = models.find((m) => m._id === prev.currentModelId)?._id || null;
@@ -145,7 +151,7 @@ export function ScoringWizardProvider({ children }: { children: ReactNode }) {
           loadingModels: false,
         }));
       });
-  }, []);
+  }, [status]);
 
   const currentModel = useMemo(() => {
     return state.models.find((model) => model._id === state.currentModelId) || null;
@@ -191,6 +197,10 @@ export function ScoringWizardProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const loadCodes = useCallback((codes: string[]) => {
+    setState((prev) => ({ ...prev, codes, unallowed: false }));
+  }, []);
+
   const setPatient = useCallback((patient: Patient) => {
     setState((prev) => ({ ...prev, patient, unallowed: false }));
   }, []);
@@ -216,10 +226,11 @@ export function ScoringWizardProvider({ children }: { children: ReactNode }) {
   const isNextDisabled = useCallback(() => {
     if (state.step === WizardStep.SelectModel) return false;
     if (state.inputMethod === WizardInputMethod.Manual) {
+      if (isGuest) return state.codes.length === 0;
       return state.patient.name.trim() === "" || state.codes.length === 0;
     }
     return state.uploadedFile === null;
-  }, [state.codes.length, state.inputMethod, state.patient.name, state.step, state.uploadedFile]);
+  }, [isGuest, state.codes.length, state.inputMethod, state.patient.name, state.step, state.uploadedFile]);
 
   const submitPrediction = useCallback(async (): Promise<SubmitResult> => {
     if (!currentModel?._id) {
@@ -241,6 +252,14 @@ export function ScoringWizardProvider({ children }: { children: ReactNode }) {
       if (message) {
         return { taskId: null, error: message };
       }
+
+      // Clear persisted form state so reopening the form starts fresh
+      try {
+        sessionStorage.removeItem(STORAGE_KEY);
+      } catch {
+        // ignore
+      }
+      setState((prev) => ({ ...prev, ...defaultPersisted }));
 
       return { taskId: sender.id, error: null };
     } catch (error) {
@@ -272,11 +291,13 @@ export function ScoringWizardProvider({ children }: { children: ReactNode }) {
   const value: ScoringWizardContextValue = {
     ...state,
     currentModel,
+    isGuest,
     setInputMethod,
     selectModel,
     addCode,
     updateCode,
     removeCode,
+    loadCodes,
     setPatient,
     setUploadedFile,
     nextStep,
