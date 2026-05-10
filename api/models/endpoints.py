@@ -35,6 +35,8 @@ class ModelUploadForm(BaseModel):
     is_public: bool = False
     algorithm: Optional[str] = None
     accuracy: Optional[float] = None
+    model_type: Optional[str] = None
+    summary: Optional[str] = None
 
     @classmethod
     def as_form(
@@ -45,6 +47,8 @@ class ModelUploadForm(BaseModel):
         is_public: bool = False,
         algorithm: Optional[str] = None,
         accuracy: Optional[float] = None,
+        model_type: Optional[str] = None,
+        summary: Optional[str] = None,
     ):
         return cls(
             model_name=model_name,
@@ -53,6 +57,8 @@ class ModelUploadForm(BaseModel):
             disease=disease,
             algorithm=algorithm,
             accuracy=accuracy,
+            model_type=model_type,
+            summary=summary,
         )
 
 
@@ -104,6 +110,8 @@ async def upload_model(
         "path": model_path,
         "name": form.model_name,
         "disease": form.disease,
+        "model_type": form.model_type,
+        "summary": form.summary,
         "description": form.description,
         "image": image_filename,
         "is_public": form.is_public,
@@ -120,9 +128,11 @@ async def upload_model(
 class ModelPatchForm(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
+    summary: Optional[str] = None
     is_public: Optional[bool] = None
     algorithm: Optional[str] = None
     accuracy: Optional[float] = None
+    model_type: Optional[str] = None
 
 
 @router.get("/{_id}")

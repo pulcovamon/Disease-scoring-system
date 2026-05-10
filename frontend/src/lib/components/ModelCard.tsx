@@ -31,15 +31,30 @@ export default function ModelCard({ model, currentUser, onEdit, onDelete }: Mode
             {model.is_public ? t("history.visibility.public") : t("history.visibility.private")}
           </span>
         </div>
-        <p className="description">{model.description || t("models.card.noDescription")}</p>
+        {model.summary && <p className="description" style={{ fontWeight: 600, marginBottom: "2px" }}>{model.summary}</p>}
+        <p className="description" style={{ fontSize: "0.78rem", opacity: 0.75 }}>
+          {model.description || (!model.summary && t("models.card.noDescription"))}
+        </p>
       </div>
       <div className="model-foot">
-        <span className="chip">{model.disease}</span>
-        {model.algorithm && <span className="chip subtle">{model.algorithm}</span>}
+        <span className="chip">{t(`disease.${model.disease}.name`, model.disease)}</span>
+        {model.model_type && (
+          <span className="chip subtle" title={t(`model.type.${model.model_type}.paradigm`, "")}>
+            {t(`model.type.${model.model_type}`, model.model_type)}
+          </span>
+        )}
+        {!model.model_type && model.algorithm && <span className="chip subtle">{model.algorithm}</span>}
         {model.accuracy !== null && model.accuracy !== undefined && (
           <span className="chip subtle">{Math.round(model.accuracy * 100)}%</span>
         )}
       </div>
+      {model.metrics && (
+        <div className="model-metrics">
+          <span>{t("models.metrics.roc_auc")}: <strong>{(model.metrics.roc_auc * 100).toFixed(1)}%</strong></span>
+          <span>{t("models.metrics.recall")}: <strong>{(model.metrics.recall * 100).toFixed(1)}%</strong></span>
+          <span>{t("models.metrics.f1")}: <strong>{(model.metrics.f1 * 100).toFixed(1)}%</strong></span>
+        </div>
+      )}
       {model.user && (
         <p className="subtle" style={{ margin: 0, fontSize: "0.8rem" }}>
           {t("models.card.owner")}: {model.user}

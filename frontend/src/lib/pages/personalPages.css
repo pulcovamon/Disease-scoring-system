@@ -226,6 +226,14 @@
   gap: 8px;
 }
 
+.model-metrics {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
 .chip {
   background: var(--bg-surface-muted);
   color: var(--text-color);

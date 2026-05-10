@@ -111,11 +111,55 @@ models_collection = scoring_db["models"]
 
 model_definitions = [
     {
-        "filename": "random_forest_model.pkl",
+        "filename": "rf_model.pkl",
         "name": "Random Forest",
-        "disease": "lung cancer",
-        "description": "Random forest classifier with default hyperparameters.",
+        "disease": "lung_cancer",
+        "model_type": "random_forest",
+        "recommended": True,
+        "summary": "Best all-round choice for most users.",
+        "description": "A reliable all-rounder that works well out of the box. It learns which ICD-10 codes appear most often before a diagnosis and uses those patterns to make predictions. Offers the best balance between catching real cases and avoiding unnecessary alerts — a solid starting point for most users.",
         "image": None,
+        "metrics": {
+            "accuracy": 0.823,
+            "precision": 0.750,
+            "recall": 0.792,
+            "f1": 0.770,
+            "roc_auc": 0.904,
+        },
+    },
+    {
+        "filename": "hmm_model.pkl",
+        "name": "Hidden Markov Model",
+        "disease": "lung_cancer",
+        "model_type": "hmm",
+        "recommended": False,
+        "summary": "Catches the most cases — rarely lets a positive slip through.",
+        "description": "Built to miss as few cases as possible. It models the order in which codes appear over time, making it sensitive to patterns that unfold across visits. Choose this when the priority is not to overlook at-risk patients — it will flag more people for review, but very few true cases will slip through.",
+        "image": None,
+        "metrics": {
+            "accuracy": 0.738,
+            "precision": 0.610,
+            "recall": 0.839,
+            "f1": 0.706,
+            "roc_auc": 0.822,
+        },
+    },
+    {
+        "filename": "lr_model.pkl",
+        "name": "Logistic Regression",
+        "disease": "lung_cancer",
+        "model_type": "logistic_regression",
+        "recommended": False,
+        "summary": "Fewest false alarms — alerts you can act on with confidence.",
+        "description": "A straightforward, transparent model that is easy to interpret. When it raises an alert, it is correct more often than the other models. Choose this when you need to keep unnecessary follow-ups to a minimum — though it will occasionally miss cases that the other models would have caught.",
+        "image": None,
+        "metrics": {
+            "accuracy": 0.818,
+            "precision": 0.779,
+            "recall": 0.722,
+            "f1": 0.749,
+            "roc_auc": 0.900,
+        },
     },
 ]
 
@@ -135,9 +179,13 @@ for model in model_definitions:
             "path": dst_path,
             "name": model["name"],
             "disease": model["disease"],
+            "model_type": model.get("model_type"),
+            "recommended": model.get("recommended", False),
+            "summary": model.get("summary"),
             "description": model["description"],
             "image": model["image"],
-            "is_public": True
+            "is_public": True,
+            "metrics": model.get("metrics"),
         }
 
         if not models_collection.find_one({"path": dst_path}):

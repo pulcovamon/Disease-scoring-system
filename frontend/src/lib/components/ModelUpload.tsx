@@ -160,12 +160,16 @@ export default function ModelUpload({
                 path: null,
                 name: modelName.trim(),
                 disease: disease,
+                model_type: null,
+                recommended: null,
+                summary: null,
                 description: description.trim() || null,
                 image: null,
                 is_public: isPublic,
                 encoder: null,
                 algorithm: algorithm.trim() || null,
                 accuracy: accuracy !== "" ? parseFloat(accuracy) : null,
+                metrics: null,
               }
 
               const success = await send(modelToSend, modelFile, encoder || undefined, image || undefined)
