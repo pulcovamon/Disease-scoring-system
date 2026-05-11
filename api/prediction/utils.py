@@ -36,6 +36,7 @@ def format_task_result(task_id):
 
     patient = result_data.get("patient")
     codes = result_data.get("codes")
+    date_done = task.date_done.isoformat() if task.date_done else None
 
     base = {
         "task_id": str(task_id),
@@ -44,6 +45,7 @@ def format_task_result(task_id):
         "model_info": model_info,
         "patient": patient,
         "codes": codes,
+        "created_at": date_done,
     }
 
     if task.state == "PENDING":

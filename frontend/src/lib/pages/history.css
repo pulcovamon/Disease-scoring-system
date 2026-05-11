@@ -1,0 +1,277 @@
+/* ── Tabs ── */
+
+.hist-tabs {
+    display: flex;
+    gap: 2px;
+    border-bottom: 1px solid var(--border-muted);
+    margin-bottom: 20px;
+}
+
+.hist-tab {
+    padding: 9px 18px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    background: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.hist-tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+.hist-tab-count {
+    margin-left: 6px;
+    font-size: 0.78rem;
+    opacity: 0.65;
+}
+
+/* ── Controls ── */
+
+.hist-controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.hist-select {
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-muted);
+    background: var(--bg-surface);
+    color: var(--text-color);
+    font-size: 0.83rem;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+.hist-select:focus {
+    border-color: var(--primary);
+}
+
+.hist-results-count {
+    margin-left: auto;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+/* ── Card base ── */
+
+.hc-card {
+    border-radius: 14px;
+    border: 1px solid var(--border-muted);
+    background: var(--bg-surface);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.hc-card:hover {
+    border-color: var(--primary);
+}
+
+.hc-card.hc-highlight {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 25%, transparent);
+}
+
+/* ── Card header ── */
+
+.hc-header {
+    padding: 14px 16px 12px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.hc-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-color);
+    line-height: 1.3;
+}
+
+.hc-bulk-count {
+    font-weight: 400;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+}
+
+.hc-meta {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.hc-meta-sep {
+    opacity: 0.4;
+}
+
+.hc-recommended {
+    color: #ca8a04;
+    font-size: 0.72rem;
+}
+
+/* ── Status chips ── */
+
+.hc-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 0.73rem;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.hc-status.success { background: #d1fae5; color: #065f46; }
+.hc-status.failed  { background: #fee2e2; color: #991b1b; }
+.hc-status.running { background: #dbeafe; color: #1e40af; }
+
+/* ── Card body ── */
+
+.hc-body {
+    padding: 10px 16px 14px;
+    border-top: 1px solid var(--border-muted);
+    flex: 1;
+}
+
+/* Probability bar row */
+
+.hc-prob-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.hc-prob-track {
+    flex: 1;
+    height: 8px;
+    background: var(--border-muted);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.hc-prob-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s ease;
+}
+
+.hc-prob-pct {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-color);
+    width: 44px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+/* Distribution bar (bulk) */
+
+.hc-dist-bar {
+    display: flex;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    gap: 1px;
+}
+
+.hc-dist-seg {
+    height: 100%;
+}
+
+.hc-dist-counts {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.hc-dist-count {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.hc-dist-count strong {
+    font-weight: 700;
+}
+
+/* State messages */
+
+.hc-state-msg {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin: 0;
+}
+
+/* ── Card footer ── */
+
+.hc-footer {
+    padding: 10px 16px;
+    border-top: 1px solid var(--border-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hc-footer-meta {
+    font-size: 0.72rem;
+    font-family: monospace;
+    color: var(--text-muted);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hc-detail-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 8px;
+    background: var(--bg-surface-muted, rgba(0,0,0,0.05));
+    border: 1px solid var(--border-muted);
+    color: var(--text-color);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+}
+
+.hc-detail-link:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* ── Empty state ── */
+
+.hist-empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    border-radius: 12px;
+    border: 1px dashed var(--border-muted);
+}
