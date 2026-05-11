@@ -78,7 +78,7 @@ export function ClasifyForm({
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <FontAwesomeIcon icon={faNotesMedical} className="text-[var(--primary)] w-4 h-4 shrink-0" />
-          <h4 className="text-lg font-semibold m-0 leading-none text-[var(--text-color)]">{t("form.codes.title", "Medical codes sequence")}</h4>
+          <h4 className="text-lg font-semibold mb-0! leading-none text-(--text-color)">{t("form.codes.title", "Medical codes sequence")}</h4>
         </div>
         {codes.length > 0 && handleLoadPreset && (
           <button
