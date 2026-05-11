@@ -2,12 +2,21 @@ import { useState } from "react"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import FileUploader from "./FileUploader"
-import { Model } from "../classes/model"
+import { Model, ModelMetrics } from "../classes/model"
 import { DiseaseType, DiseaseInfo } from "../classes/disease"
 import { useTranslations } from "../i18n/useTranslations"
 import CreatableSelect from "./CreatableSelect"
 
 const KNOWN_MODEL_TYPES = ["random_forest", "logistic_regression", "hmm"]
+
+type MetricKey = keyof ModelMetrics
+const METRIC_KEYS: MetricKey[] = ["roc_auc", "recall", "f1", "precision", "accuracy"]
+
+function fromPercent(s: string): number | null {
+  const n = parseFloat(s)
+  if (isNaN(n)) return null
+  return Math.round(n * 100) / 10000
+}
 
 type ModelUploadProps = {
   setSendDialogOpen: (open: boolean) => void
@@ -29,6 +38,13 @@ export default function ModelUpload({ setSendDialogOpen, send, sending }: ModelU
   const [algorithm, setAlgorithm] = useState("")
   const [isPublic, setIsPublic] = useState(false)
   const [recommended, setRecommended] = useState(false)
+
+  // Performance metrics — stored as percentage strings for editing
+  const [metrics, setMetrics] = useState<Record<MetricKey, string>>({
+    roc_auc: "", recall: "", f1: "", precision: "", accuracy: "",
+  })
+  const setMetric = (key: MetricKey, val: string) =>
+    setMetrics(prev => ({ ...prev, [key]: val }))
 
   // Files
   const [modelFile, setModelFile] = useState<File | null>(null)
@@ -134,7 +150,35 @@ export default function ModelUpload({ setSendDialogOpen, send, sending }: ModelU
             </div>
           </div>
 
-          {/* ── Section 3: Files ── */}
+          {/* ── Section 3: Performance ── */}
+          <div className="form-section">
+            <span className="form-section-title">{t("models.edit.section.performance")}</span>
+            <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
+              {t("models.edit.metrics.help")}
+            </span>
+
+            <div className="metrics-grid">
+              {METRIC_KEYS.map(key => (
+                <div className="metric-field" key={key}>
+                  <label>{t(`models.metrics.${key}`)}</label>
+                  <div className="metric-input-row">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      value={metrics[key]}
+                      onChange={e => setMetric(key, e.target.value)}
+                      placeholder="—"
+                    />
+                    <span className="unit">%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Section 4: Files ── */}
           <div className="form-section">
             <span className="form-section-title">{t("models.edit.section.files")}</span>
 
@@ -158,6 +202,12 @@ export default function ModelUpload({ setSendDialogOpen, send, sending }: ModelU
               e.preventDefault()
               if (!modelFile) return
 
+              const builtMetrics: Partial<ModelMetrics> = {}
+              for (const key of METRIC_KEYS) {
+                const v = fromPercent(metrics[key])
+                if (v !== null) builtMetrics[key] = v
+              }
+
               const modelToSend: Model = {
                 _id: null,
                 user: null,
@@ -172,8 +222,8 @@ export default function ModelUpload({ setSendDialogOpen, send, sending }: ModelU
                 is_public: isPublic,
                 encoder: null,
                 algorithm: algorithm.trim() || null,
-                accuracy: null,
-                metrics: null,
+                accuracy: builtMetrics.accuracy ?? null,
+                metrics: Object.keys(builtMetrics).length > 0 ? builtMetrics as ModelMetrics : null,
               }
 
               const success = await send(modelToSend, modelFile)

@@ -56,6 +56,11 @@ export default function ModelsPage() {
           ...(modelToSend.model_type ? { model_type: modelToSend.model_type } : {}),
           ...(modelToSend.recommended !== null ? { recommended: modelToSend.recommended } : {}),
           ...(modelToSend.algorithm ? { algorithm: modelToSend.algorithm } : {}),
+          ...(modelToSend.metrics?.accuracy    != null ? { accuracy:  modelToSend.metrics.accuracy }    : {}),
+          ...(modelToSend.metrics?.precision   != null ? { precision: modelToSend.metrics.precision }   : {}),
+          ...(modelToSend.metrics?.recall      != null ? { recall:    modelToSend.metrics.recall }      : {}),
+          ...(modelToSend.metrics?.f1          != null ? { f1:        modelToSend.metrics.f1 }          : {}),
+          ...(modelToSend.metrics?.roc_auc     != null ? { roc_auc:   modelToSend.metrics.roc_auc }     : {}),
         },
       });
 

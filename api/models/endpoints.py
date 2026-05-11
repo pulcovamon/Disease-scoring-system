@@ -32,6 +32,10 @@ class ModelUploadForm(BaseModel):
     recommended: bool = False
     algorithm: Optional[str] = None
     accuracy: Optional[float] = None
+    precision: Optional[float] = None
+    recall: Optional[float] = None
+    f1: Optional[float] = None
+    roc_auc: Optional[float] = None
     model_type: Optional[str] = None
     summary: Optional[str] = None
 
@@ -45,6 +49,10 @@ class ModelUploadForm(BaseModel):
         recommended: bool = False,
         algorithm: Optional[str] = None,
         accuracy: Optional[float] = None,
+        precision: Optional[float] = None,
+        recall: Optional[float] = None,
+        f1: Optional[float] = None,
+        roc_auc: Optional[float] = None,
         model_type: Optional[str] = None,
         summary: Optional[str] = None,
     ):
@@ -56,6 +64,10 @@ class ModelUploadForm(BaseModel):
             disease=disease,
             algorithm=algorithm,
             accuracy=accuracy,
+            precision=precision,
+            recall=recall,
+            f1=f1,
+            roc_auc=roc_auc,
             model_type=model_type,
             summary=summary,
         )
@@ -112,6 +124,16 @@ async def upload_model(
             f.write(img_content)
         image_filename = image_path
 
+    metrics_entry = {
+        k: v for k, v in {
+            "accuracy": form.accuracy,
+            "precision": form.precision,
+            "recall": form.recall,
+            "f1": form.f1,
+            "roc_auc": form.roc_auc,
+        }.items() if v is not None
+    }
+
     model_entry = {
         "user": str(user.id),
         "path": model_path,
@@ -125,6 +147,7 @@ async def upload_model(
         "recommended": form.recommended,
         "algorithm": form.algorithm,
         "accuracy": form.accuracy,
+        "metrics": metrics_entry if metrics_entry else None,
         "onnx_metadata": onnx_metadata,
         "status": "active",
     }
