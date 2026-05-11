@@ -105,6 +105,15 @@
   "form.codes.label": "Codes",
   "form.codes.addPlaceholder": "Add a new code and press Enter",
   "form.codes.help": "Enter code and press Enter to add it.",
+  "form.codes.clearAll": "Clear all",
+  "form.example.title": "Try a demo case",
+  "form.example.subtitle": "Fills patient and codes — no data is saved",
+  "form.example.low.label": "Low-risk case",
+  "form.example.low.desc": "Routine checkup visits — low suspicion pattern",
+  "form.example.moderate.label": "Moderate-risk case",
+  "form.example.moderate.desc": "Mixed presentation — borderline indicators",
+  "form.example.high.label": "High-risk case",
+  "form.example.high.desc": "Dense oncology workup — high suspicion sequence",
   "history.title": "Prediction History",
   "history.subtitle": "Recent tasks with status, result and quick actions.",
   "history.error": "An error occurred while fetching results.",
@@ -355,5 +364,6 @@
   "result.bulk.risk.high": "High",
   "result.bulk.risk.moderate": "Moderate",
   "result.bulk.risk.low": "Low",
-  "result.bulk.risk.very-low": "Very Low"
+  "result.bulk.risk.very-low": "Very Low",
+  "result.example": "Example"
 }

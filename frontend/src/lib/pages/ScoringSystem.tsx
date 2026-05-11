@@ -16,6 +16,7 @@ import {
   faPaperPlane,
   faClock,
   faStar,
+  faWandMagicSparkles,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import Steps from "../components/Steps";
@@ -30,6 +31,52 @@ import {
 } from "../store/scoringWizard";
 import { useTranslations } from "../i18n/useTranslations";
 import { useLanguage } from "../store/language";
+
+const EXAMPLE_PATIENT = { id: null, name: "Demo", surname: "Patient" };
+
+const EXAMPLE_SCENARIOS: {
+  id: string;
+  labelKey: string;
+  labelFallback: string;
+  descKey: string;
+  descFallback: string;
+  risk: "low" | "moderate" | "high";
+  codes: string[];
+}[] = [
+  {
+    id: "low",
+    labelKey: "form.example.low.label",
+    labelFallback: "Low-risk case",
+    descKey: "form.example.low.desc",
+    descFallback: "Routine checkup visits — low suspicion pattern",
+    risk: "low",
+    codes: ["89131", "09543", "42022", "89513", "09543", "42023", "89131", "09543", "42023", "89131", "09543", "42022", "89131"],
+  },
+  {
+    id: "moderate",
+    labelKey: "form.example.moderate.label",
+    labelFallback: "Moderate-risk case",
+    descKey: "form.example.moderate.desc",
+    descFallback: "Mixed presentation — borderline indicators",
+    risk: "moderate",
+    codes: ["89125", "89713", "89725", "89312", "89131", "89119", "89123", "89127", "89143", "89513", "89514", "89515", "96163", "96863", "09133", "96163", "89119", "89131", "89513"],
+  },
+  {
+    id: "high",
+    labelKey: "form.example.high.label",
+    labelFallback: "High-risk case",
+    descKey: "form.example.high.desc",
+    descFallback: "Dense oncology workup — high suspicion sequence",
+    risk: "high",
+    codes: ["89131", "89513", "89514", "89123", "87513", "87419", "87433", "87447", "87449", "89513", "89514", "89611", "89619", "89131", "89131", "09125", "89131", "89615", "09511", "87519", "87431", "87447", "87519", "87431", "87435", "97111", "89123"],
+  },
+];
+
+const SCENARIO_STYLES: Record<"low" | "moderate" | "high", { badge: string; border: string; bg: string }> = {
+  low:      { badge: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200", border: "border-emerald-400 dark:border-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-900/20" },
+  moderate: { badge: "bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200",         border: "border-amber-400 dark:border-amber-500",   bg: "bg-amber-50 dark:bg-amber-900/20"   },
+  high:     { badge: "bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-200",                 border: "border-red-400 dark:border-red-600",        bg: "bg-red-50 dark:bg-red-900/20"       },
+};
 
 export default function ScoringSystem() {
   return (
@@ -56,6 +103,8 @@ function ScoringSystemView() {
     updateCode,
     removeCode,
     loadCodes,
+    loadExample,
+    exampleId,
     patient,
     setPatient,
     uploadedFile,
@@ -132,6 +181,40 @@ function ScoringSystemView() {
                 />
               </div>
             )}
+            <div className="rounded-2xl border border-[var(--border-muted)] bg-[var(--bg-surface)] p-4 flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <FontAwesomeIcon icon={faWandMagicSparkles} className="text-[var(--primary)] text-sm" />
+                <span className="text-sm font-semibold text-[var(--text-color)]">{t("form.example.title", "Try a demo case")}</span>
+                <span className="text-xs text-[var(--text-muted)]">{t("form.example.subtitle", "Fills patient and codes — no data is saved")}</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {EXAMPLE_SCENARIOS.map((scenario) => {
+                  const styles = SCENARIO_STYLES[scenario.risk];
+                  const isActive = exampleId === scenario.id;
+                  return (
+                    <button
+                      key={scenario.id}
+                      type="button"
+                      onClick={() => loadExample(scenario.codes, isGuest ? null : EXAMPLE_PATIENT, scenario.id)}
+                      className={`text-left rounded-xl border-2 p-3 transition-all flex flex-col gap-2 ${
+                        isActive
+                          ? `${styles.border} ${styles.bg}`
+                          : "border-[var(--border-muted)] bg-[var(--bg-surface-muted)] hover:border-[var(--primary)]"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${styles.badge}`}>
+                          {t(scenario.labelKey, scenario.labelFallback)}
+                        </span>
+                        <span className="text-[11px] text-[var(--text-muted)] font-mono">{scenario.codes.length} codes</span>
+                      </div>
+                      <p className="text-xs text-[var(--text-muted)] leading-snug">{t(scenario.descKey, scenario.descFallback)}</p>
+                      <p className="text-xs font-medium text-[var(--text-color)]">Demo Patient</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
             <div className="box code-sequence w-full">
               <ClasifyForm
                 codes={codes}

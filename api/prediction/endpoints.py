@@ -16,6 +16,8 @@ from pathlib import Path
 from api.worker import celery_app
 from api.prediction.utils import format_task_result, get_all_task_ids, models_db
 from api.auth.dependencies import ensure_can_run_prediction, require_admin
+from api.auth.sql_database import get_session
+from api.auth import models as auth_models
 from api.logger import Logger
 
 class PatientInput(BaseModel):
@@ -26,6 +28,7 @@ class PatientInput(BaseModel):
 class PredictionRequest(BaseModel):
     codes: List[str]
     patient: PatientInput | None = None
+    is_example: bool = False
 
 router = APIRouter(prefix="/prediction", tags=["Prediction"])
 logger = Logger()
@@ -77,13 +80,42 @@ async def predict(
     
     patient_info = None
     if data.patient:
-        patient_info = {
-            "id": data.patient.id,
-            "name": data.patient.name,
-            "surname": data.patient.surname,
-        }
+        if data.is_example:
+            patient_info = {
+                "id": None,
+                "name": data.patient.name,
+                "surname": data.patient.surname,
+            }
+        elif data.patient.id is not None:
+            patient_info = {
+                "id": data.patient.id,
+                "name": data.patient.name,
+                "surname": data.patient.surname,
+            }
+        elif data.patient.name:
+            if context["user"]:
+                with get_session() as session:
+                    new_patient = auth_models.Patient(
+                        name=data.patient.name,
+                        surname=data.patient.surname,
+                        user_id=context["user"].id,
+                    )
+                    session.add(new_patient)
+                    session.commit()
+                    session.refresh(new_patient)
+                    patient_info = {
+                        "id": new_patient.id,
+                        "name": new_patient.name,
+                        "surname": new_patient.surname,
+                    }
+            else:
+                patient_info = {
+                    "id": None,
+                    "name": data.patient.name,
+                    "surname": data.patient.surname,
+                }
 
-    task = celery_app.send_task("run_model_prediction", args=[model_id, str(model_path), data.codes, encoder_path, patient_info])
+    task = celery_app.send_task("run_model_prediction", args=[model_id, str(model_path), data.codes, encoder_path, patient_info, data.is_example])
     return JSONResponse(status_code=202, content={"task_id": task.id})
 
 @router.post("/dataset")

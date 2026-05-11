@@ -36,6 +36,7 @@ def format_task_result(task_id):
 
     patient = result_data.get("patient")
     codes = result_data.get("codes")
+    is_example = result_data.get("is_example", False)
     date_done = task.date_done.isoformat() if task.date_done else None
 
     base = {
@@ -45,6 +46,7 @@ def format_task_result(task_id):
         "model_info": model_info,
         "patient": patient,
         "codes": codes,
+        "is_example": is_example,
         "created_at": date_done,
     }
 

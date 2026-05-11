@@ -29,6 +29,8 @@ type PersistedWizardState = {
   inputMethod: WizardInputMethod;
   codes: string[];
   patient: Patient;
+  isExample: boolean;
+  exampleId: string | null;
   unallowed: boolean;
 };
 
@@ -53,6 +55,7 @@ type ScoringWizardContextValue = WizardState & {
   updateCode: (index: number, newCode: string) => void;
   removeCode: (index: number) => void;
   loadCodes: (codes: string[]) => void;
+  loadExample: (codes: string[], patient: Patient | null, id: string) => void;
   setPatient: (patient: Patient) => void;
   setUploadedFile: (file: File | null) => void;
   nextStep: () => Promise<SubmitResult>;
@@ -70,6 +73,8 @@ const defaultPersisted: PersistedWizardState = {
   inputMethod: WizardInputMethod.Manual,
   codes: [],
   patient: { id: null, name: "", surname: "" },
+  isExample: false,
+  exampleId: null,
   unallowed: false,
 };
 
@@ -112,6 +117,8 @@ export function ScoringWizardProvider({ children }: { children: ReactNode }) {
       inputMethod: state.inputMethod,
       codes: state.codes,
       patient: state.patient,
+      isExample: state.isExample,
+      exampleId: state.exampleId,
       unallowed: state.unallowed,
     };
     try {
@@ -119,7 +126,7 @@ export function ScoringWizardProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.warn("Failed to persist scoring wizard state", error);
     }
-  }, [state.step, state.currentModelId, state.inputMethod, state.codes, state.patient, state.unallowed]);
+  }, [state.step, state.currentModelId, state.inputMethod, state.codes, state.patient, state.isExample, state.exampleId, state.unallowed]);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -177,6 +184,8 @@ export function ScoringWizardProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({
       ...prev,
       codes: [...prev.codes, code],
+      isExample: false,
+      exampleId: null,
       unallowed: false,
     }));
   }, []);
@@ -185,23 +194,34 @@ export function ScoringWizardProvider({ children }: { children: ReactNode }) {
     setState((prev) => {
       const updated = [...prev.codes];
       updated[index] = newCode;
-      return { ...prev, codes: updated, unallowed: false };
+      return { ...prev, codes: updated, isExample: false, exampleId: null, unallowed: false };
     });
   }, []);
 
   const removeCode = useCallback((index: number) => {
     setState((prev) => {
       const updated = prev.codes.filter((_, idx) => idx !== index);
-      return { ...prev, codes: updated, unallowed: false };
+      return { ...prev, codes: updated, isExample: false, exampleId: null, unallowed: false };
     });
   }, []);
 
   const loadCodes = useCallback((codes: string[]) => {
-    setState((prev) => ({ ...prev, codes, unallowed: false }));
+    setState((prev) => ({ ...prev, codes, isExample: false, exampleId: null, unallowed: false }));
+  }, []);
+
+  const loadExample = useCallback((codes: string[], patient: Patient | null, id: string) => {
+    setState((prev) => ({
+      ...prev,
+      codes,
+      ...(patient ? { patient } : {}),
+      isExample: true,
+      exampleId: id,
+      unallowed: false,
+    }));
   }, []);
 
   const setPatient = useCallback((patient: Patient) => {
-    setState((prev) => ({ ...prev, patient, unallowed: false }));
+    setState((prev) => ({ ...prev, patient, isExample: false, exampleId: null, unallowed: false }));
   }, []);
 
   const setUploadedFile = useCallback((file: File | null) => {
@@ -262,6 +282,7 @@ export function ScoringWizardProvider({ children }: { children: ReactNode }) {
                   surname: state.patient.surname || null,
                 }
               : null,
+            is_example: state.isExample,
           },
           { handleUnauthorized: false, queryParams: { model_id: currentModel._id } }
         );
@@ -307,6 +328,7 @@ export function ScoringWizardProvider({ children }: { children: ReactNode }) {
     updateCode,
     removeCode,
     loadCodes,
+    loadExample,
     setPatient,
     setUploadedFile,
     nextStep,

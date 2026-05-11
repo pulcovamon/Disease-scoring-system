@@ -3,6 +3,7 @@ import { useState, useEffect, FormEvent } from "react";
 import { Patient } from "../classes/patient";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { useTranslations } from "../i18n/useTranslations";
+import { getMethod } from "../classes/api";
 
 interface NewPatientData {
   patient: Patient;
@@ -17,27 +18,18 @@ export function NewPatient({ patient, handlePatientChange, unallowed }: NewPatie
   const { t } = useTranslations();
 
   useEffect(() => {
-    const allPatients = [
-      {
-        id: "1",
-        name: "Jan",
-        surname: "Novak",
-      },
-      {
-        id: "2",
-        name: "Jana",
-        surname: "Novotna",
-      },
-    ];
-
-    setPatients([
-      {
-        id: null,
-        name: "",
-        surname: "",
-      },
-      ...allPatients,
-    ]);
+    getMethod<{ id: number; name: string; surname: string | null }[]>("/auth/patient")
+      .then((data) => {
+        const fetched: Patient[] = data.map((p) => ({
+          id: String(p.id),
+          name: p.name,
+          surname: p.surname ?? "",
+        }));
+        setPatients([{ id: null, name: "", surname: "" }, ...fetched]);
+      })
+      .catch(() => {
+        setPatients([{ id: null, name: "", surname: "" }]);
+      });
   }, []);
 
   function handleNameChange(e: FormEvent<HTMLInputElement>) {

@@ -105,6 +105,15 @@
   "form.codes.label": "Kódy",
   "form.codes.addPlaceholder": "Přidejte kód a stiskněte Enter",
   "form.codes.help": "Zadejte kód a stiskněte Enter pro přidání.",
+  "form.codes.clearAll": "Smazat vše",
+  "form.example.title": "Vyzkoušejte demo případ",
+  "form.example.subtitle": "Vyplní pacienta i kódy — žádná data se neukládají",
+  "form.example.low.label": "Nízké riziko",
+  "form.example.low.desc": "Rutinní kontrolní návštěvy — nízké podezření",
+  "form.example.moderate.label": "Střední riziko",
+  "form.example.moderate.desc": "Smíšená prezentace — hraniční ukazatele",
+  "form.example.high.label": "Vysoké riziko",
+  "form.example.high.desc": "Hustý onkologický workup — sekvence s vysokým podezřením",
   "history.title": "Historie predikcí",
   "history.subtitle": "Nedávné úlohy se stavem, výsledkem a rychlými akcemi.",
   "history.error": "Při načítání výsledků došlo k chybě.",
@@ -355,5 +364,6 @@
   "result.bulk.risk.high": "Vysoké",
   "result.bulk.risk.moderate": "Střední",
   "result.bulk.risk.low": "Nízké",
-  "result.bulk.risk.very-low": "Velmi nízké"
+  "result.bulk.risk.very-low": "Velmi nízké",
+  "result.example": "Příklad"
 }

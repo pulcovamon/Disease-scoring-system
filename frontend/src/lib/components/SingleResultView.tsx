@@ -65,6 +65,7 @@ type TaskProps = {
   model_info: ModelInfo | null
   patient: PatientInfo | null
   codes: string[] | null
+  is_example?: boolean | null
   error?: string | null
   created_at?: string | null
 }
@@ -96,6 +97,9 @@ export default function SingleResultView({ task }: { task: TaskProps }) {
       <div className={`sr-main${task.codes && task.codes.length > 0 ? "" : " sr-main-single"}`}>
         {/* Result card */}
         <div className="sr-result-card">
+          {task.is_example && (
+            <span className="sr-example-badge">{t("result.example", "Example")}</span>
+          )}
           {patientName && <div className="sr-patient-name">{patientName}</div>}
 
           {probability !== null ? (

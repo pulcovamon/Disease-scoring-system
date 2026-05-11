@@ -70,7 +70,10 @@ function HistoryCard({ task, highlight }: { task: Task; highlight: boolean }) {
     <div className={`hc-card${highlight ? " hc-highlight" : ""}`}>
       <div className="hc-header">
         <div>
-          <div className="hc-name">{patientName}</div>
+          <div className="hc-name">
+            {patientName}
+            {task.is_example && <span className="hc-example-badge">{t("result.example", "Example")}</span>}
+          </div>
           <div className="hc-meta">
             {diseaseName && <span>{diseaseName}</span>}
             {diseaseName && task.model_info?.name && <span className="hc-meta-sep">·</span>}

@@ -55,6 +55,18 @@
     width: 100%;
 }
 
+.sr-example-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    background: #e0f2fe;
+    color: #0369a1;
+    align-self: flex-start;
+}
+
 .sr-gauge-wrapper {
     position: relative;
     width: 160px;

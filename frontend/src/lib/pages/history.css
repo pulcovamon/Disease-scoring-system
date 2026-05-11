@@ -99,6 +99,22 @@
     font-weight: 700;
     color: var(--text-color);
     line-height: 1.3;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.hc-example-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    background: #e0f2fe;
+    color: #0369a1;
+    flex-shrink: 0;
 }
 
 .hc-bulk-count {

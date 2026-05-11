@@ -40,6 +40,7 @@ export interface Task {
   model_info: ModelInfo | null;
   patient: PatientInfo | null;
   codes: string[] | null;
+  is_example?: boolean | null;
   error?: string | null;
   created_at?: string | null;
 }
@@ -62,6 +63,7 @@ export class Results {
           model_info: task.model_info ?? null,
           patient: task.patient ?? null,
           codes: task.codes ?? null,
+          is_example: task.is_example ?? false,
           created_at: task.created_at ?? null,
           error: task.error ?? null,
         }));
