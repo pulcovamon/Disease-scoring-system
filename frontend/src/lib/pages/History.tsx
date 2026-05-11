@@ -266,7 +266,7 @@ export default function History() {
   }, [pool, diseaseFilter, statusFilter, sortBy]);
 
   return (
-    <div className="page-body">
+    <div className="page-body p-5">
       {loading ? (
         <LoadingSpinner />
       ) : error ? (
@@ -308,11 +308,11 @@ export default function History() {
             <>
               {/* Tabs */}
               <div className="hist-tabs">
-                <button className={`hist-tab${tab === "single" ? " active" : ""}`} onClick={() => handleTabChange("single")}>
+                <button className={`rounded-none hist-tab${tab === "single" ? " active" : ""}`} onClick={() => handleTabChange("single")}>
                   {t("history.tab.single")}
                   <span className="hist-tab-count">({singleTasks.length})</span>
                 </button>
-                <button className={`hist-tab${tab === "bulk" ? " active" : ""}`} onClick={() => handleTabChange("bulk")}>
+                <button className={`rounded-none hist-tab${tab === "bulk" ? " active" : ""}`} onClick={() => handleTabChange("bulk")}>
                   {t("history.tab.bulk")}
                   <span className="hist-tab-count">({bulkTasks.length})</span>
                 </button>

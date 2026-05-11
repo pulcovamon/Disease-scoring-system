@@ -69,9 +69,9 @@ export default function Home() {
   ];
 
   return (
-    <div className="w-full">
+    <div className="page-body">
       {/* Single unified column — hero and content share the same max-width */}
-      <div className="max-w-5xl mx-auto flex flex-col">
+      <div className="mx-auto flex flex-col">
 
         {/* Hero + Stats — gradient fills the full column width */}
         <section className="bg-gradient-to-r from-[#2b1f7a] via-[var(--primary)] to-[#0f86c9] text-white">
@@ -135,13 +135,13 @@ export default function Home() {
         </section>
 
         {/* Dashboard content — normal background, same column width as hero */}
-        <div className="bg-[var(--bg-surface)] px-6 py-6 flex flex-col gap-6">
+        <div className="px-6 py-6 flex flex-col gap-6">
 
           {/* Catalog preview + Scoring workflow */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
             {/* Catalog heatmap preview */}
-            <div className="flex flex-col gap-4 border border-[var(--border-muted)] rounded-2xl p-6 shadow-card">
+            <div className="flex flex-col gap-4 border border-[var(--border-muted)] bg-[var(--bg-surface)] rounded-2xl p-6 shadow-card">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold text-[var(--text-color)]">
                   {t("home.catalog.title", "Patient Catalog Preview")}
@@ -173,7 +173,7 @@ export default function Home() {
             </div>
 
             {/* Scoring workflow */}
-            <div className="flex flex-col gap-4 border border-[var(--border-muted)] rounded-2xl p-6 shadow-card">
+            <div className="flex flex-col gap-4 border border-[var(--border-muted)] rounded-2xl p-6 shadow-card bg-[var(--bg-surface)] ">
               <h3 className="font-semibold text-[var(--text-color)]">
                 {t("home.workflow.title", "How to Score a Patient")}
               </h3>
@@ -217,7 +217,7 @@ export default function Home() {
               <Link
                 key={card.title}
                 to={card.link}
-                className="flex flex-col gap-3 border border-[var(--border-muted)] rounded-2xl p-6 shadow-card hover:border-[var(--primary)] hover:shadow-lg transition-all group"
+                className="flex flex-col gap-3 border border-[var(--border-muted)] rounded-2xl p-6 shadow-card hover:border-[var(--primary)] hover:shadow-lg transition-all group bg-[var(--bg-surface)] "
               >
                 <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)] group-hover:bg-[var(--primary)] group-hover:text-white transition-colors">
                   <FontAwesomeIcon icon={card.icon} />
@@ -236,7 +236,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
             {/* Auth card */}
-            <div className="flex flex-col gap-4 border border-[var(--border-muted)] rounded-2xl p-6 shadow-card">
+            <div className="flex flex-col gap-4 border border-[var(--border-muted)] rounded-2xl p-6 shadow-card bg-[var(--bg-surface)] ">
               {status === "authenticated" && user ? (
                 <>
                   <div className="flex items-center gap-3">
@@ -301,7 +301,7 @@ export default function Home() {
             </div>
 
             {/* GitHub / thesis card */}
-            <div className="flex flex-col gap-4 border border-[var(--border-muted)] rounded-2xl p-6 shadow-card">
+            <div className="flex flex-col gap-4 border border-[var(--border-muted)] rounded-2xl p-6 shadow-card bg-[var(--bg-surface)] ">
               <div className="flex items-center gap-2 text-[var(--text-color)]">
                 <FontAwesomeIcon icon={faCodeBranch} className="text-[var(--primary)]" />
                 <span className="font-semibold">

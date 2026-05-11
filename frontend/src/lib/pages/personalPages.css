@@ -40,7 +40,6 @@
   border: 1px solid var(--border-muted);
   border-radius: 16px;
   padding: 18px 20px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
 }
 
 .status-banner {

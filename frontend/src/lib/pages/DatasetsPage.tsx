@@ -108,7 +108,7 @@ export default function DatasetsPage() {
 
   if (status === "loading") {
     return (
-      <div className="pagebody">
+      <div className="page-body p-5">
         <LoadingSpinner />
       </div>
     );
@@ -116,7 +116,7 @@ export default function DatasetsPage() {
   if (status === "unauthenticated") return null;
 
   return (
-    <div className="pagebody personal-page">
+    <div className="page-body p-5">
       <div className="page-hero">
         <div>
           <p className="eyebrow">{t("personal.label")}</p>

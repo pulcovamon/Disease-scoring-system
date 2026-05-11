@@ -3,8 +3,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-    --bg: #f7f7fb;
-    --bg-surface: #ffffff;
+    --bg: #ffffffb3;
+    --bg-surface: white;
     --bg-surface-muted: #f0f2f7;
     --text-color: #0f172a;
     --text-muted: #475569;
@@ -13,11 +13,13 @@
     --primary-hover: #4c38d4;
     --secondary: #0ea5e9;
     --secondary-hover: #0284c7;
+    --navbar-height: 56px;
+    --footer-height: 150px;
 }
 
 .dark {
-    --bg: #0f172a;
-    --bg-surface: #111827;
+    --bg: #00000051;
+    --bg-surface: #10141c;
     --bg-surface-muted: #1f2937;
     --text-color: #e5e7eb;
     --text-muted: #cbd5e1;
@@ -33,7 +35,6 @@ html, body {
     padding: 0;
     font-family: Avantgarde, "TeX Gyre Adventor", "URW Gothic L", sans-serif;
     color: var(--text-color);
-    background-color: var(--bg);
 }
 
 h1, h2, h3, h4 {
@@ -165,8 +166,15 @@ a {
     display: flex;
     flex-direction: column;
     gap: 0;
-    min-height: 100vh;
-    background: var(--bg);
+    min-height: 100dvh;
+    background-image: url('/assets/bg-light.jpg?v=5');
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+}
+
+.dark .homepage {
+    background-image: url('/assets/bg-dark.jpg?v=2');
 }
 
 .content {
@@ -178,7 +186,6 @@ a {
     margin: 0;
     padding: 0;
     overflow-y: auto;
-    background: var(--bg);
 }
 
 main {
@@ -186,18 +193,8 @@ main {
     min-height: 0;
     margin: 0;
     padding: 0;
-    background-color: transparent;
 }
 
-.background-image {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: inherit;
-    z-index: -1;
-    opacity: 0.15;
-}
 
 table {
     background-color: var(--bg-surface);
@@ -209,16 +206,15 @@ table {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    width: min(1200px, 100%);
+    width: 60%;
     margin: 0 auto;
-    padding: 0 16px;
 }
 
 .page-body {
     width: 100%;
-    max-width: 1100px;
-    margin: 24px auto 32px;
-    padding: 0 12px;
+    margin: 0;
+    min-height: calc(100dvh - var(--navbar-height) - var(--footer-height));
+    background: var(--bg);
 }
 
 .footer {
@@ -266,12 +262,9 @@ table {
 }
 
 .pagebody {
-    padding: 2%;
-    margin-top: 1%;
     align-items: center;
     position: relative;
     flex-grow: 1;
-    margin: 20px; 
 }
 
 .page-content {
@@ -349,30 +342,14 @@ table {
     .homepage {
         flex-direction: column;
     }
-
     .page {
-        padding: 0 12px;
+        width: 100%;
     }
 
-    .page-body {
-        padding: 0;
-        margin: 16px auto 24px;
-    }
-
-    .box {
-        margin: 24px 0;
-    }
 }
 
 @media (max-width: 768px) {
     h1 { font-size: 1.8rem; }
     h2 { font-size: 1.5rem; }
     p { font-size: 0.95rem; }
-    .pagebody {
-        padding: 16px;
-        margin: 0;
-    }
-    .page {
-        padding: 0 8px;
-    }
 }

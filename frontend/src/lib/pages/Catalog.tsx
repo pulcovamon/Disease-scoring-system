@@ -124,7 +124,8 @@ export default function Catalog() {
     ) : null;
 
   return (
-    <div className="page-body space-y-6">
+    <div className="page-body">
+      <div className="p-5 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-[var(--text-color)]">{t("catalog.title")}</h2>
@@ -174,7 +175,7 @@ export default function Catalog() {
         />
       </div>
 
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mt-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center gap-3">
           <span className="text-sm text-[var(--text-muted)]">{t("catalog.itemsPerPage")}</span>
           <select
@@ -202,6 +203,7 @@ export default function Catalog() {
           handlePageChange={handlePageChange}
           totalPages={patientId ? 1 : totalPages}
         />
+      </div>
       </div>
 
       {/* Tab Content */}
@@ -257,7 +259,7 @@ export default function Catalog() {
       )}
 
       {activeTab === 'heatmap' && patients.length > 0 && (
-        <div className="rounded-2xl border border-[var(--border-muted)] bg-[var(--bg-surface)] p-6">
+        <div className="border border-[var(--border-muted)]">
           <div className="heatmap-wrapper">
             <Heatmap 
               patients={patients} 
@@ -268,13 +270,14 @@ export default function Catalog() {
         </div>
       )}
 
-      <div className="flex flex-wrap items-center gap-3 justify-between">
-        <Pagination
-          currentPage={currentPage}
-          handlePageChange={handlePageChange}
-          totalPages={patientId ? 1 : totalPages}
-        />
-      </div>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-5">
+      <div></div>
+      <Pagination
+        currentPage={currentPage}
+        handlePageChange={handlePageChange}
+        totalPages={patientId ? 1 : totalPages}
+      />
+    </div>
     </div>
   );
 }

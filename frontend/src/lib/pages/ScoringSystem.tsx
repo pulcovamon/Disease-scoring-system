@@ -332,7 +332,7 @@ function ScoringSystemView() {
   };
 
   return (
-    <div className="page-body">
+    <div className="page-body p-5">
       <div className="navigation flex flex-col gap-4">
         <div className="flex justify-between items-center flex-wrap gap-3">
           <h2 className="text-2xl font-bold text-[var(--text-color)]">{titles[step]}</h2>
@@ -467,7 +467,7 @@ function ModelShowcase({
     <>
       {/* Row 1: available options to add */}
       {hasAvailableOptions && (
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 p-2">
           <span className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wide shrink-0">
             {t("form.filter.label", "Filter")}
           </span>

@@ -36,13 +36,17 @@ export default function ModelsPage() {
 
   async function sendModel(
     modelToSend: Model,
-    modelFileToSend: File
+    modelFileToSend: File,
+    encoderFile?: File,
+    imageFile?: File
   ): Promise<boolean> {
     setUploading(true);
     setUploadState({ type: "info", message: t("models.uploading") });
 
     const formData = new FormData();
     formData.append("file", modelFileToSend);
+    if (encoderFile) formData.append("encoder", encoderFile);
+    if (imageFile) formData.append("image", imageFile);
 
     try {
       await postFormMethod("/model", formData, {
@@ -52,15 +56,10 @@ export default function ModelsPage() {
           model_name: modelToSend.name,
           description: modelToSend.description || "",
           is_public: modelToSend.is_public,
-          ...(modelToSend.summary ? { summary: modelToSend.summary } : {}),
-          ...(modelToSend.model_type ? { model_type: modelToSend.model_type } : {}),
-          ...(modelToSend.recommended !== null ? { recommended: modelToSend.recommended } : {}),
           ...(modelToSend.algorithm ? { algorithm: modelToSend.algorithm } : {}),
-          ...(modelToSend.metrics?.accuracy    != null ? { accuracy:  modelToSend.metrics.accuracy }    : {}),
-          ...(modelToSend.metrics?.precision   != null ? { precision: modelToSend.metrics.precision }   : {}),
-          ...(modelToSend.metrics?.recall      != null ? { recall:    modelToSend.metrics.recall }      : {}),
-          ...(modelToSend.metrics?.f1          != null ? { f1:        modelToSend.metrics.f1 }          : {}),
-          ...(modelToSend.metrics?.roc_auc     != null ? { roc_auc:   modelToSend.metrics.roc_auc }     : {}),
+          ...(modelToSend.accuracy !== null && modelToSend.accuracy !== undefined
+            ? { accuracy: modelToSend.accuracy }
+            : {}),
         },
       });
 
@@ -84,7 +83,7 @@ export default function ModelsPage() {
 
   if (status === "loading") {
     return (
-      <div className="pagebody">
+      <div className="page-body p-5">
         <LoadingSpinner />
       </div>
     );
@@ -92,7 +91,7 @@ export default function ModelsPage() {
   if (status === "unauthenticated") return null;
 
   return (
-    <div className="pagebody personal-page">
+    <div className="page-body p-5">
       <div className="page-hero">
         <div>
           <p className="eyebrow">{t("personal.label")}</p>
