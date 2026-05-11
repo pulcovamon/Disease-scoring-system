@@ -49,6 +49,8 @@ export default function BulkResultView({
     .sort((a, b) => {
       const mul = sortDir === "desc" ? -1 : 1
       if (sortBy === "probability") return mul * (a.prediction - b.prediction)
+      const aNum = Number(a.id), bNum = Number(b.id)
+      if (!isNaN(aNum) && !isNaN(bNum)) return mul * (aNum - bNum)
       return mul * String(a.id).localeCompare(String(b.id))
     })
 
