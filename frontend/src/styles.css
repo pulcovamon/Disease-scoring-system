@@ -304,6 +304,47 @@ table {
     color: var(--primary-hover);
 }
 
+.template-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.download-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-muted);
+    background: var(--bg-surface);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    transition: border-color 0.15s;
+}
+
+.download-box:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.download-button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: inherit;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.download-file {
+    font-family: monospace;
+    font-size: 0.82rem;
+}
+
 @media (max-width: 1024px) {
     .homepage {
         flex-direction: column;

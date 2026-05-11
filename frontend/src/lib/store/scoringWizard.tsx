@@ -7,7 +7,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { getMethod } from "../classes/api";
+import { getMethod, postFormMethod } from "../classes/api";
 import { Model } from "../classes/model";
 import { Patient } from "../classes/patient";
 import { DataSender } from "../classes/data";
@@ -238,36 +238,38 @@ export function ScoringWizardProvider({ children }: { children: ReactNode }) {
     }
 
     setState((prev) => ({ ...prev, sending: true, submissionError: null }));
-    const sender = new DataSender(
-      state.codes,
-      currentModel._id,
-      state.inputMethod === WizardInputMethod.Manual ? "patient" : "dataset"
-    );
 
     try {
-      await sender.postData();
-      const message = sender.message || null;
-      setState((prev) => ({ ...prev, sending: false, submissionError: message }));
+      let taskId: string | null = null;
 
-      if (message) {
-        return { taskId: null, error: message };
+      if (state.inputMethod === WizardInputMethod.CSV && state.uploadedFile) {
+        const formData = new FormData();
+        formData.append("dataset", state.uploadedFile);
+        const resp = await postFormMethod<{ task_id: string }>(
+          `/prediction/dataset`,
+          formData,
+          { handleUnauthorized: false, queryParams: { model_id: currentModel._id } }
+        );
+        taskId = resp.task_id;
+      } else {
+        const sender = new DataSender(state.codes, currentModel._id, "patient");
+        await sender.postData();
+        if (sender.message) {
+          setState((prev) => ({ ...prev, sending: false, submissionError: sender.message }));
+          return { taskId: null, error: sender.message };
+        }
+        taskId = sender.id;
       }
 
-      // Clear persisted form state so reopening the form starts fresh
-      try {
-        sessionStorage.removeItem(STORAGE_KEY);
-      } catch {
-        // ignore
-      }
-      setState((prev) => ({ ...prev, ...defaultPersisted }));
-
-      return { taskId: sender.id, error: null };
+      try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
+      setState((prev) => ({ ...prev, ...defaultPersisted, sending: false }));
+      return { taskId, error: null };
     } catch (error) {
       console.error("Failed to submit prediction", error);
       setState((prev) => ({ ...prev, sending: false, submissionError: "Failed to submit prediction." }));
       return { taskId: null, error: "Failed to submit prediction." };
     }
-  }, [currentModel, state.codes, state.inputMethod]);
+  }, [currentModel, state.codes, state.inputMethod, state.uploadedFile]);
 
   const nextStep = useCallback(async (): Promise<SubmitResult> => {
     if (isNextDisabled()) {

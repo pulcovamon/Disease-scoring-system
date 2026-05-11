@@ -27,9 +27,9 @@ router = APIRouter(prefix="/prediction", tags=["Prediction"])
 logger = Logger()
 
 MODEL_DIR = "/app/models"
-TEMPLATE_DIR = os.path.join("api", "templates")
 ALLOWED_FORMATS = {"csv", "json"}
 REPO_ROOT = Path(__file__).resolve().parents[2]
+TEMPLATE_DIR = REPO_ROOT / "api" / "templates"
 
 
 def resolve_model_path(raw_path: str) -> Path | None:
@@ -131,10 +131,10 @@ def get_template(file_format: str = Query(default="csv", description="Format of 
     if file_format not in ALLOWED_FORMATS:
         raise HTTPException(status_code=400, detail="Only 'csv' and 'json' formats are supported.")
 
-    file_path = os.path.join(TEMPLATE_DIR, f"template.{file_format}")
-    if not os.path.exists(file_path):
+    file_path = TEMPLATE_DIR / f"template.{file_format}"
+    if not file_path.exists():
         raise HTTPException(status_code=404, detail="Template file not found.")
 
-    return FileResponse(file_path, filename=f"template.{file_format}", media_type="application/octet-stream")
+    return FileResponse(str(file_path), filename=f"template.{file_format}", media_type="application/octet-stream")
 
     

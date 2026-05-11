@@ -8,7 +8,24 @@ export default function CsvPreview({uploadedFile}: {uploadedFile: File|null}) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (uploadedFile !== null) {
+    if (!uploadedFile) return;
+
+    if (uploadedFile.name.endsWith(".json")) {
+      uploadedFile.text().then((text) => {
+        try {
+          const parsed = JSON.parse(text) as { id: string | number; codes: string[] }[];
+          const header = ["id", "codes"];
+          const rows = parsed.slice(0, 10).map(entry => [
+            String(entry.id),
+            Array.isArray(entry.codes) ? entry.codes.join(", ") : String(entry.codes),
+          ]);
+          setCsvData([header, ...rows]);
+          setError(null);
+        } catch {
+          setError("Invalid JSON format");
+        }
+      });
+    } else {
       Papa.parse(uploadedFile, {
         header: false,
         skipEmptyLines: true,
