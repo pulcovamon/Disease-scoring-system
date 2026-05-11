@@ -1,11 +1,20 @@
 import { getMethod } from "./api";
 import HTTPError from "./httpError";
 
-interface Task {
+export interface BulkPrediction {
+  id: string | number;
+  prediction: number;
+}
+
+export interface Task {
   status: string;
   result: number | null;
+  result_type: "single" | "bulk" | null;
+  predictions: BulkPrediction[] | null;
   task_id: string;
   disease: string | null;
+  error?: string | null;
+  created_at?: string | null;
 }
 
 export class Results {
@@ -19,6 +28,8 @@ export class Results {
         this.tasks = tasks.map((task) => ({
           status: task.status,
           result: task.result,
+          result_type: task.result_type ?? null,
+          predictions: task.predictions ?? null,
           task_id: task.task_id,
           disease: task.disease,
         }));

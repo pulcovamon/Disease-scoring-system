@@ -25,23 +25,20 @@ def format_task_result(task_id):
         if model_doc:
             disease = model_doc.get("disease")
 
+    base = {
+        "task_id": str(task_id),
+        "model_id": str(model_id) if model_id else None,
+        "disease": disease,
+    }
+
     if task.state == "PENDING":
-        return {
-                "status": "PENDING",
-                "result": None,
-                "task_id": str(task_id),
-                "model_id": str(model_id),
-                "disease": disease,
-            }
+        return {**base, "status": "PENDING", "result": None, "result_type": None, "predictions": None}
 
     if task.state == "SUCCESS":
-        return {
-                "status": "SUCCESS",
-                "result": result_data.get("prediction"),
-                "task_id": str(task_id),
-                "model_id": str(model_id),
-                "disease": disease,
-            }
+        predictions = result_data.get("predictions")
+        if predictions is not None:
+            return {**base, "status": "SUCCESS", "result": None, "result_type": "bulk", "predictions": predictions}
+        return {**base, "status": "SUCCESS", "result": result_data.get("prediction"), "result_type": "single", "predictions": None}
 
     if task.state == "FAILURE":
         try:
@@ -53,21 +50,9 @@ def format_task_result(task_id):
         except Exception:
             error_data = {"error": str(task.info)}
 
-        return {
-                "status": "FAILURE",
-                "result": error_data,
-                "task_id": str(task_id),
-                "model_id": str(model_id),
-                "disease": disease,
-            }
+        return {**base, "status": "FAILURE", "result": error_data, "result_type": None, "predictions": None}
 
-    return {
-            "status": task.status,
-            "result": task.info,
-            "task_id": str(task_id),
-            "model_id": str(model_id),
-            "disease": disease,
-        }
+    return {**base, "status": task.status, "result": task.info, "result_type": None, "predictions": None}
 
 def get_all_task_ids():
     inspect_data = celery_app.control.inspect()

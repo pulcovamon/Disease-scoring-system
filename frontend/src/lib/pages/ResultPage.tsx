@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { Results } from "../classes/result";
+import { Results, BulkPrediction } from "../classes/result";
+import "./resultPage.css";
 import LoadingSpinner from "../components/LoadingSpinner";
+import BulkResultView from "../components/BulkResultView";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowLeft,
@@ -19,6 +21,8 @@ import { useLanguage } from "../store/language";
 type Task = {
   status: string;
   result: number | null;
+  result_type: "single" | "bulk" | null;
+  predictions: BulkPrediction[] | null;
   task_id: string;
   disease: string | null;
   error?: string | null;
@@ -75,6 +79,7 @@ export default function ResultPage() {
   const isSuccess = task?.status === "SUCCESS";
   const isFail = task?.status === "FAILURE";
   const isProcessing = !isSuccess && !isFail;
+  const isBulk = isSuccess && task?.result_type === "bulk" && Array.isArray(task?.predictions);
 
   const statusChip = useMemo(() => {
     if (isSuccess) {
@@ -153,56 +158,71 @@ export default function ResultPage() {
         </div>
       ) : (
         <div className="space-y-6">
+          {/* Header row: title + status chip */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
               <h2 className="text-2xl font-bold text-[var(--text-color)]">
-                {task.disease
-                  ? t("result.titleWithDisease").replace("{disease}", task.disease)
-                  : t("result.title")}
+                {isBulk
+                  ? t("result.bulk.title")
+                  : task.disease
+                    ? t("result.titleWithDisease").replace("{disease}", task.disease)
+                    : t("result.title")}
               </h2>
-              <p className="text-[var(--text-muted)]">{t("result.subtitle")}</p>
+              <p className="text-[var(--text-muted)]">
+                {isBulk ? t("result.bulk.subtitle") : t("result.subtitle")}
+              </p>
             </div>
             {statusChip}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="relative rounded-2xl border border-[var(--border-muted)] bg-[var(--bg-surface)] p-6 overflow-hidden">
-              <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-[var(--primary)]/10 via-transparent to-[var(--secondary)]/10" />
-              <div className="relative flex flex-col gap-4">
-                <p className="text-sm uppercase tracking-wide text-[var(--text-muted)]">
-                  {t("result.probability")}
-                </p>
-                <div className="text-4xl font-bold text-[var(--text-color)]">{probabilityText}</div>
-                <p className="text-sm text-[var(--text-muted)]">
-                  {t("result.probability.description").replace(
-                    "{disease}",
-                    task.disease || t("result.disease").toLowerCase()
-                  )}
-                </p>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-[var(--border-muted)] bg-[var(--bg-surface)] p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <InfoCell label={t("result.status")} value={task.status} />
-                <InfoCell
-                  label={t("result.created")}
-                  value={task.created_at ? new Date(task.created_at).toLocaleString() : "N/A"}
-                />
-                <InfoCell label={t("result.taskId")} value={task.task_id} />
-                <InfoCell label={t("result.disease")} value={task.disease || "N/A"} />
-              </div>
-              {isFail && (
-                <div className="rounded-xl border border-[var(--border-muted)] bg-red-50 dark:bg-red-900/20 p-3">
-                  <p className="text-xs text-[var(--text-muted)] mb-1">{t("history.failureReason")}</p>
-                  <p className="text-[var(--text-color)] text-sm">
-                    {task.error || t("result.failure.noDetails")}
+          {isBulk ? (
+            /* ── Bulk result view ── */
+            <BulkResultView
+              predictions={task.predictions!}
+              disease={task.disease}
+            />
+          ) : (
+            /* ── Single result view ── */
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="relative rounded-2xl border border-[var(--border-muted)] bg-[var(--bg-surface)] p-6 overflow-hidden">
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-[var(--primary)]/10 via-transparent to-[var(--secondary)]/10" />
+                <div className="relative flex flex-col gap-4">
+                  <p className="text-sm uppercase tracking-wide text-[var(--text-muted)]">
+                    {t("result.probability")}
+                  </p>
+                  <div className="text-4xl font-bold text-[var(--text-color)]">{probabilityText}</div>
+                  <p className="text-sm text-[var(--text-muted)]">
+                    {t("result.probability.description").replace(
+                      "{disease}",
+                      task.disease || t("result.disease").toLowerCase()
+                    )}
                   </p>
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
 
+              <div className="rounded-2xl border border-[var(--border-muted)] bg-[var(--bg-surface)] p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <InfoCell label={t("result.status")} value={task.status} />
+                  <InfoCell
+                    label={t("result.created")}
+                    value={task.created_at ? new Date(task.created_at).toLocaleString() : "N/A"}
+                  />
+                  <InfoCell label={t("result.taskId")} value={task.task_id} />
+                  <InfoCell label={t("result.disease")} value={task.disease || "N/A"} />
+                </div>
+                {isFail && (
+                  <div className="rounded-xl border border-[var(--border-muted)] bg-red-50 dark:bg-red-900/20 p-3">
+                    <p className="text-xs text-[var(--text-muted)] mb-1">{t("history.failureReason")}</p>
+                    <p className="text-[var(--text-color)] text-sm">
+                      {task.error || t("result.failure.noDetails")}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Action buttons */}
           <div className="flex flex-wrap items-center gap-3">
             <Link
               to={buildPath("/score")}

@@ -13,3 +13,276 @@
 .note {
     font-size: 18px;
 }
+
+/* ── Bulk result view ── */
+
+.bulk-view {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.bulk-summary {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.bulk-stat {
+    flex: 1;
+    min-width: 110px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border-muted);
+    background: var(--bg-surface);
+}
+
+.bulk-stat-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+
+.bulk-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.bulk-stat-value.high  { color: #dc2626; }
+.bulk-stat-value.medium { color: #ca8a04; }
+.bulk-stat-value.low   { color: #16a34a; }
+
+/* Chart */
+
+.bulk-chart-section {
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border-muted);
+    background: var(--bg-surface);
+}
+
+.bulk-chart-wrapper {
+    position: relative;
+    height: 200px;
+    margin-top: 12px;
+}
+
+.bulk-threshold-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    border-top: 1px dashed var(--border-muted);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.bulk-threshold-label {
+    position: absolute;
+    right: 4px;
+    top: calc(50% - 14px);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+.bulk-chart-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 100%;
+    overflow-x: auto;
+    padding-bottom: 2px;
+}
+
+.bulk-bar-col {
+    flex: 1;
+    min-width: 8px;
+    max-width: 40px;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    cursor: pointer;
+}
+
+.bulk-bar-col:hover .bulk-bar {
+    filter: brightness(1.2);
+}
+
+.bulk-bar-col.selected-col .bulk-bar {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.bulk-bar {
+    width: 100%;
+    border-radius: 3px 3px 0 0;
+    min-height: 3px;
+    transition: filter 0.1s;
+}
+
+.bulk-bar.risk-high   { background: #dc2626; }
+.bulk-bar.risk-medium { background: #ca8a04; }
+.bulk-bar.risk-low    { background: #16a34a; }
+
+.bulk-chart-note {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+    text-align: right;
+}
+
+/* Selected patient detail */
+
+.bulk-selected {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 2px solid var(--primary);
+    background: var(--bg-surface);
+}
+
+.bulk-selected-placeholder {
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px dashed var(--border-muted);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.bulk-selected-id {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.bulk-selected-id strong {
+    color: var(--text-color);
+    font-size: 1.05rem;
+}
+
+.bulk-selected-prob {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--text-color);
+    line-height: 1;
+}
+
+/* Risk badges */
+
+.risk-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.risk-badge.risk-high   { background: #fee2e2; color: #991b1b; }
+.risk-badge.risk-medium { background: #fef3c7; color: #92400e; }
+.risk-badge.risk-low    { background: #dcfce7; color: #14532d; }
+
+/* Filter buttons */
+
+.bulk-filter-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.bulk-filter-btn {
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border-muted);
+    background: transparent;
+    font-size: 0.82rem;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: border-color 0.15s, color 0.15s;
+}
+
+.bulk-filter-btn:hover,
+.bulk-filter-btn.active {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Table */
+
+.bulk-table-section {
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border-muted);
+    background: var(--bg-surface);
+}
+
+.bulk-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+}
+
+.bulk-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-muted);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.bulk-table th:hover {
+    color: var(--primary);
+}
+
+.bulk-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-muted);
+    vertical-align: middle;
+    color: var(--text-color);
+}
+
+.bulk-table tr {
+    cursor: pointer;
+}
+
+.bulk-table tbody tr:hover td {
+    background: var(--bg-surface-muted, rgba(0,0,0,0.03));
+}
+
+.bulk-table tbody tr.selected-row td {
+    background: color-mix(in srgb, var(--primary) 8%, transparent);
+}
+
+.prob-bar-container {
+    display: inline-block;
+    width: 72px;
+    height: 6px;
+    background: var(--border-muted);
+    border-radius: 3px;
+    overflow: hidden;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+
+.prob-bar {
+    display: block;
+    height: 100%;
+    border-radius: 3px;
+}
+
+.prob-bar.risk-high   { background: #dc2626; }
+.prob-bar.risk-medium { background: #ca8a04; }
+.prob-bar.risk-low    { background: #16a34a; }
