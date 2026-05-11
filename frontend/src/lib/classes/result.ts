@@ -62,6 +62,8 @@ export class Results {
           model_info: task.model_info ?? null,
           patient: task.patient ?? null,
           codes: task.codes ?? null,
+          created_at: task.created_at ?? null,
+          error: task.error ?? null,
         }));
       })
       .catch((error) => {
