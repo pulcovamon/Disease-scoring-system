@@ -319,6 +319,7 @@
   "models.metrics.recall.tooltip": "Kolik skutečně pozitivních případů model úspěšně zachytí. Vysoká citlivost znamená méně přehlédnutých diagnóz.",
   "models.metrics.f1.tooltip": "Skóre kombinující preciznost a citlivost. Vhodné, když je důležité obojí — zachytit případy i minimalizovat falešné poplachy.",
   "models.metrics.roc_auc.tooltip": "Jak dobře model rozlišuje pozitivní a negativní případy napříč všemi prahovými hodnotami. 1,0 je dokonalý výsledek, 0,5 odpovídá náhodnému hádání.",
+  "result.model.unknown": "Neznámý model",
   "result.bulk.title": "Výsledky hromadné predikce",
   "result.bulk.subtitle": "Rozložení rizika napříč všemi odeslanými pacienty.",
   "result.bulk.total": "Celkem pacientů",

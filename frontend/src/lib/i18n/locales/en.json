@@ -319,6 +319,7 @@
   "models.metrics.recall.tooltip": "How many of the real positive cases the model successfully catches. High recall means fewer missed diagnoses.",
   "models.metrics.f1.tooltip": "A single score that balances precision and recall. Useful when you care equally about catching cases and avoiding false alarms.",
   "models.metrics.roc_auc.tooltip": "How well the model separates positive from negative cases across all possible thresholds. 1.0 is perfect, 0.5 is no better than random guessing.",
+  "result.model.unknown": "Unknown model",
   "result.bulk.title": "Bulk Prediction Results",
   "result.bulk.subtitle": "Risk distribution across all submitted patients.",
   "result.bulk.total": "Total patients",

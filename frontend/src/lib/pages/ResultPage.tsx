@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { Results, BulkPrediction } from "../classes/result";
+import { Results, BulkPrediction, ModelInfo } from "../classes/result";
 import "./resultPage.css";
 import LoadingSpinner from "../components/LoadingSpinner";
 import BulkResultView from "../components/BulkResultView";
+import ModelInfoCard from "../components/ModelInfoCard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowLeft,
@@ -25,6 +26,7 @@ type Task = {
   predictions: BulkPrediction[] | null;
   task_id: string;
   disease: string | null;
+  model_info: ModelInfo | null;
   error?: string | null;
   created_at?: string | null;
 };
@@ -180,46 +182,52 @@ export default function ResultPage() {
             <BulkResultView
               predictions={task.predictions!}
               disease={task.disease}
+              modelInfo={task.model_info}
             />
           ) : (
             /* ── Single result view ── */
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div className="relative rounded-2xl border border-[var(--border-muted)] bg-[var(--bg-surface)] p-6 overflow-hidden">
-                <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-[var(--primary)]/10 via-transparent to-[var(--secondary)]/10" />
-                <div className="relative flex flex-col gap-4">
-                  <p className="text-sm uppercase tracking-wide text-[var(--text-muted)]">
-                    {t("result.probability")}
-                  </p>
-                  <div className="text-4xl font-bold text-[var(--text-color)]">{probabilityText}</div>
-                  <p className="text-sm text-[var(--text-muted)]">
-                    {t("result.probability.description").replace(
-                      "{disease}",
-                      task.disease || t("result.disease").toLowerCase()
-                    )}
-                  </p>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-[var(--border-muted)] bg-[var(--bg-surface)] p-6 space-y-4">
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <InfoCell label={t("result.status")} value={task.status} />
-                  <InfoCell
-                    label={t("result.created")}
-                    value={task.created_at ? new Date(task.created_at).toLocaleString() : "N/A"}
-                  />
-                  <InfoCell label={t("result.taskId")} value={task.task_id} />
-                  <InfoCell label={t("result.disease")} value={task.disease || "N/A"} />
-                </div>
-                {isFail && (
-                  <div className="rounded-xl border border-[var(--border-muted)] bg-red-50 dark:bg-red-900/20 p-3">
-                    <p className="text-xs text-[var(--text-muted)] mb-1">{t("history.failureReason")}</p>
-                    <p className="text-[var(--text-color)] text-sm">
-                      {task.error || t("result.failure.noDetails")}
+            <>
+              {task.model_info && (
+                <ModelInfoCard modelInfo={task.model_info} disease={task.disease} />
+              )}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="relative rounded-2xl border border-[var(--border-muted)] bg-[var(--bg-surface)] p-6 overflow-hidden">
+                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-[var(--primary)]/10 via-transparent to-[var(--secondary)]/10" />
+                  <div className="relative flex flex-col gap-4">
+                    <p className="text-sm uppercase tracking-wide text-[var(--text-muted)]">
+                      {t("result.probability")}
+                    </p>
+                    <div className="text-4xl font-bold text-[var(--text-color)]">{probabilityText}</div>
+                    <p className="text-sm text-[var(--text-muted)]">
+                      {t("result.probability.description").replace(
+                        "{disease}",
+                        task.disease || t("result.disease").toLowerCase()
+                      )}
                     </p>
                   </div>
-                )}
+                </div>
+
+                <div className="rounded-2xl border border-[var(--border-muted)] bg-[var(--bg-surface)] p-6 space-y-4">
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <InfoCell label={t("result.status")} value={task.status} />
+                    <InfoCell
+                      label={t("result.created")}
+                      value={task.created_at ? new Date(task.created_at).toLocaleString() : "N/A"}
+                    />
+                    <InfoCell label={t("result.taskId")} value={task.task_id} />
+                    <InfoCell label={t("result.disease")} value={task.disease || "N/A"} />
+                  </div>
+                  {isFail && (
+                    <div className="rounded-xl border border-[var(--border-muted)] bg-red-50 dark:bg-red-900/20 p-3">
+                      <p className="text-xs text-[var(--text-muted)] mb-1">{t("history.failureReason")}</p>
+                      <p className="text-[var(--text-color)] text-sm">
+                        {task.error || t("result.failure.noDetails")}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            </>
           )}
 
           {/* Action buttons */}

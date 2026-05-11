@@ -15,6 +15,7 @@ def format_task_result(task_id):
 
     model_id = result_data.get("model_id")
     disease = None
+    model_info = None
 
     if model_id:
         try:
@@ -24,11 +25,20 @@ def format_task_result(task_id):
         model_doc = models_db.collection.find_one({"_id": object_id})
         if model_doc:
             disease = model_doc.get("disease")
+            model_info = {
+                "name": model_doc.get("name"),
+                "model_type": model_doc.get("model_type"),
+                "algorithm": model_doc.get("algorithm"),
+                "summary": model_doc.get("summary"),
+                "recommended": model_doc.get("recommended", False),
+                "metrics": model_doc.get("metrics"),
+            }
 
     base = {
         "task_id": str(task_id),
         "model_id": str(model_id) if model_id else None,
         "disease": disease,
+        "model_info": model_info,
     }
 
     if task.state == "PENDING":

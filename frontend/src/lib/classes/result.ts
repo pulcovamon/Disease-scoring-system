@@ -7,6 +7,23 @@ export interface BulkPrediction {
   codes?: string[];
 }
 
+export interface ModelMetrics {
+  accuracy?: number | null;
+  precision?: number | null;
+  recall?: number | null;
+  f1?: number | null;
+  roc_auc?: number | null;
+}
+
+export interface ModelInfo {
+  name: string | null;
+  model_type: string | null;
+  algorithm: string | null;
+  summary: string | null;
+  recommended: boolean;
+  metrics: ModelMetrics | null;
+}
+
 export interface Task {
   status: string;
   result: number | null;
@@ -14,6 +31,7 @@ export interface Task {
   predictions: BulkPrediction[] | null;
   task_id: string;
   disease: string | null;
+  model_info: ModelInfo | null;
   error?: string | null;
   created_at?: string | null;
 }
@@ -33,6 +51,7 @@ export class Results {
           predictions: task.predictions ?? null,
           task_id: task.task_id,
           disease: task.disease,
+          model_info: task.model_info ?? null,
         }));
       })
       .catch((error) => {

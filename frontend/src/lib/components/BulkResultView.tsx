@@ -2,7 +2,8 @@ import { useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faChevronUp, faChevronDown } from "@fortawesome/free-solid-svg-icons"
 import { useTranslations } from "../i18n/useTranslations"
-import { BulkPrediction } from "../classes/result"
+import { BulkPrediction, ModelInfo } from "../classes/result"
+import ModelInfoCard from "./ModelInfoCard"
 
 type RiskLevel = "high" | "medium" | "low"
 type FilterType = "all" | RiskLevel
@@ -17,9 +18,11 @@ function getRisk(p: number): RiskLevel {
 export default function BulkResultView({
   predictions,
   disease,
+  modelInfo,
 }: {
   predictions: BulkPrediction[]
   disease: string | null
+  modelInfo: ModelInfo | null
 }) {
   const { t } = useTranslations()
   const [selected, setSelected] = useState<string | null>(null)
@@ -67,6 +70,9 @@ export default function BulkResultView({
 
   return (
     <div className="bulk-view">
+
+      {/* ── Model info card ── */}
+      {modelInfo && <ModelInfoCard modelInfo={modelInfo} disease={disease} />}
 
       {/* ── Summary strip ── */}
       <div className="bulk-summary">
