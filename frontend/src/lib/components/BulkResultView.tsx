@@ -5,14 +5,18 @@ import { useTranslations } from "../i18n/useTranslations"
 import { BulkPrediction, ModelInfo } from "../classes/result"
 import ModelInfoCard from "./ModelInfoCard"
 
-type RiskLevel = "high" | "medium" | "low"
+type RiskLevel = "very-high" | "high" | "moderate" | "low" | "very-low"
 type FilterType = "all" | RiskLevel
 type SortBy = "probability" | "id"
 
 const CHART_MAX = 60
 
 function getRisk(p: number): RiskLevel {
-  return p > 0.7 ? "high" : p >= 0.3 ? "medium" : "low"
+  if (p > 0.8) return "very-high"
+  if (p > 0.6) return "high"
+  if (p > 0.4) return "moderate"
+  if (p > 0.2) return "low"
+  return "very-low"
 }
 
 export default function BulkResultView({
@@ -33,9 +37,11 @@ export default function BulkResultView({
   const sortedByProb = [...predictions].sort((a, b) => b.prediction - a.prediction)
   const chartItems = sortedByProb.slice(0, CHART_MAX)
 
-  const high = predictions.filter(p => p.prediction > 0.7).length
-  const medium = predictions.filter(p => p.prediction >= 0.3 && p.prediction <= 0.7).length
-  const low = predictions.filter(p => p.prediction < 0.3).length
+  const veryHigh = predictions.filter(p => p.prediction > 0.8).length
+  const high     = predictions.filter(p => p.prediction > 0.6 && p.prediction <= 0.8).length
+  const moderate = predictions.filter(p => p.prediction > 0.4 && p.prediction <= 0.6).length
+  const low      = predictions.filter(p => p.prediction > 0.2 && p.prediction <= 0.4).length
+  const veryLow  = predictions.filter(p => p.prediction <= 0.2).length
   const avg = predictions.length
     ? predictions.reduce((s, p) => s + p.prediction, 0) / predictions.length
     : 0
@@ -60,9 +66,11 @@ export default function BulkResultView({
   }
 
   const riskLabel = (r: RiskLevel) => {
-    if (r === "high") return t("result.bulk.risk.high")
-    if (r === "medium") return t("result.bulk.risk.medium")
-    return t("result.bulk.risk.low")
+    if (r === "very-high") return t("result.bulk.risk.very-high")
+    if (r === "high")      return t("result.bulk.risk.high")
+    if (r === "moderate")  return t("result.bulk.risk.moderate")
+    if (r === "low")       return t("result.bulk.risk.low")
+    return t("result.bulk.risk.very-low")
   }
 
   const SortIcon = ({ col }: { col: SortBy }) => {
@@ -83,16 +91,24 @@ export default function BulkResultView({
           <div className="bulk-stat-value">{predictions.length}</div>
         </div>
         <div className="bulk-stat">
-          <div className="bulk-stat-label">{t("result.bulk.high")}</div>
+          <div className="bulk-stat-label">{t("result.bulk.risk.very-high")}</div>
+          <div className="bulk-stat-value very-high">{veryHigh}</div>
+        </div>
+        <div className="bulk-stat">
+          <div className="bulk-stat-label">{t("result.bulk.risk.high")}</div>
           <div className="bulk-stat-value high">{high}</div>
         </div>
         <div className="bulk-stat">
-          <div className="bulk-stat-label">{t("result.bulk.medium")}</div>
-          <div className="bulk-stat-value medium">{medium}</div>
+          <div className="bulk-stat-label">{t("result.bulk.risk.moderate")}</div>
+          <div className="bulk-stat-value moderate">{moderate}</div>
         </div>
         <div className="bulk-stat">
-          <div className="bulk-stat-label">{t("result.bulk.low")}</div>
+          <div className="bulk-stat-label">{t("result.bulk.risk.low")}</div>
           <div className="bulk-stat-value low">{low}</div>
+        </div>
+        <div className="bulk-stat">
+          <div className="bulk-stat-label">{t("result.bulk.risk.very-low")}</div>
+          <div className="bulk-stat-value very-low">{veryLow}</div>
         </div>
         <div className="bulk-stat">
           <div className="bulk-stat-label">{t("result.bulk.avg")}</div>
@@ -182,20 +198,21 @@ export default function BulkResultView({
       {/* ── Table ── */}
       <div className="bulk-table-section">
         <div className="bulk-filter-row">
-          {(["all", "high", "medium", "low"] as FilterType[]).map(f => (
-            <button
-              key={f}
-              className={`bulk-filter-btn${filter === f ? " active" : ""}`}
-              onClick={() => setFilter(f)}
-            >
-              {f === "all" ? t("result.bulk.filter.all") : riskLabel(f as RiskLevel)}
-              {f !== "all" && (
-                <span style={{ marginLeft: 5, opacity: 0.65, fontSize: "0.8em" }}>
-                  ({f === "high" ? high : f === "medium" ? medium : low})
-                </span>
-              )}
-            </button>
-          ))}
+          {(["all", "very-high", "high", "moderate", "low", "very-low"] as FilterType[]).map(f => {
+            const count = f === "very-high" ? veryHigh : f === "high" ? high : f === "moderate" ? moderate : f === "low" ? low : f === "very-low" ? veryLow : null
+            return (
+              <button
+                key={f}
+                className={`bulk-filter-btn${filter === f ? " active" : ""}`}
+                onClick={() => setFilter(f)}
+              >
+                {f === "all" ? t("result.bulk.filter.all") : riskLabel(f as RiskLevel)}
+                {count !== null && (
+                  <span style={{ marginLeft: 5, opacity: 0.65, fontSize: "0.8em" }}>({count})</span>
+                )}
+              </button>
+            )
+          })}
         </div>
         <table className="bulk-table">
           <thead>

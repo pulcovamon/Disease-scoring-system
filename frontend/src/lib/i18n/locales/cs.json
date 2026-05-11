@@ -339,7 +339,9 @@
   "result.bulk.table.id": "ID pacienta",
   "result.bulk.table.probability": "Pravděpodobnost",
   "result.bulk.table.risk": "Riziko",
+  "result.bulk.risk.very-high": "Velmi vysoké",
   "result.bulk.risk.high": "Vysoké",
-  "result.bulk.risk.medium": "Střední",
-  "result.bulk.risk.low": "Nízké"
+  "result.bulk.risk.moderate": "Střední",
+  "result.bulk.risk.low": "Nízké",
+  "result.bulk.risk.very-low": "Velmi nízké"
 }

@@ -339,7 +339,9 @@
   "result.bulk.table.id": "Patient ID",
   "result.bulk.table.probability": "Probability",
   "result.bulk.table.risk": "Risk",
+  "result.bulk.risk.very-high": "Very High",
   "result.bulk.risk.high": "High",
-  "result.bulk.risk.medium": "Medium",
-  "result.bulk.risk.low": "Low"
+  "result.bulk.risk.moderate": "Moderate",
+  "result.bulk.risk.low": "Low",
+  "result.bulk.risk.very-low": "Very Low"
 }
