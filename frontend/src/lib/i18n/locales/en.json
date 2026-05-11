@@ -104,7 +104,7 @@
   "form.codes.title": "Medical codes sequence",
   "form.codes.label": "Codes",
   "form.codes.addPlaceholder": "Add a new code and press Enter",
-  "form.codes.help": "Enter code and press Enter to add it.",
+  "form.codes.help": "Type a code, Czech procedure name, or medical specialty — suggestions appear automatically. Press Enter to add.",
   "form.codes.clearAll": "Clear all",
   "form.example.title": "Try a demo case",
   "form.example.subtitle": "Fills patient and codes — no data is saved",

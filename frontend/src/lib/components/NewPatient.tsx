@@ -57,10 +57,10 @@ export function NewPatient({ patient, handlePatientChange, unallowed }: NewPatie
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-2 text-[var(--text-color)]">
-        <FontAwesomeIcon icon={faUser} className="text-[var(--primary)]" />
-        <h4 className="text-lg font-semibold m-0">{t("form.patient.title", "Patient")}</h4>
+    <div className="flex flex-col gap-4 w-full">
+      <div className="flex items-center gap-2">
+        <FontAwesomeIcon icon={faUser} className="text-[var(--primary)] w-4 h-4 shrink-0" />
+        <h4 className="text-lg font-semibold m-0 leading-none text-[var(--text-color)]">{t("form.patient.title", "Patient")}</h4>
       </div>
 
       <div className="space-y-3">

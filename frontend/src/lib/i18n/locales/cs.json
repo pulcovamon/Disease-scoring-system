@@ -104,7 +104,7 @@
   "form.codes.title": "Sekvence kódů",
   "form.codes.label": "Kódy",
   "form.codes.addPlaceholder": "Přidejte kód a stiskněte Enter",
-  "form.codes.help": "Zadejte kód a stiskněte Enter pro přidání.",
+  "form.codes.help": "Zadejte kód, český název výkonu nebo odbornost — návrhy se zobrazí automaticky. Stiskněte Enter pro přidání.",
   "form.codes.clearAll": "Smazat vše",
   "form.example.title": "Vyzkoušejte demo případ",
   "form.example.subtitle": "Vyplní pacienta i kódy — žádná data se neukládají",

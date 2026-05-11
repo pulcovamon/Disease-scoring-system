@@ -29,7 +29,9 @@ export function ClasifyForm({
   const { results, loading, error, hasQuery } = useCodeSearch(newCode, { debounceMs: 150, limit: 20 });
 
   function handleInputChange(event: ChangeEvent<HTMLInputElement>) {
-    setNewCode(event.target.value);
+    const value = event.target.value;
+    setNewCode(value);
+    if (value.trim()) setShowSuggestions(true);
   }
 
   function handleKeyPress(event: KeyboardEvent<HTMLInputElement>) {
@@ -72,25 +74,24 @@ export function ClasifyForm({
   }, []);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-2 text-[var(--text-color)]">
-        <FontAwesomeIcon icon={faNotesMedical} className="text-[var(--primary)]" />
-        <h4 className="text-lg font-semibold m-0">{t("form.codes.title", "Medical codes sequence")}</h4>
+    <div className="flex flex-col gap-4 w-full">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <FontAwesomeIcon icon={faNotesMedical} className="text-[var(--primary)] w-4 h-4 shrink-0" />
+          <h4 className="text-lg font-semibold m-0 leading-none text-[var(--text-color)]">{t("form.codes.title", "Medical codes sequence")}</h4>
+        </div>
+        {codes.length > 0 && handleLoadPreset && (
+          <button
+            type="button"
+            onClick={() => handleLoadPreset([])}
+            className="flex bg-transparent items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg border border-red-300 dark:border-red-700 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/80 transition shrink-0"
+          >
+            <FontAwesomeIcon icon={faTrash} />
+            {t("form.codes.clearAll", "Clear all")}
+          </button>
+        )}
       </div>
       <div className="space-y-3">
-        <div className="flex items-center justify-between gap-2">
-          <label className="text-sm text-[var(--text-muted)] font-medium">{t("form.codes.label", "Codes")}</label>
-          {codes.length > 0 && handleLoadPreset && (
-            <button
-              type="button"
-              onClick={() => handleLoadPreset([])}
-              className="flex bg-transparent items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg border border-red-300 dark:border-red-700 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/80 transition"
-            >
-              <FontAwesomeIcon icon={faTrash} />
-              {t("form.codes.clearAll", "Clear all")}
-            </button>
-          )}
-        </div>
         <div className="flex flex-wrap gap-2">
           {codes.map((code, index) => (
             <div
@@ -213,7 +214,7 @@ export function ClasifyForm({
             </div>
           )}
         </div>
-        <p className="text-xs text-[var(--text-muted)]">{t("form.codes.help", "Enter code and press Enter to add it.")}</p>
+        <p className="text-xs text-[var(--text-muted)]">{t("form.codes.help", "Type a code, Czech procedure name, or medical specialty — suggestions appear automatically. Press Enter to add.")}</p>
       </div>
     </div>
   );
