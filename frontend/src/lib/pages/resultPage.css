@@ -14,6 +14,141 @@
     font-size: 18px;
 }
 
+/* ── Single result view ── */
+
+.sr-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sr-main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: start;
+}
+
+.sr-main.sr-main-single {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+}
+
+.sr-result-card {
+    padding: 28px 24px;
+    border-radius: 16px;
+    border: 1px solid var(--border-muted);
+    background: var(--bg-surface);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    min-height: 280px;
+    justify-content: center;
+}
+
+.sr-patient-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-color);
+    align-self: flex-start;
+    width: 100%;
+}
+
+.sr-gauge-wrapper {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sr-gauge-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sr-gauge-pct {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-color);
+    line-height: 1;
+}
+
+.sr-disease {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.sr-codes-card {
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid var(--border-muted);
+    background: var(--bg-surface);
+    min-height: 280px;
+}
+
+.sr-pending {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 0;
+}
+
+.sr-pending-icon {
+    font-size: 2rem;
+    color: var(--text-muted);
+}
+
+.sr-pending-icon.sr-pending-fail {
+    color: #dc2626;
+}
+
+.sr-pending-label {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.sr-error-msg {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin: 0;
+    text-align: center;
+}
+
+.sr-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.sr-footer-task {
+    font-family: monospace;
+    font-size: 0.75rem;
+}
+
+.sr-footer-sep {
+    opacity: 0.5;
+}
+
+@media (max-width: 640px) {
+    .sr-main {
+        grid-template-columns: 1fr;
+    }
+    .sr-main.sr-main-single {
+        max-width: 100%;
+    }
+}
+
 /* ── Model info card ── */
 
 .model-info-card {

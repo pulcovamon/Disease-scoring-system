@@ -7,10 +7,9 @@ import {
   useMemo,
   useState,
 } from "react";
-import { getMethod, postFormMethod } from "../classes/api";
+import { getMethod, postFormMethod, postMethod } from "../classes/api";
 import { Model } from "../classes/model";
 import { Patient } from "../classes/patient";
-import { DataSender } from "../classes/data";
 import { useAuth } from "./auth";
 
 export enum WizardStep {
@@ -252,13 +251,21 @@ export function ScoringWizardProvider({ children }: { children: ReactNode }) {
         );
         taskId = resp.task_id;
       } else {
-        const sender = new DataSender(state.codes, currentModel._id, "patient");
-        await sender.postData();
-        if (sender.message) {
-          setState((prev) => ({ ...prev, sending: false, submissionError: sender.message }));
-          return { taskId: null, error: sender.message };
-        }
-        taskId = sender.id;
+        const resp = await postMethod<{ task_id: string }>(
+          `/prediction/patient`,
+          {
+            codes: state.codes,
+            patient: state.patient.name
+              ? {
+                  id: state.patient.id ? parseInt(state.patient.id) : null,
+                  name: state.patient.name,
+                  surname: state.patient.surname || null,
+                }
+              : null,
+          },
+          { handleUnauthorized: false, queryParams: { model_id: currentModel._id } }
+        );
+        taskId = resp.task_id;
       }
 
       try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }

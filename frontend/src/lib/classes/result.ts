@@ -24,6 +24,12 @@ export interface ModelInfo {
   metrics: ModelMetrics | null;
 }
 
+export interface PatientInfo {
+  id: number | null;
+  name: string | null;
+  surname: string | null;
+}
+
 export interface Task {
   status: string;
   result: number | null;
@@ -32,6 +38,8 @@ export interface Task {
   task_id: string;
   disease: string | null;
   model_info: ModelInfo | null;
+  patient: PatientInfo | null;
+  codes: string[] | null;
   error?: string | null;
   created_at?: string | null;
 }
@@ -52,6 +60,8 @@ export class Results {
           task_id: task.task_id,
           disease: task.disease,
           model_info: task.model_info ?? null,
+          patient: task.patient ?? null,
+          codes: task.codes ?? null,
         }));
       })
       .catch((error) => {

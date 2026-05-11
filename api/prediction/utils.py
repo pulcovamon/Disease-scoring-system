@@ -34,11 +34,16 @@ def format_task_result(task_id):
                 "metrics": model_doc.get("metrics"),
             }
 
+    patient = result_data.get("patient")
+    codes = result_data.get("codes")
+
     base = {
         "task_id": str(task_id),
         "model_id": str(model_id) if model_id else None,
         "disease": disease,
         "model_info": model_info,
+        "patient": patient,
+        "codes": codes,
     }
 
     if task.state == "PENDING":

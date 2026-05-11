@@ -15,13 +15,17 @@ from pydantic import BaseModel
 from pathlib import Path
 from api.worker import celery_app
 from api.prediction.utils import format_task_result, get_all_task_ids, models_db
-from api.auth.models import Patient
 from api.auth.dependencies import ensure_can_run_prediction, require_admin
 from api.logger import Logger
 
+class PatientInput(BaseModel):
+    id: int | None = None
+    name: str | None = None
+    surname: str | None = None
+
 class PredictionRequest(BaseModel):
     codes: List[str]
-    patient: Patient|int|None
+    patient: PatientInput | None = None
 
 router = APIRouter(prefix="/prediction", tags=["Prediction"])
 logger = Logger()
@@ -71,7 +75,15 @@ async def predict(
     enc_resolved = resolve_model_path(encoder_path) if encoder_path else None
     encoder_path = str(enc_resolved) if enc_resolved else None
     
-    task = celery_app.send_task("run_model_prediction", args=[model_id, str(model_path), data.codes, encoder_path])
+    patient_info = None
+    if data.patient:
+        patient_info = {
+            "id": data.patient.id,
+            "name": data.patient.name,
+            "surname": data.patient.surname,
+        }
+
+    task = celery_app.send_task("run_model_prediction", args=[model_id, str(model_path), data.codes, encoder_path, patient_info])
     return JSONResponse(status_code=202, content={"task_id": task.id})
 
 @router.post("/dataset")

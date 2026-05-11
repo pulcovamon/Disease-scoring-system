@@ -7,7 +7,7 @@ logger = get_task_logger(__name__)
 
 
 @celery_app.task(name="run_model_prediction")
-def run_model_prediction(model_id: str, model_path: str, codes: list, encoder_path: str = None):
+def run_model_prediction(model_id: str, model_path: str, codes: list, encoder_path: str = None, patient: dict = None):
     try:
         if not model_path or not os.path.exists(model_path):
             raise FileNotFoundError(f"Model file not found at {model_path}")
@@ -24,7 +24,7 @@ def run_model_prediction(model_id: str, model_path: str, codes: list, encoder_pa
                 "model_id": model_id,
             }
         else:
-            return {"prediction": predict_one(codes), "model_id": model_id}
+            return {"prediction": predict_one(codes), "model_id": model_id, "codes": codes, "patient": patient}
 
     except Exception as e:
         logger.error(f"Prediction failed: {e}")
