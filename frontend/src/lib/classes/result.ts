@@ -4,6 +4,7 @@ import HTTPError from "./httpError";
 export interface BulkPrediction {
   id: string | number;
   prediction: number;
+  codes?: string[];
 }
 
 export interface Task {

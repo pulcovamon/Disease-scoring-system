@@ -133,16 +133,37 @@ export default function BulkResultView({
       {/* ── Selected patient detail ── */}
       {selectedEntry ? (
         <div className="bulk-selected">
-          <div className="bulk-selected-id">
-            {t("result.bulk.selected.patient")} <strong>{selectedEntry.id}</strong>
+          <div className="bulk-selected-info">
+            <div className="bulk-selected-label">
+              {t("result.bulk.selected.patient")} <strong>{selectedEntry.id}</strong>
+            </div>
+            <div className="bulk-selected-prob">{(selectedEntry.prediction * 100).toFixed(1)}%</div>
+            <span className={`risk-badge risk-${getRisk(selectedEntry.prediction)}`}>
+              {riskLabel(getRisk(selectedEntry.prediction))}
+            </span>
           </div>
-          <div className="bulk-selected-prob">{(selectedEntry.prediction * 100).toFixed(1)}%</div>
-          <span className={`risk-badge risk-${getRisk(selectedEntry.prediction)}`}>
-            {riskLabel(getRisk(selectedEntry.prediction))}
-          </span>
-          <p className="muted" style={{ marginLeft: "auto", fontSize: "0.78rem" }}>
-            {t("result.bulk.selected.dismiss")}
-          </p>
+
+          {selectedEntry.codes && selectedEntry.codes.length > 0 && (
+            <div className="bulk-selected-codes">
+              <p className="bulk-codes-label">
+                {t("result.bulk.selected.codes")}
+                <span className="bulk-codes-count">({selectedEntry.codes.length})</span>
+              </p>
+              <div className="bulk-codes-list">
+                {selectedEntry.codes.map((code, i) => (
+                  <span key={i} className="bulk-code-chip">{code}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <button
+            className="bulk-deselect-btn"
+            onClick={() => setSelected(null)}
+            title={t("result.bulk.selected.dismiss")}
+          >
+            ✕
+          </button>
         </div>
       ) : (
         <div className="bulk-selected-placeholder">

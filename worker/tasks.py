@@ -18,7 +18,7 @@ def run_model_prediction(model_id: str, model_path: str, codes: list, encoder_pa
         if codes and isinstance(codes[0], dict) and "id" in codes[0] and "codes" in codes[0]:
             return {
                 "predictions": [
-                    {"id": entry["id"], "prediction": predict_one(entry["codes"])}
+                    {"id": entry["id"], "prediction": predict_one(entry["codes"]), "codes": entry["codes"]}
                     for entry in codes
                 ],
                 "model_id": model_id,
