@@ -343,15 +343,16 @@ function ScoringSystemView() {
       <div className="space-y-6">{renderCurrentStep()}</div>
 
       <div className="flex justify-between items-center gap-3 mt-6 flex-wrap">
+        {step !== WizardStep.SelectModel && (
+          <button
+            className="px-4 py-3 rounded-xl border border-(--border-muted) bg-(--bg-surface) text-(--text-color) hover:border-(--primary) transition"
+            onClick={previousStep}
+          >
+            <FontAwesomeIcon icon={faArrowLeft} /> {t("form.button.back", "Back")}
+          </button>
+        )}
         <button
-          className="px-4 py-3 rounded-xl border border-[var(--border-muted)] bg-[var(--bg-surface)] text-[var(--text-color)] hover:border-[var(--primary)] transition"
-          onClick={previousStep}
-          disabled={step === WizardStep.SelectModel}
-        >
-          <FontAwesomeIcon icon={faArrowLeft} /> {t("form.button.back", "Back")}
-        </button>
-        <button
-          className={`px-5 py-3 rounded-xl text-white font-semibold shadow transition ${
+          className={`ml-auto px-5 py-3 rounded-xl text-white font-semibold shadow transition ${
             isNextDisabled() ? "bg-[var(--border-muted)] cursor-not-allowed" : "bg-[var(--primary)] hover:bg-[var(--primary-hover)]"
           }`}
           onClick={handleNextButton}
