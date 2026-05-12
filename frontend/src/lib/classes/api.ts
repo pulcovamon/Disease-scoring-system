@@ -11,7 +11,7 @@ const envApiUrl =
       ? (process as any)?.env?.REACT_APP_API_URL
       : "";
 
-export const baseURL = envApiUrl ?? "";
+export const baseURL = envApiUrl ?? "/api";
 const API_PREFIX = "/api/v1";
 
 type TokenGetter = () => string | null;
