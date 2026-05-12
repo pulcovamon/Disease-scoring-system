@@ -9,16 +9,16 @@ services:
       - "patient_catalog_data:/data/db"
     networks:
       - scoring-system
-    healthcheck:
-      test: ["CMD", "mongo",
-             "-u", "root",
-             "-p", "pass",
-             "--authenticationDatabase=admin",
-             "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 6
-      start_period: 40s
+    # healthcheck:
+    #   test: ["CMD", "mongo",
+    #          "-u", "root",
+    #          "-p", "pass",
+    #          "--authenticationDatabase=admin",
+    #          "--eval", "db.adminCommand('ping')"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 6
+    #   start_period: 40s
     ports:
       - "27017:27017"
 
