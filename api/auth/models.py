@@ -17,7 +17,7 @@ class UserCreate(UserBase):
 class User(UserBase ,table=True):
     __tablename__ = "users"
     id: uuid.UUID = Field(default_factory=lambda: uuid.uuid4(), primary_key=True, index=True)
-    is_approved: bool
+    is_approved: bool = Field(default=False)
     role: str = Field(default=DEFAULT_ROLE.value)
     
 class Auth(SQLModel, table=True):
@@ -27,7 +27,10 @@ class Auth(SQLModel, table=True):
     salt: bytes
     
 class UserID(SQLModel):
-    id: uuid.UUID 
+    id: uuid.UUID
+
+class UserRoleUpdate(SQLModel):
+    role: str
 
 class Token(SQLModel):
     access_token: str

@@ -14,6 +14,7 @@ celery_app = Celery(
     backend=CELERY_RESULT_BACKEND,
     broker=CELERY_BROKER_URL,
 )
+celery_app.conf.result_expires = None
 
 @after_task_publish.connect
 def update_sent_state(sender=None, headers=None, **kwargs):

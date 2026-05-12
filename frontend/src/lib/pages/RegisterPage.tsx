@@ -3,8 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import "./registerPage.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faE, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import { baseURL } from "../classes/api";
+import { baseURL, buildApiUrl } from "../classes/api";
 import { useLanguage } from "../store/language";
+import { useTranslations } from "../i18n/useTranslations";
 
 export default function Register() {
   const [firstName, setFirstName] = useState("");
@@ -18,6 +19,7 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const navigate = useNavigate();
   const { buildPath } = useLanguage();
+  const { t } = useTranslations();
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
@@ -33,7 +35,7 @@ export default function Register() {
       }      
 
     try {
-      const res = await fetch(`${baseURL}/auth/user`, {
+      const res = await fetch(buildApiUrl("/auth/user"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -129,7 +131,7 @@ export default function Register() {
         <button type="submit">Register</button>
 
         {error && <p className="error">{error}</p>}
-        {success && <p className="success">Registration successful! Redirecting...</p>}
+        {success && <p className="success">{t("register.success.pending")}</p>}
 
         <p className="login-link">
           Already have an account?{" "}

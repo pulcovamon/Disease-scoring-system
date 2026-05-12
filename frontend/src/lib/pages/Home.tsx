@@ -18,7 +18,7 @@ import { useCatalogPatients, useCatalogCount } from "../hooks/useCatalogData";
 import { useModelsCount, useUsersCount } from "../hooks/useStatsData";
 import Heatmap from "../components/Heatmap";
 
-const PREVIEW_QUERY = { limit: 4, skip: 0 };
+const PREVIEW_QUERY = { limit: 5, skip: 0 };
 
 export default function Home() {
   const { t } = useTranslations();
@@ -141,7 +141,8 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
             {/* Catalog heatmap preview */}
-            <div className="flex flex-col gap-4 border border-[var(--border-muted)] bg-[var(--bg-surface)] rounded-2xl p-6 shadow-card">
+            <div className="flex flex-col gap-4 border border-[var(--border-muted)] bg-[var(--bg-surface)] rounded-2xl shadow-card">
+              <div className="p-6">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold text-[var(--text-color)]">
                   {t("home.catalog.title", "Patient Catalog Preview")}
@@ -157,14 +158,13 @@ export default function Home() {
               <p className="text-sm text-[var(--text-muted)] -mt-2">
                 {t("home.catalog.desc", "A sample from the training dataset — each column is a patient, rows show model prediction accuracy per category.")}
               </p>
+              </div>
               {patientsLoading ? (
                 <div className="h-40 flex items-center justify-center text-[var(--text-muted)] text-sm">
                   {t("home.catalog.loading", "Loading patients…")}
                 </div>
               ) : patients.length > 0 ? (
-                <div className="flex justify-center overflow-x-auto">
-                  <Heatmap patients={patients} mode="summary" titleVisible={false} />
-                </div>
+                <Heatmap patients={patients} mode="summary" titleVisible={false} chunkSize={5} />
               ) : (
                 <div className="h-40 flex items-center justify-center text-[var(--text-muted)] text-sm">
                   {t("home.catalog.empty", "No patient data available.")}

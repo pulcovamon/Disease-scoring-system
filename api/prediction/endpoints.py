@@ -14,10 +14,11 @@ from pydantic import BaseModel
 
 from pathlib import Path
 from api.worker import celery_app
-from api.prediction.utils import format_task_result, get_all_task_ids, models_db
-from api.auth.dependencies import ensure_can_run_prediction, require_admin
+from api.prediction.utils import format_task_result, get_all_task_ids, save_task_for_user, get_task_ids_for_user, models_db
+from api.auth.dependencies import ensure_can_run_prediction, require_admin, require_authenticated_user
 from api.auth.sql_database import get_session
 from api.auth import models as auth_models
+from api.auth.permissions import is_admin
 from api.logger import Logger
 
 class PatientInput(BaseModel):
@@ -55,8 +56,12 @@ async def get_task_by_id(id: str):
     return JSONResponse(status_code=200, content=result)
 
 @router.get("/result")
-async def get_all_results(_: None = Depends(require_admin)):
-    results = [format_task_result(tid) for tid in get_all_task_ids()]
+async def get_all_results(user: auth_models.User = Depends(require_authenticated_user)):
+    if is_admin(user):
+        task_ids = get_all_task_ids()
+    else:
+        task_ids = get_task_ids_for_user(str(user.id))
+    results = [format_task_result(tid) for tid in task_ids]
     return JSONResponse(status_code=200, content=results)
 
 @router.post("/patient")
@@ -115,7 +120,10 @@ async def predict(
                     "surname": data.patient.surname,
                 }
 
-    task = celery_app.send_task("run_model_prediction", args=[model_id, str(model_path), data.codes, encoder_path, patient_info, data.is_example])
+    user_id = str(context["user"].id) if context["user"] else None
+    task = celery_app.send_task("run_model_prediction", args=[model_id, str(model_path), data.codes, encoder_path, patient_info, data.is_example], kwargs={"user_id": user_id})
+    if user_id:
+        save_task_for_user(str(task.id), user_id)
     return JSONResponse(status_code=202, content={"task_id": task.id})
 
 @router.post("/dataset")
@@ -165,7 +173,10 @@ async def predict_dataset(
     else:
         raise HTTPException(status_code=400, detail="File must be CSV or JSON!")
     
-    task = celery_app.send_task("run_model_prediction", args=[model_id, str(model_path), data, encoder_path])
+    user_id = str(context["user"].id) if context["user"] else None
+    task = celery_app.send_task("run_model_prediction", args=[model_id, str(model_path), data, encoder_path], kwargs={"user_id": user_id})
+    if user_id:
+        save_task_for_user(str(task.id), user_id)
     return JSONResponse(status_code=202, content={"task_id": task.id})
 
 

@@ -208,18 +208,18 @@ export default function Catalog() {
 
       {/* Tab Content */}
       {activeTab === 'list' && (
-        <div className="rounded-2xl border border-[var(--border-muted)] bg-[var(--bg-surface)]">
+        <div className="bg-[var(--bg-surface)]">
           <div className="relative">
             {loadingPatients && (
-              <div className="absolute inset-0 flex items-center justify-center bg-[var(--bg-surface)]/85 backdrop-blur-sm rounded-2xl z-10">
-                <span className="w-10 h-10 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin" aria-label="Loading" />
+              <div className="absolute inset-0 flex items-center justify-center bg-[var(--bg-surface)]/85 backdrop-blur-sm z-10">
+                <span className="w-10 h-10 border-[var(--primary)] border-t-transparent rounded-full animate-spin" aria-label="Loading" />
               </div>
             )}
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
+            <div>
+              <table className="w-full text-left border-none">
               <thead>
-                <tr className="border-b border-[var(--border-muted)] bg-[var(--bg-surface-muted)]">
+                <tr className="border-[var(--border-muted)] bg-[var(--bg-surface-muted)]">
                   {(["id", "codes", "predictions", "accuracy"] as SortBy[]).map((col) => (
                     <th key={col} className="px-4 py-3 text-sm font-semibold text-[var(--text-muted)]">
                       <button
@@ -259,7 +259,7 @@ export default function Catalog() {
       )}
 
       {activeTab === 'heatmap' && patients.length > 0 && (
-        <div className="border border-[var(--border-muted)]">
+        <div>
           <div className="heatmap-wrapper">
             <Heatmap 
               patients={patients} 

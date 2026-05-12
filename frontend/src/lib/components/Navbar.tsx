@@ -8,6 +8,7 @@ import {
   faMoon,
   faRobot,
   faSun,
+  faUsersGear,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -16,12 +17,14 @@ import { useTheme } from "../store/theme";
 import { useMemo, useState } from "react";
 import { useLanguage } from "../store/language";
 import { useTranslations } from "../i18n/useTranslations";
+import { useAuth } from "../store/auth";
 
 export default function Navbar() {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
   const { language, toggleLanguage, buildPath } = useLanguage();
   const { t } = useTranslations();
+  const { user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const normalizePath = (p: string) => (p.endsWith("/") && p !== "/" ? p.slice(0, -1) : p);
@@ -78,8 +81,19 @@ export default function Navbar() {
         link: "/datasets",
         isActive: isActive("/datasets"),
       },
+      ...(user?.role === "admin"
+        ? [
+            {
+              icon: faUsersGear,
+              label: "Users",
+              labelKey: "navbar.admin",
+              link: "/admin/users",
+              isActive: isActive("/admin/users"),
+            },
+          ]
+        : []),
     ],
-    [buildPath, isActive, location.pathname]
+    [buildPath, isActive, location.pathname, user?.role]
   );
 
   const navList = (

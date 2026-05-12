@@ -1,13 +1,26 @@
 import os
+from celery import Task
 from worker.worker import celery_app
 from worker import inference
 from celery.utils.log import get_task_logger
 
 logger = get_task_logger(__name__)
 
+ANONYMOUS_RESULT_TTL = 86400  # 24 hours
 
-@celery_app.task(name="run_model_prediction")
-def run_model_prediction(model_id: str, model_path: str, codes: list, encoder_path: str = None, patient: dict = None, is_example: bool = False):
+
+class PredictionTask(Task):
+    def after_return(self, status, retval, task_id, args, kwargs, einfo):
+        if not kwargs.get("user_id"):
+            try:
+                redis_key = f"celery-task-meta-{task_id}"
+                self.app.backend.client.expire(redis_key, ANONYMOUS_RESULT_TTL)
+            except Exception:
+                pass
+
+
+@celery_app.task(name="run_model_prediction", base=PredictionTask)
+def run_model_prediction(model_id: str, model_path: str, codes: list, encoder_path: str = None, patient: dict = None, is_example: bool = False, user_id: str = None):
     try:
         if not model_path or not os.path.exists(model_path):
             raise FileNotFoundError(f"Model file not found at {model_path}")

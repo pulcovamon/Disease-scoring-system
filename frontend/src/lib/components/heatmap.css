@@ -43,7 +43,18 @@
 
 .heatmap-wrapper {
     width: 100%;
+    overflow-x: scroll;
+}
+
+.heatmap-scroll {
+    width: 100%;
     overflow-x: auto;
+}
+
+.heatmap-multirow {
+    width: 100%;
+    min-width: max-content;
+    overflow: hidden;
 }
 
 .heatmap-table {
@@ -53,16 +64,30 @@
     table-layout: auto;
     background-color: var(--bg-surface);
     color: var(--text-color);
-    border: 1px solid var(--heatmap-grid);
     border-radius: 14px;
     overflow: hidden;
+}
+
+.heatmap-table--chunk {
+    width: 100%;
+    border: none;
+    border-radius: 0;
+}
+
+.heatmap-table--last {
+    border-bottom: none;
+}
+
+.heatmap-cell--empty {
+    background: var(--bg-surface-muted);
+    box-shadow: none !important;
+    border-bottom-color: var(--bg-surface-muted) !important;
+    border-right-color: var(--bg-surface-muted) !important;
 }
 
 .heatmap-table th,
 .heatmap-table td {
     padding: 10px;
-    border-bottom: 1px solid var(--heatmap-grid);
-    border-right: 1px solid var(--heatmap-grid);
     text-align: center;
     vertical-align: middle;
 }
@@ -70,7 +95,7 @@
 .heatmap-table th.category-name {
     width: auto;
     min-width: 140px;
-    text-align: left;
+    text-align: center;
 }
 
 .heatmap-table th:not(.category-name) {
@@ -114,8 +139,8 @@
     z-index: 10;
 }
 
-.heatmap-table td.heatmap-cell:focus::after,
-.heatmap-table td.heatmap-cell:hover::after {
+.heatmap-table td.heatmap-cell:not(.heatmap-cell--empty):focus::after,
+.heatmap-table td.heatmap-cell:not(.heatmap-cell--empty):hover::after {
     color: var(--text-color);
     background: var(--bg-surface);
     box-shadow: 0 8px 20px rgba(0,0,0,0.16);

@@ -6,6 +6,16 @@ from api.worker import celery_app
 from api.database import MongoDatabase
 
 models_db = MongoDatabase(db_name="scoring_system", collection_name="models")
+tasks_db = MongoDatabase(db_name="scoring_system", collection_name="tasks")
+
+
+def save_task_for_user(task_id: str, user_id: str) -> None:
+    tasks_db.collection.insert_one({"task_id": task_id, "user_id": user_id})
+
+
+def get_task_ids_for_user(user_id: str) -> list[str]:
+    docs = tasks_db.collection.find({"user_id": user_id}, {"task_id": 1})
+    return [doc["task_id"] for doc in docs]
 
 
 def format_task_result(task_id):

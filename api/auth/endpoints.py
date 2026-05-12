@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPBasicCredentials
@@ -103,6 +105,7 @@ def list_users(current_user=Depends(require_authenticated_user)):
     else:
         sanitized = [
             {
+                "id": str(u.id),
                 "first_name": u.first_name,
                 "last_name": u.last_name,
                 "email": u.email,
@@ -120,6 +123,17 @@ def admin_approve_user(usedID: models.UserID, current_user=Depends(require_admin
         user_to_approve = session.exec(statement).one()
         user_to_approve.is_approved = True
         session.add(user_to_approve)
+        session.commit()
+    return Response(status_code=204)
+
+
+@router.patch("/user/{user_id}/role")
+def admin_change_user_role(user_id: uuid.UUID, data: models.UserRoleUpdate, current_user=Depends(require_admin)):
+    with get_session() as session:
+        statement = select(models.User).where(models.User.id == user_id)
+        user = session.exec(statement).one()
+        user.role = data.role
+        session.add(user)
         session.commit()
     return Response(status_code=204)
 

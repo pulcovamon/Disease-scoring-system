@@ -17,7 +17,7 @@ type UploadState = {
 };
 
 export default function ModelsPage() {
-  const { status } = useAuth();
+  const { status, user } = useAuth();
   const { t } = useTranslations();
 
   const [sendDialogOpen, setSendDialogOpen] = useState<boolean>(false);
@@ -56,10 +56,15 @@ export default function ModelsPage() {
           model_name: modelToSend.name,
           description: modelToSend.description || "",
           is_public: modelToSend.is_public,
+          ...(modelToSend.recommended ? { recommended: modelToSend.recommended } : {}),
           ...(modelToSend.algorithm ? { algorithm: modelToSend.algorithm } : {}),
-          ...(modelToSend.accuracy !== null && modelToSend.accuracy !== undefined
-            ? { accuracy: modelToSend.accuracy }
-            : {}),
+          ...(modelToSend.model_type ? { model_type: modelToSend.model_type } : {}),
+          ...(modelToSend.summary ? { summary: modelToSend.summary } : {}),
+          ...(modelToSend.accuracy != null ? { accuracy: modelToSend.accuracy } : {}),
+          ...(modelToSend.metrics?.precision != null ? { precision: modelToSend.metrics.precision } : {}),
+          ...(modelToSend.metrics?.recall != null ? { recall: modelToSend.metrics.recall } : {}),
+          ...(modelToSend.metrics?.f1 != null ? { f1: modelToSend.metrics.f1 } : {}),
+          ...(modelToSend.metrics?.roc_auc != null ? { roc_auc: modelToSend.metrics.roc_auc } : {}),
         },
       });
 
@@ -98,10 +103,23 @@ export default function ModelsPage() {
           <h2>{t("models.title")}</h2>
           <p className="muted">{t("models.subtitle")}</p>
         </div>
-        <button className="primary-button" onClick={() => setSendDialogOpen(true)}>
-          <FontAwesomeIcon icon={faPlus} /> {t("models.new")}
-        </button>
+        {user?.role === "admin" || (user?.role === "scientist" && user?.is_approved) ? (
+          <button className="primary-button" onClick={() => setSendDialogOpen(true)}>
+            <FontAwesomeIcon icon={faPlus} /> {t("models.new")}
+          </button>
+        ) : (
+          <button className="primary-button" disabled style={{ opacity: 0.5, cursor: "not-allowed" }}>
+            <FontAwesomeIcon icon={faPlus} /> {t("models.new")}
+          </button>
+        )}
       </div>
+
+      {user?.role === "scientist" && !user?.is_approved && (
+        <div className="status-banner warning">{t("models.upload.pendingApproval")}</div>
+      )}
+      {user?.role !== "admin" && user?.role !== "scientist" && (
+        <div className="status-banner warning">{t("models.upload.noRole")}</div>
+      )}
 
       <div className="section-card">
         <div className="filters-row">

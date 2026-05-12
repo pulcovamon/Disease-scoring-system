@@ -9,13 +9,15 @@ export default function HeatMapRow({
   patients,
   mode = "detail",
   summaryType,
+  padTo,
 }: {
   categoryName: string;
-  groundTruth?: string[] | boolean[];
-  prediction?: string[] | boolean[];
+  groundTruth?: (string | boolean | number)[];
+  prediction?: (string | boolean | number)[];
   patients?: Patient[];
   mode?: "detail" | "summary";
   summaryType?: "icd10_multiclass" | "icd10_binary" | "active_phase";
+  padTo?: number;
 }) {
   const { t } = useTranslations();
   
@@ -25,32 +27,25 @@ export default function HeatMapRow({
         <th className="category-name">{categoryName}</th>
         {patients.map((patient, index) => {
           const summaryValue = patient.summary?.[summaryType] ?? 0;
-          console.log('HeatmapRow: Patient', patient._id, 'summary:', patient.summary, 'value:', summaryValue);
-          // Modern monochromatic purple scheme (better for accessibility)
-          const lightness = 85 - (summaryValue * 0.7); // 85% lightness at 0%, 14% at 100%
+          const lightness = 85 - (summaryValue * 0.7);
           const backgroundColor = `hsl(270, 80%, ${lightness}%)`;
-          
           return (
             <td
               key={`${patient._id}-${summaryType}-${index}`}
-              style={{
-                backgroundColor: backgroundColor,
-                boxShadow: "inset 0 0 0 1px var(--border-muted)",
-              }}
+              style={{ backgroundColor, boxShadow: "inset 0 0 0 1px var(--border-muted)" }}
               className="heatmap-cell"
               title={`${t("heatmap.accuracy")}: ${summaryValue}%`}
             >
               <div className="icd10 sr-only">
-                <div className="icd10-row">
-                  {t("heatmap.accuracy")}: {summaryValue}%
-                </div>
+                <div className="icd10-row">{t("heatmap.accuracy")}: {summaryValue}%</div>
               </div>
-              <span style={{ color: summaryValue > 50 ? 'white' : 'black' }}>
-                {summaryValue}%
-              </span>
+              <span style={{ color: summaryValue > 50 ? 'white' : 'black' }}>{summaryValue}%</span>
             </td>
           );
         })}
+        {Array.from({ length: Math.max(0, (padTo ?? 0) - patients.length) }, (_, i) => (
+          <td key={`pad-${i}`} className="heatmap-cell heatmap-cell--empty" />
+        ))}
       </tr>
     );
   }
@@ -59,17 +54,15 @@ export default function HeatMapRow({
   if (groundTruth && prediction) {
     return (
       <tr className="heatmap-row">
-        <th className="category-name">{categoryName}</th>
-        {groundTruth.map((code: string | boolean, index) => {
+        <th className="category-name text-center">{categoryName}</th>
+        {groundTruth.map((code: string | boolean | number, index) => {
           const match = code === prediction[index];
           const backgroundColor = match ? "var(--heatmap-match)" : "var(--heatmap-mismatch)";
           const displayGroundTruth =
             typeof code === "boolean" ? (code ? t("heatmap.yes") : t("heatmap.no")) : code;
           const displayPrediction =
             typeof prediction[index] === "boolean"
-              ? prediction[index]
-                ? t("heatmap.yes")
-                : t("heatmap.no")
+              ? prediction[index] ? t("heatmap.yes") : t("heatmap.no")
               : prediction[index];
 
           return (
@@ -85,16 +78,15 @@ export default function HeatMapRow({
               title={`${t("heatmap.gt")}: ${displayGroundTruth} | ${t("heatmap.pred")}: ${displayPrediction}`}
             >
               <div className="icd10 sr-only">
-                <div className="icd10-row">
-                  {t("heatmap.gt")}: {displayGroundTruth}
-                </div>
-                <div className="icd10-row">
-                  {t("heatmap.pred")}: {displayPrediction}
-                </div>
+                <div className="icd10-row">{t("heatmap.gt")}: {displayGroundTruth}</div>
+                <div className="icd10-row">{t("heatmap.pred")}: {displayPrediction}</div>
               </div>
             </td>
           );
         })}
+        {Array.from({ length: Math.max(0, (padTo ?? 0) - groundTruth.length) }, (_, i) => (
+          <td key={`pad-${i}`} className="heatmap-cell heatmap-cell--empty" />
+        ))}
       </tr>
     );
   }

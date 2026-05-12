@@ -70,7 +70,7 @@ export default function PatientDetailPage() {
   }, [patient]);
 
   return (
-    <div className="page-body space-y-6">
+    <div className="page-body space-y-6 p-5">
       <div className="flex items-center gap-3">
         <Link
           className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--bg-surface-muted)] text-[var(--text-color)] hover:bg-[var(--border-muted)] transition"
@@ -115,8 +115,8 @@ export default function PatientDetailPage() {
           </div>
 
           <div className="grid gap-4">
-            <div className="rounded-2xl border border-[var(--border-muted)] bg-[var(--bg-surface)] p-4 shadow-sm">
-              <div className="flex items-center justify-between mb-3">
+            <div className="rounded-2xl border border-[var(--border-muted)] bg-[var(--bg-surface)] shadow-sm py-4">
+              <div className="flex items-center justify-between mb-3 px-4">
                 <h2 className="text-lg font-semibold text-[var(--text-color)]">{t("catalog.section.heatmap")}</h2>
               </div>
               {patient && <Heatmap patient={patient} titleVisible={false} />}

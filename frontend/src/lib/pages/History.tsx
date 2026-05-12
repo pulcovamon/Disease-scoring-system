@@ -200,6 +200,7 @@ function BulkHistoryCard({ task, highlight }: { task: Task; highlight: boolean }
 
 export default function History() {
   const { t } = useTranslations();
+  const { buildPath } = useLanguage();
   const [searchParams] = useSearchParams();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
@@ -303,7 +304,12 @@ export default function History() {
           )}
 
           {tasks.length === 0 ? (
-            <div className="box"><p className="text-[var(--text-muted)]">{t("history.empty")}</p></div>
+            <div className="hist-empty" style={{ flexDirection: "column", gap: "12px", padding: "48px 24px" }}>
+              <p style={{ margin: 0 }}>{t("history.empty.none")}</p>
+              <Link to={buildPath("/score")} className="primary-button" style={{ display: "inline-flex", alignItems: "center", gap: "6px", textDecoration: "none" }}>
+                {t("history.empty.cta")}
+              </Link>
+            </div>
           ) : (
             <>
               {/* Tabs */}

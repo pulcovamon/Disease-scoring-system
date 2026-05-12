@@ -9,6 +9,7 @@ import PatientDetailPage from "./lib/pages/PatientDetailPage";
 import History from "./lib/pages/History";
 import AccountPage from "./lib/pages/AccountPage";
 import ModelsPage from "./lib/pages/ModelsPage";
+import AdminUsersPage from "./lib/pages/AdminUsersPage";
 import DatasetsPage from "./lib/pages/DatasetsPage";
 import Login from "./lib/pages/LoginPage";
 import Register from "./lib/pages/RegisterPage";
@@ -47,6 +48,7 @@ function LanguageScopedApp() {
               <Route path="account" element={<AccountPage />} />
               <Route path="models" element={<ModelsPage />} />
               <Route path="datasets" element={<DatasetsPage />} />
+              <Route path="admin/users" element={<AdminUsersPage />} />
             </Route>
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
