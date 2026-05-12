@@ -74,8 +74,8 @@ services:
       MODEL_STORAGE_PATH: "/models"
       C_FORCE_ROOT: "true"
     depends_on:
-      catalog_db:
-        condition: service_healthy
+      # catalog_db:
+      #   condition: service_healthy
       mysql_server:
         condition: service_healthy
     ports:
