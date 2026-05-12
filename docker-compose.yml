@@ -1,6 +1,6 @@
 services:
   catalog_db:
-    image: mongo:4.4.18-focal
+    image: mongo:7.0
     environment:
       MONGO_INITDB_ROOT_USERNAME: "root"
       MONGO_INITDB_ROOT_PASSWORD: "pass"
@@ -19,6 +19,8 @@ services:
       timeout: 5s
       retries: 6
       start_period: 40s
+    ports:
+      - "27017:27017"
 
 
   redis_server:
