@@ -16,14 +16,23 @@ type CountResult = {
   refresh: () => void;
 };
 
-export function useCatalogPatients(query: PatientQuery): PatientsResult {
-  const queryKey = useMemo(() => catalogCache.keyForQuery(query), [query]);
-  const initial = useMemo(() => catalogCache.getPatientsFromCache(query) || [], [queryKey]);
+export function useCatalogPatients(query: PatientQuery | null): PatientsResult {
+  const queryKey = useMemo(
+    () => (query !== null ? catalogCache.keyForQuery(query) : "__skip__"),
+    [query]
+  );
+  const initial = useMemo(
+    () => (query !== null ? catalogCache.getPatientsFromCache(query) || [] : []),
+    [queryKey]
+  );
   const [patients, setPatients] = useState<Patient[]>(initial);
-  const [loading, setLoading] = useState<boolean>(!catalogCache.hasPatients(query));
+  const [loading, setLoading] = useState<boolean>(
+    query !== null ? !catalogCache.hasPatients(query) : false
+  );
   const [error, setError] = useState<string | null>(null);
 
   const fetchPatients = async (showLoading: boolean = true) => {
+    if (query === null) return;
     setError(null);
     if (showLoading) setLoading(true);
     try {
@@ -38,6 +47,7 @@ export function useCatalogPatients(query: PatientQuery): PatientsResult {
   };
 
   useEffect(() => {
+    if (query === null) return;
     let cancelled = false;
     const cached = catalogCache.getPatientsFromCache(query);
     if (cached) {

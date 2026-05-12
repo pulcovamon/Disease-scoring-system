@@ -102,9 +102,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const res = await fetch(buildApiUrl("/auth/token"), {
           method: "POST",
-          headers: {
-            Authorization: `Basic ${btoa(`${email}:${password}`)}`,
-          },
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: email, password }),
         });
 
         if (!res.ok) throw new Error("Login failed");

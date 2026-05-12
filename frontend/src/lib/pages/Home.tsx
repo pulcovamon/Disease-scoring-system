@@ -17,20 +17,109 @@ import { useAuth } from "../store/auth";
 import { useCatalogPatients, useCatalogCount } from "../hooks/useCatalogData";
 import { useModelsCount, useUsersCount } from "../hooks/useStatsData";
 import Heatmap from "../components/Heatmap";
+import { Patient, getPatientsSummary } from "../classes/catalogData";
 
 const PREVIEW_QUERY = { limit: 5, skip: 0 };
+
+const MOCK_PATIENTS: Patient[] = [
+  {
+    _id: 10001,
+    codes: ["51110", "51120", "56010", "82120", "32110"],
+    active_phase: {
+      ground_truth: [1, 0, 1, 1, 0, 1, 0, 1, 1, 0],
+      prediction:   [1, 0, 1, 1, 0, 1, 0, 0, 1, 0],
+    },
+    icd10_multiclass: {
+      ground_truth: [2, 1, 0, 2, 1, 0],
+      prediction:   [2, 0, 0, 2, 1, 1],
+    },
+    icd10_binary: {
+      ground_truth: [1, 0, 1, 1, 0, 1, 1],
+      prediction:   [1, 0, 1, 1, 0, 1, 1],
+    },
+  },
+  {
+    _id: 10002,
+    codes: ["41110", "41120", "73010", "73020", "73030", "11010"],
+    active_phase: {
+      ground_truth: [0, 1, 0, 0, 1, 1, 0, 1, 0, 1],
+      prediction:   [1, 1, 0, 0, 0, 1, 0, 1, 0, 0],
+    },
+    icd10_multiclass: {
+      ground_truth: [0, 2, 1, 0, 2, 1],
+      prediction:   [0, 2, 1, 0, 2, 0],
+    },
+    icd10_binary: {
+      ground_truth: [0, 1, 0, 1, 1, 0, 1, 1],
+      prediction:   [0, 0, 0, 1, 1, 0, 0, 1],
+    },
+  },
+  {
+    _id: 10003,
+    codes: ["62010", "62020", "64010", "64020", "35010"],
+    active_phase: {
+      ground_truth: [1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0],
+      prediction:   [1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0],
+    },
+    icd10_multiclass: {
+      ground_truth: [1, 2, 0, 1, 2, 0],
+      prediction:   [1, 0, 0, 2, 2, 1],
+    },
+    icd10_binary: {
+      ground_truth: [1, 1, 0, 1, 0, 1, 0, 1],
+      prediction:   [1, 1, 0, 1, 0, 1, 0, 0],
+    },
+  },
+  {
+    _id: 10004,
+    codes: ["71010", "71020", "91010", "91020", "91030", "91040"],
+    active_phase: {
+      ground_truth: [0, 0, 1, 0, 1, 1, 0, 0, 1, 0],
+      prediction:   [1, 0, 1, 0, 0, 1, 0, 0, 1, 0],
+    },
+    icd10_multiclass: {
+      ground_truth: [2, 2, 0, 1, 2, 0, 1],
+      prediction:   [2, 2, 0, 1, 2, 0, 0],
+    },
+    icd10_binary: {
+      ground_truth: [0, 1, 1, 0, 1, 0, 1],
+      prediction:   [0, 0, 1, 0, 0, 0, 1],
+    },
+  },
+  {
+    _id: 10005,
+    codes: ["35020", "35030", "52010", "52020", "82130"],
+    active_phase: {
+      ground_truth: [1, 0, 0, 1, 1, 0, 1, 0, 1, 0],
+      prediction:   [1, 1, 0, 1, 0, 0, 1, 0, 0, 0],
+    },
+    icd10_multiclass: {
+      ground_truth: [0, 1, 2, 0, 1, 2, 0],
+      prediction:   [0, 1, 2, 0, 1, 1, 0],
+    },
+    icd10_binary: {
+      ground_truth: [1, 0, 1, 0, 1, 1, 0, 1],
+      prediction:   [1, 0, 1, 0, 1, 1, 0, 1],
+    },
+  },
+].map(p => ({ ...p, summary: getPatientsSummary(p) }));
 
 export default function Home() {
   const { t } = useTranslations();
   const { buildPath } = useLanguage();
   const { status, user } = useAuth();
 
+  const hasAccess = status === "authenticated" &&
+    (user?.role?.toLowerCase() === "admin" || Boolean(user?.is_approved));
+
   const { total, loading: countLoading } = useCatalogCount();
   const { count: modelsCount, loading: modelsLoading } = useModelsCount();
   const { count: usersCount, loading: usersLoading } = useUsersCount();
-  const { patients, loading: patientsLoading } = useCatalogPatients(
-    useMemo(() => PREVIEW_QUERY, [])
+  const { patients: realPatients, loading: patientsLoading } = useCatalogPatients(
+    useMemo(() => (hasAccess ? PREVIEW_QUERY : null), [hasAccess])
   );
+
+  const displayPatients = hasAccess ? realPatients : MOCK_PATIENTS;
 
   const featureCards = [
     {
@@ -144,9 +233,16 @@ export default function Home() {
             <div className="flex flex-col gap-4 border border-[var(--border-muted)] bg-[var(--bg-surface)] rounded-2xl shadow-card">
               <div className="p-6">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-[var(--text-color)]">
-                  {t("home.catalog.title", "Patient Catalog Preview")}
-                </h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-(--text-color)">
+                    {t("home.catalog.title", "Patient Catalog Preview")}
+                  </h3>
+                  {!hasAccess && (
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-700/50">
+                      {t("home.catalog.demo", "Sample data")}
+                    </span>
+                  )}
+                </div>
                 <Link
                   to={buildPath("/catalog")}
                   className="text-sm text-[var(--primary)] font-medium hover:underline inline-flex items-center gap-1"
@@ -156,15 +252,17 @@ export default function Home() {
                 </Link>
               </div>
               <p className="text-sm text-[var(--text-muted)] -mt-2">
-                {t("home.catalog.desc", "A sample from the training dataset — each column is a patient, rows show model prediction accuracy per category.")}
+                {hasAccess
+                  ? t("home.catalog.desc", "A sample from the training dataset — each column is a patient, rows show model prediction accuracy per category.")
+                  : t("home.catalog.demoDesc", "Sign in and get approved to explore real patient records. The preview below shows sample data.")}
               </p>
               </div>
               {patientsLoading ? (
                 <div className="h-40 flex items-center justify-center text-[var(--text-muted)] text-sm">
                   {t("home.catalog.loading", "Loading patients…")}
                 </div>
-              ) : patients.length > 0 ? (
-                <Heatmap patients={patients} mode="summary" titleVisible={false} chunkSize={5} />
+              ) : displayPatients.length > 0 ? (
+                <Heatmap patients={displayPatients} mode="summary" titleVisible={false} chunkSize={5} />
               ) : (
                 <div className="h-40 flex items-center justify-center text-[var(--text-muted)] text-sm">
                   {t("home.catalog.empty", "No patient data available.")}

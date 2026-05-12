@@ -35,6 +35,14 @@ def require_role(required: Role):
     return dependency
 
 
+async def require_approved_user(user: auth_models.User = Depends(require_authenticated_user)) -> auth_models.User:
+    if str(user.role).lower() == Role.ADMIN.value.lower():
+        return user
+    if not user.is_approved:
+        raise HTTPException(status_code=403, detail="Account not yet approved by an administrator")
+    return user
+
+
 async def require_admin(user: auth_models.User = Depends(require_authenticated_user)) -> auth_models.User:
     if str(user.role).lower() != Role.ADMIN.value.lower():
         raise HTTPException(status_code=403, detail="Admin privileges required")

@@ -115,7 +115,7 @@ export default function ResultPage() {
   };
 
   return (
-    <div className="page-body">
+    <div className="page-body p-5">
       <div className="flex items-center gap-3 mb-4">
         <Link
           className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--bg-surface-muted)] text-[var(--text-color)] hover:bg-[var(--border-muted)] transition"

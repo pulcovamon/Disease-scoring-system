@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from typing import Optional
 
 from api.database import MongoDatabase, SortBy, SortOrder
+from api.auth.dependencies import require_approved_user
 
 router = APIRouter(prefix="/catalog", tags=["Catalog"])
 
@@ -16,13 +17,14 @@ async def get_lung_cancer_catalog(
     code: Optional[str] = Query(None),
     sort_by: SortBy = Query("id"),
     sort_order: SortOrder = Query("asc"),
+    _user=Depends(require_approved_user),
 ):
     filter_query = {"codes": {"$in": [code]}} if code else {}
     data = catalog_db.get_page_of_documents(skip, limit, filter_query, sort_by, sort_order)
     return JSONResponse(content=jsonable_encoder(data), status_code=200)
 
 @router.get("/lung-cancer/{id}")
-async def get_patient_by_id(id: int):
+async def get_patient_by_id(id: int, _user=Depends(require_approved_user)):
     data = catalog_db.get_document_by_id(id)
     if not data:
         raise HTTPException(

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import ApprovalGate from "../components/ApprovalGate";
 import { Patient } from "../classes/catalogData";
 import Filtering from "../components/Filtering";
 import Pagination from "../components/Pagination";
@@ -124,6 +125,7 @@ export default function Catalog() {
     ) : null;
 
   return (
+    <ApprovalGate>
     <div className="page-body">
       <div className="p-5 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -279,6 +281,7 @@ export default function Catalog() {
       />
     </div>
     </div>
+    </ApprovalGate>
   );
 }
 

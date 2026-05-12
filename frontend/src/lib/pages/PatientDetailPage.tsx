@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import ApprovalGate from "../components/ApprovalGate";
 import { Patient, PatientDetail } from "../classes/catalogData";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import Heatmap from "../components/Heatmap";
@@ -70,6 +71,7 @@ export default function PatientDetailPage() {
   }, [patient]);
 
   return (
+    <ApprovalGate>
     <div className="page-body space-y-6 p-5">
       <div className="flex items-center gap-3">
         <Link
@@ -139,5 +141,6 @@ export default function PatientDetailPage() {
         </>
       )}
     </div>
+    </ApprovalGate>
   );
 }

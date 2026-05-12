@@ -119,18 +119,16 @@ export default function AdminUsersPage() {
                     </td>
                     <td style={tdStyle}>{u.email}</td>
                     <td style={tdStyle}>
-                      {u.role === "admin" ? (
-                        <span className="status-pill neutral">{u.role}</span>
-                      ) : (
-                        <select
-                          value={u.role}
-                          onChange={(e) => changeRole(u.id, e.target.value)}
-                          style={selectStyle}
-                        >
-                          <option value="user">user</option>
-                          <option value="scientist">scientist</option>
-                        </select>
-                      )}
+                      <select
+                        value={u.role}
+                        onChange={(e) => changeRole(u.id, e.target.value)}
+                        disabled={u.id === user?.id}
+                        style={selectStyle}
+                      >
+                        <option value="user">user</option>
+                        <option value="scientist">scientist</option>
+                        <option value="admin">admin</option>
+                      </select>
                     </td>
                     <td style={tdStyle}>
                       <span className={`status-pill ${u.is_approved ? "success" : "warning"}`}>
