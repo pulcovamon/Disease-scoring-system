@@ -50,7 +50,7 @@ export class Results {
   public message: string | null = null;
 
   public async getAllResults() {
-    return getMethod<Task[]>("/prediction/result/")
+    return getMethod<Task[]>("/prediction/result")
       .then((response) => {
         const tasks = response as Task[];
         this.tasks = tasks.map((task) => ({
