@@ -1,6 +1,6 @@
 import os
 import secrets
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Tuple
 
 import bcrypt
@@ -97,6 +97,28 @@ def authenticate(identifier: str, password: str):
         logger.debug(f"{hashed_password} is not same as {user.hashed_password}")
         return
     return user
+
+
+def create_oauth_state(provider: str, lang: str = "en") -> str:
+    payload = {
+        "type": "oauth_state",
+        "provider": provider,
+        "lang": lang,
+        "exp": datetime.utcnow() + timedelta(minutes=10),
+    }
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def verify_oauth_state(state: str, provider: str) -> dict | None:
+    if not SECRET_KEY:
+        return None
+    try:
+        payload = jwt.decode(state.encode(), SECRET_KEY, algorithms=[ALGORITHM])
+        if payload.get("type") == "oauth_state" and payload.get("provider") == provider:
+            return payload
+    except Exception:
+        pass
+    return None
 
 
 def verify_jwt(token: str):

@@ -76,12 +76,21 @@ export default function AccountPage() {
 
           {/* Avatar row — overlaps gradient */}
           <div className="px-6 -mt-8 mb-2 flex flex-col sm:flex-row sm:items-end gap-4">
-            <div
-              className="initials-badge ring-4 ring-(--bg-surface) shrink-0"
-              style={{ width: 72, height: 72, fontSize: "1.6rem" }}
-            >
-              {initials || "?"}
-            </div>
+            {user.picture_url ? (
+              <img
+                src={user.picture_url}
+                alt={initials}
+                className="ring-4 ring-(--bg-surface) shrink-0 rounded-full object-cover"
+                style={{ width: 72, height: 72 }}
+              />
+            ) : (
+              <div
+                className="initials-badge ring-4 ring-(--bg-surface) shrink-0"
+                style={{ width: 72, height: 72, fontSize: "1.6rem" }}
+              >
+                {initials || "?"}
+              </div>
+            )}
             <div className="sm:pb-1 flex-1 min-w-0">
               <h3 className="text-lg font-bold m-0 text-white! leading-tight">
                 {user.first_name} {user.last_name}

@@ -1,6 +1,6 @@
 .PHONY: requirements db setup clean-db stop-db start-db clean app reinstall docs-serve docs-build anonymize-catalog
 
-dotenv = env $(shell cat .env-dev | xargs)
+dotenv = env $(shell grep -v '^\s*#' .env-dev | grep -v '^\s*$$' | xargs)
 PYTHONPATH_ROOT = $(CURDIR)
 NODE_LOCALSTORAGE_FILE = $(CURDIR)/.node-localstorage
 

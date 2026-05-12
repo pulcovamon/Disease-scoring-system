@@ -2,7 +2,7 @@ import os
 import time
 import pymysql
 from sqlmodel import SQLModel, create_engine, Session, select
-from api.auth.models import User, Auth, Patient
+from api.auth.models import User, Auth, Patient, OAuthAccount
 from api.auth.security import hash_password
 
 MYSQL_URL = os.getenv("MYSQL_URL", "mysql+pymysql://root:pass@localhost:3306/scoring_system")

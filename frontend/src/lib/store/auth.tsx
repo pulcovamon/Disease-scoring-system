@@ -26,6 +26,7 @@ export type UserProfile = {
   id: string;
   is_approved: boolean;
   role: string;
+  picture_url?: string | null;
 };
 
 type AuthContextValue = {
@@ -33,6 +34,8 @@ type AuthContextValue = {
   user: UserProfile | null;
   token: string | null;
   login: (email: string, password: string) => Promise<boolean>;
+  loginWithToken: (token: string) => Promise<void>;
+  loginWithOAuth: (provider: string) => void;
   logout: (redirect?: boolean) => void;
   refreshUser: () => Promise<void>;
 };
@@ -45,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<AuthStatus>(token ? "loading" : "unauthenticated");
   const navigate = useNavigate();
   const location = useLocation();
-  const { buildPath } = useLanguage();
+  const { buildPath, language } = useLanguage();
   const tokenRef = useRef<string | null>(token);
 
   const setTokenAndPersist = useCallback((nextToken: string | null) => {
@@ -100,17 +103,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const res = await fetch(buildApiUrl("/auth/token"), {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            Authorization: `Basic ${btoa(`${email}:${password}`)}`,
           },
-          body: JSON.stringify({
-            username: email,
-            password: password,
-          }),
         });
 
-        if (!res.ok) {
-          throw new Error("Login failed");
-        }
+        if (!res.ok) throw new Error("Login failed");
 
         const data = await res.json();
         setTokenAndPersist(data.access_token);
@@ -125,6 +122,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     },
     [refreshUser, setTokenAndPersist]
+  );
+
+  const loginWithToken = useCallback(
+    async (token: string) => {
+      setTokenAndPersist(token);
+      await refreshUser();
+    },
+    [refreshUser, setTokenAndPersist]
+  );
+
+  const loginWithOAuth = useCallback(
+    (provider: string) => {
+      window.location.href = buildApiUrl(`/auth/oauth/${provider}/login?lang=${language}`);
+    },
+    [language]
   );
 
   useEffect(() => {
@@ -145,10 +157,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       token,
       login,
+      loginWithToken,
+      loginWithOAuth,
       logout,
       refreshUser,
     }),
-    [status, user, token, login, logout, refreshUser]
+    [status, user, token, login, loginWithToken, loginWithOAuth, logout, refreshUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

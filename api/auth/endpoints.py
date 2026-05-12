@@ -1,11 +1,14 @@
+import os
 import uuid
+from urllib.parse import urlencode
 
+import httpx
 from fastapi import APIRouter, HTTPException, Depends, status
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse, Response, RedirectResponse
 from fastapi.security import HTTPBasicCredentials
 from fastapi.encoders import jsonable_encoder
 from datetime import datetime, timedelta
-from typing import Annotated, List
+from typing import Annotated, List, Optional
 from sqlmodel import select
 
 from api.logger import Logger
@@ -15,6 +18,8 @@ from api.auth.security import (
     hash_password,
     authenticate,
     create_access_token,
+    create_oauth_state,
+    verify_oauth_state,
     http_basic,
     get_user_by_email,
     JWTBearer,
@@ -23,6 +28,7 @@ from api.auth.security import (
 from api.auth.roles import Role, DEFAULT_ROLE
 from api.auth.permissions import can_list_users
 from api.auth.dependencies import require_admin, require_authenticated_user, get_current_user_optional
+from api.auth.oauth_config import OAUTH_PROVIDERS
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -136,6 +142,141 @@ def admin_change_user_role(user_id: uuid.UUID, data: models.UserRoleUpdate, curr
         session.add(user)
         session.commit()
     return Response(status_code=204)
+
+
+@router.get("/oauth/providers")
+async def list_oauth_providers():
+    return [{"id": k, "name": v.name} for k, v in OAUTH_PROVIDERS.items()]
+
+
+@router.get("/oauth/{provider}/login")
+async def oauth_login(provider: str, lang: str = "en"):
+    if provider not in OAUTH_PROVIDERS:
+        raise HTTPException(status_code=404, detail="Unknown OAuth provider")
+    config = OAUTH_PROVIDERS[provider]
+    state = create_oauth_state(provider, lang)
+    api_base = os.getenv("API_BASE_URL", "http://localhost:8000")
+    redirect_uri = f"{api_base}/api/v1/auth/oauth/{provider}/callback"
+    params = urlencode({
+        "client_id": config.client_id,
+        "redirect_uri": redirect_uri,
+        "response_type": "code",
+        "scope": config.scope,
+        "state": state,
+    })
+    return RedirectResponse(f"{config.authorize_url}?{params}")
+
+
+@router.get("/oauth/{provider}/callback")
+async def oauth_callback(
+    provider: str,
+    code: Optional[str] = None,
+    state: Optional[str] = None,
+    error: Optional[str] = None,
+):
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
+    def fail(lang: str, reason: str):
+        return RedirectResponse(f"{frontend_url}/{lang}/oauth/callback?error={reason}")
+
+    if error or not code or not state:
+        return fail("en", error or "access_denied")
+
+    if provider not in OAUTH_PROVIDERS:
+        return fail("en", "unknown_provider")
+
+    state_payload = verify_oauth_state(state, provider)
+    if not state_payload:
+        return fail("en", "invalid_state")
+
+    lang = state_payload.get("lang", "en")
+    config = OAUTH_PROVIDERS[provider]
+    api_base = os.getenv("API_BASE_URL", "http://localhost:8000")
+    redirect_uri = f"{api_base}/api/v1/auth/oauth/{provider}/callback"
+
+    async with httpx.AsyncClient() as client:
+        token_res = await client.post(config.token_url, data={
+            "client_id": config.client_id,
+            "client_secret": config.client_secret,
+            "code": code,
+            "redirect_uri": redirect_uri,
+            "grant_type": "authorization_code",
+        }, headers={"Accept": "application/json"})
+
+        if token_res.status_code != 200:
+            logger.error(f"OAuth token exchange failed: {token_res.text}")
+            return fail(lang, "token_exchange_failed")
+
+        access_token = token_res.json().get("access_token")
+
+        userinfo_res = await client.get(config.userinfo_url, headers={
+            "Authorization": f"Bearer {access_token}",
+        })
+
+        if userinfo_res.status_code != 200:
+            logger.error(f"OAuth userinfo fetch failed: {userinfo_res.text}")
+            return fail(lang, "userinfo_failed")
+
+        userinfo = userinfo_res.json()
+
+    provider_user_id = str(
+        userinfo.get("sub") or userinfo.get("oid") or userinfo.get("id") or ""
+    )
+    email = (
+        userinfo.get(config.email_field)
+        or userinfo.get("email")
+        or userinfo.get("preferred_username")
+        or ""
+    )
+    first_name = userinfo.get(config.first_name_field, "")
+    last_name = userinfo.get(config.last_name_field, "")
+    picture_url = userinfo.get("picture") or userinfo.get("picture_url") or None
+
+    if not email or not provider_user_id:
+        return fail(lang, "missing_user_info")
+
+    user = get_user_by_email(email)
+    if not user:
+        with get_session() as session:
+            session.expire_on_commit = False
+            user = models.User(
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                picture_url=picture_url,
+                is_approved=False,
+                role=DEFAULT_ROLE,
+            )
+            session.add(user)
+            session.commit()
+            session.refresh(user)
+        logger.info(f"Created new user via OAuth ({provider}): {email}")
+    elif picture_url and user.picture_url != picture_url:
+        with get_session() as session:
+            session.expire_on_commit = False
+            db_user = session.exec(select(models.User).where(models.User.id == user.id)).one()
+            db_user.picture_url = picture_url
+            session.add(db_user)
+            session.commit()
+            session.refresh(db_user)
+            user = db_user
+
+    with get_session() as session:
+        existing_link = session.exec(
+            select(models.OAuthAccount)
+            .where(models.OAuthAccount.provider == provider)
+            .where(models.OAuthAccount.provider_user_id == provider_user_id)
+        ).first()
+        if not existing_link:
+            session.add(models.OAuthAccount(
+                user_id=user.id,
+                provider=provider,
+                provider_user_id=provider_user_id,
+            ))
+            session.commit()
+
+    jwt_token = create_access_token(user, datetime.utcnow() + timedelta(days=15))
+    return RedirectResponse(f"{frontend_url}/{lang}/oauth/callback?token={jwt_token}")
 
 
 @router.post("/patient")

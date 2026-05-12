@@ -13,6 +13,7 @@ import AdminUsersPage from "./lib/pages/AdminUsersPage";
 import DatasetsPage from "./lib/pages/DatasetsPage";
 import Login from "./lib/pages/LoginPage";
 import Register from "./lib/pages/RegisterPage";
+import OAuthCallbackPage from "./lib/pages/OAuthCallbackPage";
 import ProtectedRoute from "./lib/components/ProtectedRoute";
 import { AuthProvider } from "./lib/store/auth";
 import { ThemeProvider } from "./lib/store/theme";
@@ -52,6 +53,7 @@ function LanguageScopedApp() {
             </Route>
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
+            <Route path="oauth/callback" element={<OAuthCallbackPage />} />
             <Route path="*" element={<Navigate to="." replace />} />
           </Route>
         </Routes>

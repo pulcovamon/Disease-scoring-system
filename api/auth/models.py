@@ -10,6 +10,7 @@ class UserBase(SQLModel):
     last_name: Optional[str] = ""
     email: EmailStr = Field(sa_column_kwargs={"unique": True}, index=True)
     username: Optional[str] = Field(default=None, sa_column_kwargs={"unique": True}, index=True)
+    picture_url: Optional[str] = Field(default=None)
     
 class UserCreate(UserBase):
     password: str
@@ -31,6 +32,13 @@ class UserID(SQLModel):
 
 class UserRoleUpdate(SQLModel):
     role: str
+
+class OAuthAccount(SQLModel, table=True):
+    __tablename__ = "oauth_accounts"
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(foreign_key="users.id", index=True)
+    provider: str = Field(index=True)
+    provider_user_id: str
 
 class Token(SQLModel):
     access_token: str
