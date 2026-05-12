@@ -16,3 +16,4 @@ pyjwt==2.8.0
 pymysql
 cryptography>=43.0.0
 httpx>=0.27.0
+onnx>=1.16.0
