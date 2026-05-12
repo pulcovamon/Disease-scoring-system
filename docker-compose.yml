@@ -91,6 +91,8 @@ services:
       REDIS_URL: "redis://redis_server:6379"
       MODEL_STORAGE_PATH: "/models"
       C_FORCE_ROOT: "true"
+      LC_ALL: C.UTF-8
+      LANG: C.UTF-8
     volumes:
       - "model_storage:/models"
     networks:
