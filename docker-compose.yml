@@ -60,6 +60,8 @@ services:
 
   api:
     build: ./api
+    env_file:
+      - .env
     environment:
       MONGO_URL: "mongodb://root:pass@catalog_db:27017"
       REDIS_URL: "redis://redis_server:6379"
