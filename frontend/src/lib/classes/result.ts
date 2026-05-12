@@ -1,4 +1,4 @@
-import { buildApiUrl, getMethod } from "./api";
+import { getMethod } from "./api";
 import HTTPError from "./httpError";
 
 export interface BulkPrediction {
@@ -50,7 +50,7 @@ export class Results {
   public message: string | null = null;
 
   public async getAllResults() {
-    return getMethod<Task[]>(buildApiUrl("/prediction/result/"))
+    return getMethod<Task[]>("/prediction/result/")
       .then((response) => {
         const tasks = response as Task[];
         this.tasks = tasks.map((task) => ({
@@ -81,7 +81,7 @@ export class Results {
 
   public async getTaskById(taskId: string): Promise<Task> {
     try {
-      const task = await getMethod<Task>(buildApiUrl(`/prediction/result/${taskId}`));
+      const task = await getMethod<Task>(`/prediction/result/${taskId}`);
       return task;
     } catch (error) {
       console.error(`Failed to fetch task with ID ${taskId}:`, error);
