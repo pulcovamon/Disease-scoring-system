@@ -120,6 +120,13 @@ services:
     networks:
       - scoring-system
 
+  docs:
+    build: .docs
+    ports: 
+    - "8000:8000"
+    networks:
+      - scoring-system
+
   proxy:
     image: nginx:alpine 
     ports:

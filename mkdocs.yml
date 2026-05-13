@@ -47,3 +47,4 @@ nav:
   - Prediction Flow: prediction_flow.md
   - Model Upload: model_upload.md
   - User Roles: user_roles.md
+  - Training Pipeline: training.md
